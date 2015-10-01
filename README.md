@@ -10,4 +10,4 @@ Other possible titles :
 
 ## Wut ?
 
-That's just a stack-based calculator with a dumb name. It's actually a programming class assignment.
+That's just an infinite precision stack-based calculator with a dumb name. It's actually a programming class assignment.
