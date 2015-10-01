@@ -1,13 +1,20 @@
 # Tout doux
 
-- [ ] Faire un stack (avec des `struct`)
-- [ ] Lecture de l'entrée dans un stack
+- [ ] **adelrune** : Faire un stack (avec des `struct`)
+   - [ ] stack_push
+   - [ ] stack_pop
+   - [ ] stack_peek
+   - [ ] stack_empty
+   - [ ] Stack de bignums au lieu de stack de int (après les premiers tests)
+- [ ] **316k** : BigNum pour les opérations à précision infinie sur des int
+   - [ ] Opérations sur les BigNums
+   - [ ] Lecture de l'entrée dans un bignum
 - [ ] Évaluation du top du stack (+ - *)
-- [ ] Assignation du top du stack dans des variables et assignations de variables par références (=x =y)
-- [ ] Libération de la mémoire qui ne sera plus utilisée (genre, 10 =x =y 200 =x 500 =y ---> le 10 ne devrait plus être nulle part)
-- [ ] BigNum pour les opérations à précision infinie sur des int
-   -  [ ] Opérations sur les BigNums
-   -  [ ] Conversion string en input => BigNum
+- [ ] Variables
+   - [ ] Assignation du top du stack dans des variables (10 =x)
+   - [ ] assignations de variables par références (10 =x =y)
+   - [ ] Lecture des variables vers le top stack (10 a +)
+   - [ ] Libération de la mémoire qui ne sera plus utilisée (genre, 10 =x =y 200 =x 500 =y ---> le 10 ne devrait plus être nulle part)
 - [ ] Messages d'erreur possibles (à la fin, penser aux cas où ça peut planter)
    -  [ ] Accès à une variable qui n'existe pas
    -  [ ] Input invalide en général
