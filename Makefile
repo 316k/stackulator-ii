@@ -3,7 +3,7 @@ CFLAGS=-Wall
 
 build: *.c
 	clear
-	$(CC) -o stackulator *.c $(CFLAGS)
+	$(CC) -o stackulator stackulator.c $(CFLAGS)
 
 clean:
 	rm *.o *~
