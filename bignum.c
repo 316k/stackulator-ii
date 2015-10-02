@@ -17,13 +17,18 @@ struct bignum {
 bignum*
 bignum_fromstr(char str[]) {
    bignum* num = malloc(sizeof(bignum));
-   /*
-   bigdigit digit = NULL;
+   bigdigit* digit = NULL;
    int i;
 
    for(i=0; i< strlen(str); i++) {
        digit = malloc(sizeof(bigdigit));
+       free(digit);
    }
-   */
-    return num;
+
+   return num;
 }
+
+void bignum_add(bignum* dest, bignum* add) {
+
+}
+
