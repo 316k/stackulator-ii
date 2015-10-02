@@ -15,8 +15,7 @@ struct bignum {
     bigdigit* first;
 };
 
-bigdigit**
-bignum_nextdigit(bignum* num) {
+bigdigit** bignum_nextdigit_addr(bignum* num) {
     bigdigit** ptr_addr = NULL;
     
     ptr_addr = &num->first;
@@ -28,55 +27,43 @@ bignum_nextdigit(bignum* num) {
     return ptr_addr;
 }
 
-bignum*
-bignum_fromstr(char str[]) {
+bignum* bignum_fromstr(char str[]) {
     int i;
     // New bignum
     bignum* num = malloc(sizeof(bignum));
     bigdigit* digit = NULL;
+    
+    bigdigit** next = &num->first;
 
     for(i = strlen(str) - 1;  i >= 0; i--) {
         digit = malloc(sizeof(bigdigit));
         digit->value = str[i-1] - '0';
         
-        // printf("%x ", bignum_nextdigit(num));
-        
-        // *(bignum_nextdigit(num)) = digit;
+        *next = digit;
+        next = &digit->next;
     }
 
     return num;
 }
 
-bignum*
-bignum_tostr(char str[]) {
-    int i;
-    // New bignum
-    bignum* num = malloc(sizeof(bignum));
-    bigdigit* digit = NULL;
-
-    for(i = strlen(str) - 1;  i >= 0; i--) {
-        digit = malloc(sizeof(bigdigit));
-        digit->value = str[i-1] - '0';
-        
-        // printf("%x ", bignum_nextdigit(num));
-        
-        // *(bignum_nextdigit(num)) = digit;
-    }
-
-    return num;
+long bignum_len(bignum* num) {
+    long len = 0;
+    
+    return len;
 }
 
-void
-bignum_add(bignum* dest, bignum* operande) {
+char* bignum_tostr(char str[]) {
+    return "nopes";
+}
+
+void bignum_add(bignum* dest, bignum* operande) {
 
 }
 
-void
-bignum_sub(bignum* dest, bignum* operande) {
+void bignum_sub(bignum* dest, bignum* operande) {
 
 }
 
-void
-bignum_mul(bignum* dest, bignum* operande) {
+void bignum_mul(bignum* dest, bignum* operande) {
 
 }
