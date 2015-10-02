@@ -1,7 +1,9 @@
-void assert(char exp, int line) {
+char assert(char exp, int line) {
     if(exp != 1) {
         printf("\n** Assertion failed ** : see line %d\n", line);
     }
+
+    return exp != 1;
 }
 
 void test_bignum_nextdigit() {
@@ -10,7 +12,7 @@ void test_bignum_nextdigit() {
     num.sign = 0;
     num.first = NULL;
     
-    bigdigit* digit = bignum_nextdigit(&num);
+    bigdigit* digit = *bignum_nextdigit(&num);
     
     assert(num.first == digit, __LINE__);
     
@@ -21,8 +23,7 @@ void test_bignum_nextdigit() {
     
     num.first = &newdigit;
     
-    printf("%x %x", &newdigit, &num.first, bignum_nextdigit(&num));
-    assert(bignum_nextdigit(&num)->value == newdigit.value, __LINE__);
+    assert(bignum_nextdigit(&num) == &newdigit.next, __LINE__);
 }
 
 void test_stack_push() {
