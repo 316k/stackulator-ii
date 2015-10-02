@@ -8,6 +8,10 @@
 
 int main(int argc, char* argv[]) {
     test_bignum_nextdigit_addr();
+    test_stack_push();
+    test_stack_peek();
+    test_stack_pop();
+    test_stack_empty();
     
     return EXIT_SUCCESS;
 }
