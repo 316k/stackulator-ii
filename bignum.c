@@ -15,17 +15,17 @@ struct bignum {
     bigdigit* first;
 };
 
-bigdigit*
+bigdigit**
 bignum_nextdigit(bignum* num) {
-    bigdigit* ptr = NULL;
+    bigdigit** ptr_addr = NULL;
     
-    ptr = num->first;
+    ptr_addr = &num->first;
     
-    while(ptr != NULL) {
-        ptr = ptr->next;
+    while(*ptr_addr != NULL) {
+        ptr_addr = &(*ptr_addr)->next;
     }
     
-    return ptr;
+    return ptr_addr;
 }
 
 bignum*
