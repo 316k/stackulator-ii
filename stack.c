@@ -1,20 +1,19 @@
 // Requires bignum.c to be included first
 
-typedef struct stack_cell stack_cell;
-
-struct stack_cell {
+typedef struct {
     char element;
-    stack_cell *next_element;
-};
+    char *next_element;
+} stack_cell;
 
-struct stack {
+typedef struct {
     stack_cell *top;
-};
-
-typedef struct stack stack;
+} stack;
 
 void push(stack *the_stack ,char element){
     stack_cell new_cell = {element, the_stack->top};
     the_stack->top = &new_cell;
 }
 
+int main(){
+    return EXIT_SUCCESS;
+}
