@@ -44,5 +44,26 @@ void test_stack_peek(){
 }
 
 void test_stack_pop(){
-    stack *s = new_stack
+    stack *s = new_stack();
+    
+    push(s,8);
+    push(s,9);
+    push(s,34);
+    push(s,-34);
+    
+    assert(pop(s) == -34 , __LINE__);
+    assert(pop(s) == 34 , __LINE__);
+    assert(pop(s) == 9 , __LINE__);
+    assert(pop(s) == 8 , __LINE__);
+}
+
+void test_stack_empty(){
+    stack *s = new_stack();
+    
+    assert(empty(s), __LINE__);
+    
+    push(s,-34);
+    pop(s);
+    
+    assert(empty(s), __LINE__);
 }
