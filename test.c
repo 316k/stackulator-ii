@@ -25,3 +25,23 @@ void test_bignum_nextdigit() {
     assert(bignum_nextdigit(&num)->value == newdigit.value, __LINE__);
 }
 
+void test_stack_push() {
+    stack *s = new_stack();
+    
+    push(s, 8);
+    assert(s->top->element == 8 , __LINE__);
+    
+    push(s, 7);
+    assert(s->top->element == 7, __LINE__);
+}
+
+void test_stack_peek(){
+    stack *s = new_stack();
+    
+    push(s, 8);
+    assert(s->top->element == 8, __LINE__);
+}
+
+void test_stack_pop(){
+    stack *s = new_stack
+}
