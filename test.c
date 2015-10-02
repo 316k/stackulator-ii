@@ -6,13 +6,13 @@ char assert(char exp, int line) {
     return exp != 1;
 }
 
-void test_bignum_nextdigit() {
+void test_bignum_nextdigit_addr() {
     bignum num;
     
     num.sign = 0;
     num.first = NULL;
     
-    bigdigit* digit = *bignum_nextdigit(&num);
+    bigdigit* digit = *bignum_nextdigit_addr(&num);
     
     assert(num.first == digit, __LINE__);
     
@@ -23,6 +23,6 @@ void test_bignum_nextdigit() {
     
     num.first = &newdigit;
     
-    assert(bignum_nextdigit(&num) == &newdigit.next, __LINE__);
+    assert(bignum_nextdigit_addr(&num) == &newdigit.next, __LINE__);
 }
 
