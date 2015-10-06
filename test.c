@@ -54,6 +54,21 @@ void test_bignum_fromstr() {
     ASSERT(strcmp(bignum_tostr(*a), "5") == 0);
 }
 
+void test_bignum_clean() {
+    bignum* a = bignum_fromstr("0000012345");
+    bignum* b = bignum_fromstr("0012345");
+    bignum* c = bignum_fromstr("-0012345");
+    bignum* d = bignum_fromstr("-12345");
+
+    bignum_clean(a);
+    bignum_clean(b);
+    ASSERT(strcmp(bignum_tostr(*a), bignum_tostr(*b)) == 0);
+    bignum_clean(c);
+    bignum_clean(d);
+
+    ASSERT(strcmp(bignum_tostr(*c), bignum_tostr(*d)) == 0);
+}
+
 void test_bignum_gt() {
 
     bignum* h = bignum_fromstr("-10");
@@ -175,9 +190,12 @@ void test_all() {
     // bignum.c
     test_bignum_tostr();
     test_bignum_fromstr();
+    test_bignum_clean();
     test_bignum_gt();
     test_bignum_add();
+    /*
 	test_bignum_mul();
+	*/
     // stack.c
     test_stack_push();
     test_stack_peek();

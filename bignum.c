@@ -29,6 +29,40 @@ void destroya_bignum(bignum* num) {
     }
 }
 
+/**
+ * Détruit les trailing zéros
+ */
+void bignum_clean(bignum* num) {
+    int len = bignum_len(*num), relevant_size = 0, i;
+    bigdigit** digit_addr = &num->first;
+    bigdigit** current = NULL;
+    bigdigit** next = NULL;
+    bigdigit** prev = NULL;
+
+    for(i = 0; i < len; i++) {
+        relevant_size = (*digit_addr)->value ? i : relevant_size;
+        digit_addr = &(*digit_addr)->next;
+    }
+
+    relevant_size++;
+
+    digit_addr = &num->first;
+
+    for(i = 0; i<relevant_size; i++) {
+        prev = digit_addr;
+        digit_addr = &(*digit_addr)->next;
+    }
+
+    current = digit_addr;
+
+    for(i = relevant_size; i < len; i++) {
+        next = &(*current)->next;
+        free(*current);
+        current = next;
+    }
+    (*prev)->next = NULL;
+}
+
 bignum* bignum_fromstr(char str[]) {
     int i;
 
@@ -47,6 +81,8 @@ bignum* bignum_fromstr(char str[]) {
     }
 
     *next = NULL;
+
+    bignum_clean(num); // Lazy way
 
     return num;
 }
@@ -69,7 +105,9 @@ int bignum_len(bignum num) {
 }
 
 char* bignum_tostr(bignum num) {
-    int len = bignum_len(num), relevant_size = 0, i;
+    // Assume que num a été `bignum_cleané`
+
+    int len = bignum_len(num), i;
     bigdigit** digit_addr = &num.first;
 
     // Traite le '0' seul
@@ -77,14 +115,7 @@ char* bignum_tostr(bignum num) {
         return "0";
     }
 
-    for(i = 0; i < len; i++) {
-        relevant_size = (*digit_addr)->value ? i : relevant_size;
-        digit_addr = &(*digit_addr)->next;
-    }
-
-    relevant_size = relevant_size + 1;
-
-    char* out = malloc(sizeof(char) * (relevant_size + 1 + num.sign));
+    char* out = malloc(sizeof(char) * (len + 1 + num.sign));
 
     if(num.sign) {
         out[0] = '-';
@@ -92,26 +123,62 @@ char* bignum_tostr(bignum num) {
 
     digit_addr = &num.first;
 
-    for(i = relevant_size + num.sign; i > num.sign; i--) {
+    for(i = len + num.sign; i > num.sign; i--) {
         out[i-1] = (*digit_addr)->value + '0';
         digit_addr = &(*digit_addr)->next;
     }
 
-    out[relevant_size + num.sign] = '\0';
+    out[len + num.sign] = '\0';
 
     return out;
 }
 
 char bignum_absgt(bignum a, bignum b) {
-    char size = max(bignum_len(a), bignum_len(b));
+    // Assume que num a été `bignum_cleané`
+
+    int size_a = bignum_len(a), size_b = bignum_len(b), i;
+
+    a.sign = b.sign = 0;
+
+    if(size_a != size_b) {
+        return size_a > size_b;
+    }
+
+    bigdigit** ptr_addr_a = &a.first;
+    bigdigit** ptr_addr_b = &b.first;
+    
+    for(i = 0; i < size_a; i++) {
+        if((*ptr_addr_a)->value != (*ptr_addr_b)->value) {
+            return FALSE;
+        }
+        ptr_addr_a = &(*ptr_addr_a)->next;
+        ptr_addr_b = &(*ptr_addr_b)->next;
+    }
 
     return 0;
 }
 
 // Returns a == b
 char bignum_eq(bignum a, bignum b) {
-    char size = max(bignum_len(a), bignum_len(b));
-    return strcmp(strpad(bignum_tostr(a), '0', size), strpad(bignum_tostr(b), '0', size)) == 0;
+    // Assume que num a été `bignum_cleané`
+    int size_a = bignum_len(a), size_b = bignum_len(b), i;
+    
+    if(size_a != size_b || a.sign != b.sign) {
+        return FALSE;
+    }
+    
+    bigdigit** ptr_addr_a = &a.first;
+    bigdigit** ptr_addr_b = &b.first;
+    
+    for(i = 0; i < size_a; i++) {
+        if((*ptr_addr_a)->value != (*ptr_addr_b)->value) {
+            return FALSE;
+        }
+        ptr_addr_a = &(*ptr_addr_a)->next;
+        ptr_addr_b = &(*ptr_addr_b)->next;
+    }
+    
+    return TRUE;
 }
 
 bignum* bignum_add(bignum a, bignum b) {
@@ -161,6 +228,8 @@ bignum* bignum_add(bignum a, bignum b) {
         *next = digit;
         next = &digit->next;
     }
+
+    bignum_clean(sum);
 
     return sum;
 }

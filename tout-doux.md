@@ -1,10 +1,10 @@
 # Tout doux
 
 - [ ] **adelrune** : Faire un stack (avec des `struct`)
-   - [ ] stack_push
-   - [ ] stack_pop
-   - [ ] stack_peek
-   - [ ] stack_empty
+   - [X] stack_push
+   - [X] stack_pop
+   - [X] stack_peek
+   - [X] stack_empty
    - [ ] Stack de bignums au lieu de stack de int (après les premiers tests)
 - [ ] **316k** : BigNum pour les opérations à précision infinie sur des int
    - [ ] Opérations sur les BigNums
