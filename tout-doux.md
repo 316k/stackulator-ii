@@ -1,6 +1,6 @@
 # Tout doux
 
-- [ ] **adelrune** : Faire un stack (avec des `struct`)
+- [X] **adelrune** : Faire un stack (avec des `struct`)
    - [X] stack_push
    - [X] stack_pop
    - [X] stack_peek

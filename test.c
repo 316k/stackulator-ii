@@ -144,44 +144,59 @@ void test_bignum_mul() {
 
 void test_stack_push() {
     stack *s = new_stack();
+    smallnum a = {8};
+    smallnum b = {7};
+    
+    push(s, a);
+    ASSERT(s->top->element.element == 8 );
 
-    push(s, 8);
-    ASSERT(s->top->element == 8 );
-
-    push(s, 7);
-    ASSERT(s->top->element == 7);
+    push(s, b);
+    ASSERT(s->top->element.element == 7);
 }
 
 void test_stack_peek(){
     stack *s = new_stack();
-
-    push(s, 8);
-    ASSERT(s->top->element == 8);
+    smallnum a = {8};
+    push(s, a);
+    
+    ASSERT(peek(s).element == 8);
 }
 
 void test_stack_pop(){
     stack *s = new_stack();
+    
+    smallnum a = {8};
+    smallnum b = {9};
+    smallnum c = {34};
+    smallnum d = {-34};
+    
+    push(s, a);
+    push(s, b);
+    push(s, c);
+    push(s, d);
 
-    push(s,8);
-    push(s,9);
-    push(s,34);
-    push(s,-34);
-
-    ASSERT(pop(s) == -34 );
-    ASSERT(pop(s) == 34 );
-    ASSERT(pop(s) == 9 );
-    ASSERT(pop(s) == 8 );
+    ASSERT(pop(s).element == -34 );
+    ASSERT(pop(s).element == 34 );
+    ASSERT(pop(s).element == 9 );
+    ASSERT(pop(s).element == 8 );
 }
 
 void test_stack_empty(){
     stack *s = new_stack();
-
+    smallnum a = {6};
     ASSERT(empty(s));
 
-    push(s,-34);
+    push(s, a);
     pop(s);
 
     ASSERT(empty(s));
+}
+
+void test_stack(){
+    test_stack_push();
+    test_stack_peek();
+    test_stack_pop();
+    test_stack_empty();
 }
 
 void test_all() {
