@@ -5,9 +5,10 @@
    - [X] stack_pop
    - [X] stack_peek
    - [X] stack_empty
-   - [ ] Stack de bignums au lieu de stack de int (après les premiers tests)
-- [ ] **316k** : BigNum pour les opérations à précision infinie sur des int
-   - [ ] Opérations sur les BigNums
+   - [X] Stack de bignums au lieu de stack de int (après les premiers tests)
+- [ ] **316k** : bignum pour les opérations à précision infinie (presque) sur des int
+   - [X] Opérations sur les bignum
+      - [ ] Multiplication moins tarée
    - [ ] Lecture de l'entrée dans un bignum
 - [ ] Évaluation du top du stack (+ - *)
 - [ ] Variables

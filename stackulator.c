@@ -7,8 +7,33 @@
 #include "stack.c"
 #include "test.c"
 
+
+#define input_isnt(truc) \
+    (c = getchar()) != truc
+
 int main(int argc, char* argv[]) {
     test_all();
-    //test_stack();
+
+    char c = ' ';
+
+    while((c = getchar()) != EOF) {
+        if(c >= '1' && c <= '9') {
+            printf("Nombre entré : %c", c);
+            while(c != ' ' && c != '\n') {
+                c = getchar();
+                printf("%c", c);
+            }
+            printf("\n");
+        } else if(c == ' ' || c == '\n') {
+        } else {
+            printf("Impossible de comprendre %c", c);
+            while(c != ' ' && c != '\n') {
+                c = getchar();
+                printf("%c", c);
+            }
+            printf("\n");
+        }
+    }
+
     return EXIT_SUCCESS;
 }
