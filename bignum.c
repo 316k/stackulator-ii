@@ -92,6 +92,9 @@ bignum* bignum_fromstr(char str[]) {
     int i;
 
     bignum* num = malloc(sizeof(bignum));
+
+    please_dont_segfault(num);
+
     bigdigit* digit = NULL;
     num->sign = str[0] == '-';
 
@@ -99,6 +102,9 @@ bignum* bignum_fromstr(char str[]) {
 
     for(i = strlen(str); i > num->sign; i--) {
         digit = malloc(sizeof(bigdigit));
+
+        please_dont_segfault(digit);
+
         digit->value = str[i - 1] - '0';
 
         *next = digit;
@@ -128,6 +134,8 @@ char* bignum_tostr(bignum num) {
 
     char* out = malloc(sizeof(char) * (len + 1 + num.sign));
 
+    please_dont_segfault(out);
+
     if(num.sign) {
         out[0] = '-';
     }
@@ -150,6 +158,8 @@ char* bignum_tostr(bignum num) {
 bignum* bignum_rev(bignum num) {
     bignum* rev = malloc(sizeof(bignum));
 
+    please_dont_segfault(rev);
+
     bigdigit* rev_digit = NULL;
     bigdigit** digit_addr = &num.first;
     bigdigit* prev_addr = NULL;
@@ -158,6 +168,9 @@ bignum* bignum_rev(bignum num) {
     while(*digit_addr != NULL) {
 
         rev_digit = malloc(sizeof(bigdigit));
+
+        please_dont_segfault(rev_digit);
+
         rev_digit->next = prev_addr;
         rev_digit->value = (*digit_addr)->value;
 
@@ -250,6 +263,9 @@ bignum* bignum_add(bignum a, bignum b) {
     int size_a = bignum_len(a), size_b = bignum_len(b), max_size = max(size_a, size_b);
 
     bignum* sum = malloc(sizeof(bignum));
+
+    please_dont_segfault(sum);
+
     bigdigit* digit = NULL;
     bigdigit** da = &a.first;
     bigdigit** db = &b.first;
@@ -268,6 +284,9 @@ bignum* bignum_add(bignum a, bignum b) {
 
     for(i = 0; i < max_size + 1; i++) {
         digit = malloc(sizeof(bigdigit));
+
+        please_dont_segfault(digit);
+
         digit->value = carry;
 
         if(i < size_a) {
@@ -305,8 +324,8 @@ bignum* bignum_mul(bignum a, bignum b) {
         prod = bignum_add(*prod, a);
     }
 
-    //bignum_destoroyah(zero);
-    //bignum_destoroyah(dec);
+    bignum_destoroyah(zero);
+    bignum_destoroyah(dec);
 
     return prod;
 }

@@ -3,7 +3,13 @@
 #define FALSE 0
 #define TRUE 1
 
-#define die() printf("FIN DE MÉMOIRE. FIN DE TOUTE. FUYEZ !! FUYEZ PAUVRES FOUS !! (%s at line %d)\n", __func__, __LINE__); exit(-1);
+#define please_dont_segfault(stuff) \
+    if(stuff == NULL) { \
+        printf("FIN DE MÉMOIRE. FIN DE TOUTE. FUYEZ !! FUYEZ PAUVRES FOUS !! (%s at line %d)\n", __func__, __LINE__); \
+        exit(-1); \
+    }
+
+
 
 char min(int a, int b) {
     return a <= b ? a : b;
@@ -20,10 +26,7 @@ char* strpad(char str[], char pad, int size) {
 
     char* out = malloc(sizeof(char) * size + 1);
     
-    if(out == NULL) {
-        die();
-        return NULL;
-    }
+    please_dont_segfault(out);
     
     
     int i;

@@ -149,18 +149,15 @@ void test_bignum_mul() {
     bignum* b = bignum_fromstr("2");
     bignum* c = bignum_fromstr("3");
     bignum* d = bignum_fromstr("6");
-    bignum* e = bignum_fromstr("124908901283901283019283");
-    // bignum* f = bignum_fromstr("1498906815406815396231396");
+    bignum* e = bignum_fromstr("1287632");
+    bignum* f = bignum_fromstr("7725792");
 
     ASSERT(bignum_eq(*bignum_mul(*a, *a), *a));
 
     ASSERT(bignum_eq(*bignum_mul(*a, *b), *b));
     ASSERT(bignum_eq(*bignum_mul(*a, *d), *d));
     ASSERT(bignum_eq(*bignum_mul(*b, *c), *d));
-    printf("%s", bignum_tostr(*bignum_mul(*d, *e)));
-    /*
     ASSERT(bignum_eq(*bignum_mul(*d, *e), *f));
-    */
 }
 
 void test_stack_push() {
@@ -213,13 +210,6 @@ void test_stack_empty(){
     ASSERT(empty(s));
 }
 
-void test_stack(){
-    test_stack_push();
-    test_stack_peek();
-    test_stack_pop();
-    test_stack_empty();
-}
-
 void test_all() {
     // help.c
     test_strpad();
@@ -231,9 +221,7 @@ void test_all() {
     test_bignum_rev();
     test_bignum_gt();
     test_bignum_add();
-    /*
 	test_bignum_mul();
-	*/
     // stack.c
     test_stack_push();
     test_stack_peek();
