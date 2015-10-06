@@ -17,16 +17,38 @@ struct bignum {
     bigdigit* first;
 };
 
-void destroya_bignum(bignum* num) {
+/**
+ * free() le bignum et tous les bigdigits associés
+ */
+void bignum_destoroyah(bignum* num) {
     // Vive les bignums libres !
-    bigdigit** current = &num->first;
-    bigdigit** next = NULL;
+    bigdigit* current = num->first;
+    bigdigit* next = NULL;
 
     while(current != NULL) {
-        next = &(*current)->next;
-        free(*current);
+        next = current->next;
+        free(current);
         current = next;
     }
+
+    free(num);
+}
+
+/*
+ * Donne la taille du bignum (le nombre de digits, sans le signe '-')
+ */
+int bignum_len(bignum num) {
+    long len = 0;
+    bigdigit** ptr_addr = NULL;
+
+    ptr_addr = &num.first;
+
+    while(*ptr_addr != NULL) {
+        len++;
+        ptr_addr = &(*ptr_addr)->next;
+    }
+
+    return len;
 }
 
 /**
@@ -63,6 +85,9 @@ void bignum_clean(bignum* num) {
     (*prev)->next = NULL;
 }
 
+/**
+ * Construit un bignum depuis une string
+ */
 bignum* bignum_fromstr(char str[]) {
     int i;
 
@@ -87,23 +112,9 @@ bignum* bignum_fromstr(char str[]) {
     return num;
 }
 
-/*
- * Donne la taille du bignum (le nombre de digits, sans le signe '-')
+/**
+ * Donne la représentation en char* d'un bignum
  */
-int bignum_len(bignum num) {
-    long len = 0;
-    bigdigit** ptr_addr = NULL;
-
-    ptr_addr = &num.first;
-
-    while(*ptr_addr != NULL) {
-        len++;
-        ptr_addr = &(*ptr_addr)->next;
-    }
-
-    return len;
-}
-
 char* bignum_tostr(bignum num) {
     // Assume que num a été `bignum_cleané`
 
@@ -133,8 +144,41 @@ char* bignum_tostr(bignum num) {
     return out;
 }
 
+/**
+ * Construit un bignum avec les digits de num inversés
+ */
+bignum* bignum_rev(bignum num) {
+    bignum* rev = malloc(sizeof(bignum));
+
+    bigdigit* rev_digit = NULL;
+    bigdigit** digit_addr = &num.first;
+    bigdigit* prev_addr = NULL;
+
+    // Construit le nouveau bignum à l'envers
+    while(*digit_addr != NULL) {
+
+        rev_digit = malloc(sizeof(bigdigit));
+        rev_digit->next = prev_addr;
+        rev_digit->value = (*digit_addr)->value;
+
+        prev_addr = rev_digit;
+        digit_addr = &(*digit_addr)->next;
+    }
+
+    rev->sign = num.sign;
+    rev->first = prev_addr;
+
+    // Attention : les trailing zéros sont importants dans le contexte d'un bignum inversé
+
+    return rev;
+}
+
+/**
+ * Donne le booléen `abs(a) > abs(b)`.
+ * Utilisé pour l'addition.
+ */
 char bignum_absgt(bignum a, bignum b) {
-    // Assume que num a été `bignum_cleané`
+    // Assume que a et b ont été `bignum_cleanés`
 
     int size_a = bignum_len(a), size_b = bignum_len(b), i;
 
@@ -144,32 +188,44 @@ char bignum_absgt(bignum a, bignum b) {
         return size_a > size_b;
     }
 
-    bigdigit** ptr_addr_a = &a.first;
-    bigdigit** ptr_addr_b = &b.first;
-    
+    bignum* ar = bignum_rev(a);
+    bignum* br = bignum_rev(b);
+
+    bigdigit** ptr_addr_a = &ar->first;
+    bigdigit** ptr_addr_b = &br->first;
+
     for(i = 0; i < size_a; i++) {
-        if((*ptr_addr_a)->value != (*ptr_addr_b)->value) {
-            return FALSE;
+        if((*ptr_addr_a)->value > (*ptr_addr_b)->value) {
+
+            bignum_destoroyah(ar);
+            bignum_destoroyah(br);
+
+            return TRUE;
         }
         ptr_addr_a = &(*ptr_addr_a)->next;
         ptr_addr_b = &(*ptr_addr_b)->next;
     }
 
-    return 0;
+    bignum_destoroyah(ar);
+    bignum_destoroyah(br);
+
+    return FALSE;
 }
 
-// Returns a == b
+/**
+ * Donne le booléen `a == b`
+ */
 char bignum_eq(bignum a, bignum b) {
     // Assume que num a été `bignum_cleané`
     int size_a = bignum_len(a), size_b = bignum_len(b), i;
-    
+
     if(size_a != size_b || a.sign != b.sign) {
         return FALSE;
     }
-    
+
     bigdigit** ptr_addr_a = &a.first;
     bigdigit** ptr_addr_b = &b.first;
-    
+
     for(i = 0; i < size_a; i++) {
         if((*ptr_addr_a)->value != (*ptr_addr_b)->value) {
             return FALSE;
@@ -177,7 +233,7 @@ char bignum_eq(bignum a, bignum b) {
         ptr_addr_a = &(*ptr_addr_a)->next;
         ptr_addr_b = &(*ptr_addr_b)->next;
     }
-    
+
     return TRUE;
 }
 
@@ -243,14 +299,14 @@ bignum* bignum_mul(bignum a, bignum b) {
     bignum* prod = bignum_fromstr("0");
     bignum* zero = bignum_fromstr("0");
     bignum* dec = bignum_fromstr("-1");
-    
+
     while(!bignum_eq(b, *zero)) {
         b = *bignum_add(b, *dec); // Decrement b
         prod = bignum_add(*prod, a);
     }
-    
-    //destroya_bignum(zero);
-    //destroya_bignum(dec);
-    
+
+    //bignum_destoroyah(zero);
+    //bignum_destoroyah(dec);
+
     return prod;
 }

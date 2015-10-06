@@ -1,7 +1,6 @@
 #include <string.h>
 #define ASSERT(expr) assert(expr, __func__, __LINE__)
 
-
 char assert(char exp, const char* func, int line) {
     if(exp != 1) {
         printf("** %s ** : Assertion failed in test.c line %d\n", func, line);
@@ -69,6 +68,22 @@ void test_bignum_clean() {
     ASSERT(strcmp(bignum_tostr(*c), bignum_tostr(*d)) == 0);
 }
 
+void test_bignum_destoroyah() {
+    bignum* d = bignum_fromstr("-123325");
+    bignum_destoroyah(d);
+    // Si ça segfault, bah faut croire que le test passe pas
+}
+
+void test_bignum_rev() {
+    bignum* a = bignum_fromstr("12345");
+    bignum* ar = bignum_fromstr("54321");
+    bignum* b = bignum_fromstr("-12345");
+    bignum* br = bignum_fromstr("-54321");
+
+    ASSERT(strcmp(bignum_tostr(*bignum_rev(*a)), bignum_tostr(*ar)) == 0);
+    ASSERT(strcmp(bignum_tostr(*bignum_rev(*b)), bignum_tostr(*br)) == 0);
+}
+
 void test_bignum_gt() {
 
     bignum* h = bignum_fromstr("-10");
@@ -82,6 +97,12 @@ void test_bignum_gt() {
     ASSERT(bignum_absgt(*i, *j));
     ASSERT(bignum_absgt(*h, *z));
     ASSERT(bignum_absgt(*k, *z));
+
+    ASSERT(!bignum_absgt(*h, *i));
+    ASSERT(!bignum_absgt(*j, *i));
+    ASSERT(!bignum_absgt(*z, *h));
+    ASSERT(!bignum_absgt(*z, *k));
+
 }
 
 void test_bignum_add() {
@@ -112,13 +133,13 @@ void test_bignum_add() {
 
     bignum* j = bignum_fromstr("124908901283901283019283124908901283901283019283");
     bignum* k = bignum_fromstr("838972389238961265356241838972389238961265356241");
-    
+
     ASSERT(bignum_eq(*bignum_add(*j, *k), *bignum_fromstr("963881290522862548375524963881290522862548375524")));
-    
+
     bignum* l = bignum_fromstr("0");
-    
+
     ASSERT(bignum_eq(*bignum_add(*k, *l), *k));
-    
+
     ASSERT(bignum_eq(*bignum_add(*bignum_fromstr("0"), *bignum_fromstr("0")), *bignum_fromstr("0")));
 }
 
@@ -146,7 +167,7 @@ void test_stack_push() {
     stack *s = new_stack();
     smallnum a = {8};
     smallnum b = {7};
-    
+
     push(s, a);
     ASSERT(s->top->element.element == 8 );
 
@@ -158,18 +179,18 @@ void test_stack_peek(){
     stack *s = new_stack();
     smallnum a = {8};
     push(s, a);
-    
+
     ASSERT(peek(s).element == 8);
 }
 
 void test_stack_pop(){
     stack *s = new_stack();
-    
+
     smallnum a = {8};
     smallnum b = {9};
     smallnum c = {34};
     smallnum d = {-34};
-    
+
     push(s, a);
     push(s, b);
     push(s, c);
@@ -206,6 +227,8 @@ void test_all() {
     test_bignum_tostr();
     test_bignum_fromstr();
     test_bignum_clean();
+    test_bignum_destoroyah();
+    test_bignum_rev();
     test_bignum_gt();
     test_bignum_add();
     /*
