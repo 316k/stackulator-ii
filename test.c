@@ -1,41 +1,23 @@
 #include <string.h>
+#define ASSERT(expr) assert(expr, __func__, __LINE__)
 
-char assert(char exp, int line) {
+
+char assert(char exp, const char* func, int line) {
     if(exp != 1) {
-        printf("** Assertion failed ** in test.c line %d\n", line);
+        printf("** %s ** : Assertion failed in test.c line %d\n", func, line);
     }
 
     return exp != 1;
 }
 
 void test_strpad() {
-    assert(strcmp(strpad("1230000", '0', 3), "1230000") == 0, __LINE__);
-    assert(strcmp(strpad("123", '0', 5), "00123") == 0, __LINE__);
-}
-
-void test_bignum_nextdigit_addr() {
-    bignum num;
-
-    num.sign = 0;
-    num.first = NULL;
-
-    bigdigit* digit = *bignum_nextdigit_addr(&num);
-
-    assert(num.first == digit, __LINE__);
-
-    bigdigit newdigit;
-
-    newdigit.value = 4;
-    newdigit.next = NULL;
-
-    num.first = &newdigit;
-
-    assert(bignum_nextdigit_addr(&num) == &newdigit.next, __LINE__);
+    ASSERT(strcmp(strpad("1230000", '0', 3), "1230000") == 0);
+    ASSERT(strcmp(strpad("123", '0', 5), "00123") == 0);
 }
 
 void test_bignum_tostr() {
     bignum num;
-    bigdigit d1, d2, d3;
+    bigdigit d1, d2, d3, d0;
 
     d3.value = 3;
     d3.next = NULL;
@@ -47,42 +29,32 @@ void test_bignum_tostr() {
     num.sign = 0;
     num.first = &d1;
 
-    assert(strcmp(bignum_tostr(&num), "121") != 0, __LINE__);
-    assert(strcmp(bignum_tostr(&num), "321") == 0, __LINE__);
+    ASSERT(strcmp(bignum_tostr(num), "121") != 0);
+    ASSERT(strcmp(bignum_tostr(num), "321") == 0);
 
     num.sign = BIGNUM_NEGATIVE;
-    assert(strcmp(bignum_tostr(&num), "-321") == 0, __LINE__);
+
+    ASSERT(strcmp(bignum_tostr(num), "-321") == 0);
+
+    d0.next = NULL;
+    d0.value = 0;
+    num.first = &d0;
+    ASSERT(strcmp(bignum_tostr(num), "0") == 0);
 }
 
 void test_bignum_fromstr() {
     bignum* num = bignum_fromstr("12345");
 
-    assert(strcmp(bignum_tostr(num), "12345") == 0, __LINE__);
+    ASSERT(strcmp(bignum_tostr(*num), "12345") == 0);
 
     num = bignum_fromstr("-337");
-    assert(strcmp(bignum_tostr(num), "-337") == 0, __LINE__);
+    ASSERT(strcmp(bignum_tostr(*num), "-337") == 0);
+
+    bignum* a = bignum_fromstr("5");
+    ASSERT(strcmp(bignum_tostr(*a), "5") == 0);
 }
 
 void test_bignum_gt() {
-    bignum* a = bignum_fromstr("12345");
-    bignum* b = bignum_fromstr("123");
-    bignum* c = bignum_fromstr("123");
-    bignum* d = bignum_fromstr("123456");
-
-    assert(bignum_gt(a, b), __LINE__);
-    assert(!bignum_gt(b, a), __LINE__);
-    assert(!bignum_gt(b, c), __LINE__);
-    assert(!bignum_gt(c, b), __LINE__);
-    assert(!bignum_gt(a, a), __LINE__);
-    assert(bignum_gt(d, a), __LINE__);
-
-    bignum* e = bignum_fromstr("-123");
-    bignum* f = bignum_fromstr("123456");
-    bignum* g = bignum_fromstr("-123456");
-
-    assert(!bignum_gt(e, f), __LINE__);
-    assert(bignum_gt(f, e), __LINE__);
-    assert(bignum_gt(f, g), __LINE__);
 
     bignum* h = bignum_fromstr("-10");
     bignum* i = bignum_fromstr("-20");
@@ -90,18 +62,11 @@ void test_bignum_gt() {
     bignum* k = bignum_fromstr("20");
     bignum* z = bignum_fromstr("0");
 
-    assert(bignum_gt(h, i), __LINE__);
-    assert(bignum_gt(j, i), __LINE__);
-    assert(!bignum_gt(j, k), __LINE__);
-    assert(bignum_gt(k, z), __LINE__);
-    assert(!bignum_gt(h, z), __LINE__);
-    assert(bignum_gt(z, i), __LINE__);
-
     // bignum_absgt tests
-    assert(bignum_absgt(*i, *h), __LINE__);
-    assert(bignum_absgt(*i, *j), __LINE__);
-    assert(bignum_absgt(*h, *z), __LINE__);
-    assert(bignum_absgt(*k, *z), __LINE__);
+    ASSERT(bignum_absgt(*i, *h));
+    ASSERT(bignum_absgt(*i, *j));
+    ASSERT(bignum_absgt(*h, *z));
+    ASSERT(bignum_absgt(*k, *z));
 }
 
 void test_bignum_add() {
@@ -109,40 +74,74 @@ void test_bignum_add() {
     bignum* b = bignum_fromstr("123");
     bignum* sum = bignum_fromstr("12468");
 
-    assert(bignum_eq(bignum_add(a, b), sum), __LINE__);
-
-
+    ASSERT(bignum_eq(*bignum_add(*a, *b), *sum));
     sum->sign = 1;
     bignum* c = bignum_fromstr("-12345");
     bignum* d = bignum_fromstr("-123");
 
-    assert(bignum_eq(bignum_add(c, d), bignum_fromstr("-12468")), __LINE__);
-    assert(!bignum_eq(bignum_add(c, d), bignum_fromstr("12468")), __LINE__);
+    ASSERT(bignum_eq(*bignum_add(*c, *d), *bignum_fromstr("-12468")));
+    ASSERT(!bignum_eq(*bignum_add(*c, *d), *bignum_fromstr("12468")));
 
     bignum* e = bignum_fromstr("-10");
     bignum* f = bignum_fromstr("5");
     bignum* g = bignum_fromstr("-5");
 
-    assert(bignum_eq(bignum_add(e, f), bignum_fromstr("-5")), __LINE__);
-    assert(bignum_eq(bignum_add(f, e), bignum_fromstr("-5")), __LINE__);
-    assert(bignum_eq(bignum_add(f, g), bignum_fromstr("0")), __LINE__);
+    ASSERT(bignum_eq(*bignum_add(*e, *f), *bignum_fromstr("-5")));
+    ASSERT(bignum_eq(*bignum_add(*f, *e), *bignum_fromstr("-5")));
+    ASSERT(bignum_eq(*bignum_add(*f, *g), *bignum_fromstr("0")));
+
+    bignum* h = bignum_fromstr("99");
+    bignum* i = bignum_fromstr("1");
+
+    ASSERT(bignum_eq(*bignum_add(*h, *i), *bignum_fromstr("100")));
+
+    bignum* j = bignum_fromstr("124908901283901283019283124908901283901283019283");
+    bignum* k = bignum_fromstr("838972389238961265356241838972389238961265356241");
+    
+    ASSERT(bignum_eq(*bignum_add(*j, *k), *bignum_fromstr("963881290522862548375524963881290522862548375524")));
+    
+    bignum* l = bignum_fromstr("0");
+    
+    ASSERT(bignum_eq(*bignum_add(*k, *l), *k));
+    
+    ASSERT(bignum_eq(*bignum_add(*bignum_fromstr("0"), *bignum_fromstr("0")), *bignum_fromstr("0")));
+}
+
+void test_bignum_mul() {
+
+    bignum* a = bignum_fromstr("1");
+    bignum* b = bignum_fromstr("2");
+    bignum* c = bignum_fromstr("3");
+    bignum* d = bignum_fromstr("6");
+    bignum* e = bignum_fromstr("124908901283901283019283");
+    // bignum* f = bignum_fromstr("1498906815406815396231396");
+
+    ASSERT(bignum_eq(*bignum_mul(*a, *a), *a));
+
+    ASSERT(bignum_eq(*bignum_mul(*a, *b), *b));
+    ASSERT(bignum_eq(*bignum_mul(*a, *d), *d));
+    ASSERT(bignum_eq(*bignum_mul(*b, *c), *d));
+    printf("%s", bignum_tostr(*bignum_mul(*d, *e)));
+    /*
+    ASSERT(bignum_eq(*bignum_mul(*d, *e), *f));
+    */
 }
 
 void test_stack_push() {
     stack *s = new_stack();
 
     push(s, 8);
-    assert(s->top->element == 8 , __LINE__);
+    ASSERT(s->top->element == 8 );
 
     push(s, 7);
-    assert(s->top->element == 7, __LINE__);
+    ASSERT(s->top->element == 7);
 }
 
 void test_stack_peek(){
     stack *s = new_stack();
 
     push(s, 8);
-    assert(s->top->element == 8, __LINE__);
+    ASSERT(s->top->element == 8);
 }
 
 void test_stack_pop(){
@@ -153,33 +152,32 @@ void test_stack_pop(){
     push(s,34);
     push(s,-34);
 
-    assert(pop(s) == -34 , __LINE__);
-    assert(pop(s) == 34 , __LINE__);
-    assert(pop(s) == 9 , __LINE__);
-    assert(pop(s) == 8 , __LINE__);
+    ASSERT(pop(s) == -34 );
+    ASSERT(pop(s) == 34 );
+    ASSERT(pop(s) == 9 );
+    ASSERT(pop(s) == 8 );
 }
 
 void test_stack_empty(){
     stack *s = new_stack();
 
-    assert(empty(s), __LINE__);
+    ASSERT(empty(s));
 
     push(s,-34);
     pop(s);
 
-    assert(empty(s), __LINE__);
+    ASSERT(empty(s));
 }
 
 void test_all() {
-
     // help.c
     test_strpad();
     // bignum.c
-    test_bignum_nextdigit_addr();
     test_bignum_tostr();
     test_bignum_fromstr();
     test_bignum_gt();
     test_bignum_add();
+	test_bignum_mul();
     // stack.c
     test_stack_push();
     test_stack_peek();
