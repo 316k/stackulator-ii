@@ -9,6 +9,6 @@
 
 int main(int argc, char* argv[]) {
     test_all();
-    
+    //test_stack();
     return EXIT_SUCCESS;
 }
