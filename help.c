@@ -1,4 +1,13 @@
 #include <string.h>
+#define SWP(x,y) (x^=y, y^=x, x^=y)
+#define FALSE 0
+#define TRUE 1
+
+#define die() printf("FIN DE MÉMOIRE. FIN DE TOUTE. FUYEZ !! FUYEZ PAUVRES FOUS !! (%s at line %d)\n", __func__, __LINE__); exit(-1);
+
+char min(int a, int b) {
+    return a <= b ? a : b;
+}
 
 char max(int a, int b) {
     return a >= b ? a : b;
@@ -10,8 +19,14 @@ char* strpad(char str[], char pad, int size) {
         return str;
 
     char* out = malloc(sizeof(char) * size + 1);
-    int i;
     
+    if(out == NULL) {
+        die();
+        return NULL;
+    }
+    
+    
+    int i;
     int pad_size = size - strlen(str);
 
     for(i = 0; i < size + 1; i++) {
@@ -21,7 +36,15 @@ char* strpad(char str[], char pad, int size) {
             out[i] = str[i - pad_size];
         }
     }
-    
+
     out[size + 1] = '\0';
     return out;
+}
+
+// see https://stackoverflow.com/questions/198199/how-do-you-reverse-a-string-in-place-in-c-or-c
+void strrev(char *p) {
+    char *q = p;
+    while(q && *q) ++q; /* find eos */
+    for(--q; p < q; ++p, --q)
+        SWP(*p, *q);
 }
