@@ -260,7 +260,7 @@ bignum* bignum_add(bignum a, bignum b) {
     char op = 1;
 
     int i = 0;
-    int size_a = bignum_len(a), size_b = bignum_len(b), max_size = max(size_a, size_b);
+    int size_a = bignum_len(a), size_b = bignum_len(b), max_size = MAX(size_a, size_b);
 
     bignum* sum = malloc(sizeof(bignum));
 

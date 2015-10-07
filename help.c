@@ -9,15 +9,9 @@
         exit(-1); \
     }
 
+#define MIN(a, b) a <= b ? a : b
+#define MAX(a, b) a >= b ? a : b
 
-
-char min(int a, int b) {
-    return a <= b ? a : b;
-}
-
-char max(int a, int b) {
-    return a >= b ? a : b;
-}
 
 char* strpad(char str[], char pad, int size) {
 
@@ -25,10 +19,9 @@ char* strpad(char str[], char pad, int size) {
         return str;
 
     char* out = malloc(sizeof(char) * size + 1);
-    
+
     please_dont_segfault(out);
-    
-    
+
     int i;
     int pad_size = size - strlen(str);
 
