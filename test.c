@@ -161,54 +161,54 @@ void test_bignum_mul() {
 }
 
 void test_stack_push() {
-    stack *s = new_stack();
+    stack *s = stack_init();
     bignum *a = bignum_fromstr("8");
     bignum *b = bignum_fromstr("7");
 
-    push(s, a);
+    stack_push(s, a);
     ASSERT(bignum_eq(*s->top->element, *a));
 
-    push(s, b);
+    stack_push(s, b);
     ASSERT(bignum_eq(*s->top->element, *b));
 }
 
-void test_stack_peek(){
-    stack *s = new_stack();
+void test_stack_peek() {
+    stack *s = stack_init();
     bignum *a = bignum_fromstr("8");
-    push(s, a);
+    stack_push(s, a);
 
-    ASSERT(bignum_eq(*peek(s), *a));
+    ASSERT(bignum_eq(*stack_peek(s), *a));
 }
 
-void test_stack_pop(){
-    stack *s = new_stack();
-    
+void test_stack_pop() {
+    stack *s = stack_init();
+
     bignum *a = bignum_fromstr("8");
     bignum *b = bignum_fromstr("9");
     bignum *c = bignum_fromstr("34");
     bignum *d = bignum_fromstr("-34");
 
-    push(s, a);
-    push(s, b);
-    push(s, c);
-    push(s, d);
+    stack_stack_push(s, a);
+    stack_push(s, b);
+    stack_push(s, c);
+    stack_push(s, d);
 
-    ASSERT(bignum_eq(*pop(s), *d));
-    ASSERT(bignum_eq(*pop(s), *c));
-    ASSERT(bignum_eq(*pop(s), *b));
-    ASSERT(bignum_eq(*pop(s), *a));
+    ASSERT(bignum_eq(*stack_pop(s), *d));
+    ASSERT(bignum_eq(*stack_pop(s), *c));
+    ASSERT(bignum_eq(*stack_pop(s), *b));
+    ASSERT(bignum_eq(*stack_pop(s), *a));
 }
 
-void test_stack_empty(){
-    stack *s = new_stack();
+void test_stack_empty() {
+    stack *s = stack_init();
     bignum *a = bignum_fromstr("8");
 
-    ASSERT(empty(s));
+    ASSERT(stack_empty(s));
 
-    push(s, a);
-    pop(s);
+    stack_push(s, a);
+    stack_pop(s);
 
-    ASSERT(empty(s));
+    ASSERT(stack_empty(s));
 }
 
 void test_all() {
@@ -224,8 +224,8 @@ void test_all() {
     test_bignum_add();
 	test_bignum_mul();
     // stack.c
-    test_stack_push();
+    test_stack_stack_push();
     test_stack_peek();
-    test_stack_pop();
+    test_stack_stack_pop();
     test_stack_empty();
 }

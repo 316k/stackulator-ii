@@ -13,14 +13,14 @@ struct stack {
 
 typedef struct stack stack;
 
-void push(stack *stack ,bignum* element){
+void stack_push(stack *stack ,bignum* element){
     stack_cell *new_cell = malloc(sizeof(stack_cell));
     new_cell->element = element;
     new_cell->next_cell = stack->top;
     stack->top = new_cell;
 }
 
-bignum* pop(stack *stack) {
+bignum* stack_pop(stack *stack) {
     stack_cell *popped = stack->top;
     stack->top = popped->next_cell;
     bignum* value = popped->element;
@@ -28,15 +28,15 @@ bignum* pop(stack *stack) {
     return value;
 }
 
-bignum* peek(stack *stack) {
+bignum* stack_peek(stack *stack) {
     return stack->top->element;
 }
 
-int empty(stack *stack) {
+int stack_empty(stack *stack) {
     return stack->top == NULL;
 }
 
-stack* new_stack() {
+stack* stack_init() {
     stack *stack = malloc(sizeof(stack));
     stack->top = NULL;
     return stack;
