@@ -43,10 +43,11 @@ int main(int argc, char* argv[]) {
             }
             printf("\n");
 
-        } else if(c == ' ' || c == '\n') {
-            // Ignore
-            waiting = c == '\n';
-
+        } else if(c == ' ') {
+            // Ignored
+        } else if(c == '\n') {
+            // TODO : print peek(stack);
+            waiting = TRUE;
         } else {
             fprintf(stderr, "Symbole inconnu ignoré : (%d) %c", c, c);
             while(c != ' ' && c != '\n') {
