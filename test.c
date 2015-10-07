@@ -193,10 +193,10 @@ void test_stack_pop(){
     push(s, c);
     push(s, d);
 
-    ASSERT(bignum_eq(*pop(s), *a));
-    ASSERT(bignum_eq(*pop(s), *b));
-    ASSERT(bignum_eq(*pop(s), *c));
     ASSERT(bignum_eq(*pop(s), *d));
+    ASSERT(bignum_eq(*pop(s), *c));
+    ASSERT(bignum_eq(*pop(s), *b));
+    ASSERT(bignum_eq(*pop(s), *a));
 }
 
 void test_stack_empty(){
