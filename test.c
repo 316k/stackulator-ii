@@ -141,6 +141,11 @@ void test_bignum_add() {
     ASSERT(bignum_eq(*bignum_add(*k, *l), *k));
 
     ASSERT(bignum_eq(*bignum_add(*bignum_fromstr("0"), *bignum_fromstr("0")), *bignum_fromstr("0")));
+
+    bignum* m = bignum_fromstr("000001");
+    bignum* n = bignum_fromstr("000002");
+    printf("%s %s \n", bignum_tostr(*m), bignum_tostr(*n));
+    ASSERT(bignum_eq(*bignum_add(*n, *m), *bignum_fromstr("3")));
 }
 
 void test_bignum_mul() {
