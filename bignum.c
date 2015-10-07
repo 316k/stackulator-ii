@@ -319,7 +319,7 @@ bignum* bignum_mul(bignum a, bignum b) {
     bignum* zero = bignum_fromstr("0");
     bignum* dec = bignum_fromstr("-1");
 
-    prod->sign = a.sign != b.sign;
+    char sign = a.sign != b.sign;
     b.sign = 0;
     a.sign = 0;
 
@@ -330,6 +330,8 @@ bignum* bignum_mul(bignum a, bignum b) {
 
     bignum_destoroyah(zero);
     bignum_destoroyah(dec);
+
+    prod->sign = sign;
 
     return prod;
 }
