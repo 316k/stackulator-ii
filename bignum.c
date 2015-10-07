@@ -315,6 +315,10 @@ bignum* bignum_sub(bignum a, bignum b) {
 }
 
 bignum* bignum_mul(bignum a, bignum b) {
+    // Optimisation
+    if(bignum_absgt(b, a))
+        return bignum_mul(b, a);
+
     bignum* prod = bignum_fromstr("0");
     bignum* zero = bignum_fromstr("0");
     bignum* dec = bignum_fromstr("-1");
