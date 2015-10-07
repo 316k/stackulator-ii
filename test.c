@@ -201,7 +201,7 @@ void test_stack_pop() {
     bignum *c = bignum_fromstr("34");
     bignum *d = bignum_fromstr("-34");
 
-    stack_stack_push(s, a);
+    stack_push(s, a);
     stack_push(s, b);
     stack_push(s, c);
     stack_push(s, d);
