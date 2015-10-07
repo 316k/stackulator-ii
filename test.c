@@ -230,11 +230,11 @@ void test_stack_len() {
 
     ASSERT(stack_len(s) == 0);
 
-    stack_push(a);
+    stack_push(s, a);
 
     ASSERT(stack_len(s) == 1);
 
-    stack_push(a);
+    stack_push(s, a);
 
     ASSERT(stack_len(s) == 2);
 
