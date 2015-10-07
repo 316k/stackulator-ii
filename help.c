@@ -25,10 +25,10 @@ char* strpad(char str[], char pad, int size) {
         return str;
 
     char* out = malloc(sizeof(char) * size + 1);
-    
+
     please_dont_segfault(out);
-    
-    
+
+
     int i;
     int pad_size = size - strlen(str);
 
