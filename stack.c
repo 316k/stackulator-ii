@@ -18,41 +18,54 @@ unsigned long stack_len(stack* stack) {
     return stack->len;
 }
 
-void stack_push(stack* stack, bignum* element){
+void stack_push(stack* s, bignum* element){
     stack_cell* new_cell = malloc(sizeof(stack_cell));
 
     please_dont_segfault(new_cell);
 
     new_cell->element = element;
-    new_cell->next_cell = stack->top;
-    stack->top = new_cell;
-    stack->len++;
+    new_cell->next_cell = s->top;
+    s->top = new_cell;
+    s->len++;
 }
 
-bignum* stack_pop(stack* stack) {
-    stack_cell* popped = stack->top;
-    stack->top = popped->next_cell;
+bignum* stack_pop(stack* s) {
+    stack_cell* popped = s->top;
+    s->top = popped->next_cell;
     bignum* value = popped->element;
+
     free(popped); //like a bird.
 
-    stack->len--;
+    s->len--;
 
     return value;
 }
 
-bignum* stack_peek(stack* stack) {
-    return stack->top->element;
+bignum* stack_peek(stack* s) {
+    return s->top->element;
 }
 
-int stack_empty(stack* stack) {
-    return stack->top == NULL;
+int stack_empty(stack* s) {
+    return s->top == NULL;
 }
 
 stack* stack_init() {
-    stack* stack = malloc(sizeof(stack));
+    stack* s = malloc(sizeof(s));
 
-    please_dont_segfault(stack);
+    please_dont_segfault(s);
 
-    stack->top = NULL;
-    return stack;
+    s->top = NULL;
+    return s;
+}
+
+void stack_dump(stack* s) {
+    int i;
+    stack_cell* cell = s->top;
+
+    printf("-- Stack dump --\n");
+    for(i = 0; i < stack_len(s); i++) {
+        printf("%d : %s\n", i, bignum_tostr(*cell->element));
+        cell = cell->next_cell;
+    }
+    printf("\n");
 }
