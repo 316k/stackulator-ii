@@ -55,6 +55,8 @@ stack* stack_init() {
     please_dont_segfault(s);
 
     s->top = NULL;
+    s->len = 0;
+
     return s;
 }
 
