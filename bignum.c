@@ -319,6 +319,10 @@ bignum* bignum_mul(bignum a, bignum b) {
     bignum* zero = bignum_fromstr("0");
     bignum* dec = bignum_fromstr("-1");
 
+    prod->sign = a.sign != b.sign;
+    b.sign = 0;
+    a.sign = 0;
+
     while(!bignum_eq(b, *zero)) {
         b = *bignum_add(b, *dec); // Decrement b
         prod = bignum_add(*prod, a);

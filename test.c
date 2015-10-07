@@ -152,12 +152,25 @@ void test_bignum_mul() {
     bignum* e = bignum_fromstr("1287632");
     bignum* f = bignum_fromstr("7725792");
 
+    // Trivial
     ASSERT(bignum_eq(*bignum_mul(*a, *a), *a));
 
+    // Simples
     ASSERT(bignum_eq(*bignum_mul(*a, *b), *b));
     ASSERT(bignum_eq(*bignum_mul(*a, *d), *d));
     ASSERT(bignum_eq(*bignum_mul(*b, *c), *d));
+    // Gros nombres
     ASSERT(bignum_eq(*bignum_mul(*d, *e), *f));
+
+    // Nombres négatifs
+    bignum* g = bignum_fromstr("-2");
+    bignum* h = bignum_fromstr("-3");
+    bignum* i = bignum_fromstr("-6");
+
+    ASSERT(bignum_eq(*bignum_mul(*g, *c), *i));
+    ASSERT(bignum_eq(*bignum_mul(*c, *g), *i));
+    ASSERT(bignum_eq(*bignum_mul(*g, *h), *d));
+    ASSERT(bignum_eq(*bignum_mul(*h, *g), *d));
 }
 
 void test_stack_push() {
