@@ -224,6 +224,8 @@ void test_stack_empty() {
     ASSERT(stack_empty(s));
 }
 
+
+
 void test_stack_len() {
     stack* s = stack_init();
     bignum* a = bignum_fromstr("8");
@@ -247,6 +249,27 @@ void test_stack_len() {
     ASSERT(stack_len(s) == 0);
 }
 
+void test_stress_stack() {
+    stack* s = stack_init();
+
+    int i;
+    for(i=0; i<25555; i++) {
+        ASSERT(stack_len(s) == i);
+        char str[] = "00000";
+        sprintf(str, "%3d", i);
+        bignum* a = bignum_fromstr(str);
+        stack_push(s, a);
+
+    }
+
+    for(i=0; i<25555; i++) {
+        ASSERT(stack_len(s) == 25555-i);
+        char str[] = "00000";
+        sprintf(str, "%3d", 25554-i);
+        ASSERT(bignum_eq(*stack_pop(s), *bignum_fromstr(str)));
+    }
+}
+
 void test_all() {
     // help.c
     test_strpad();
@@ -264,4 +287,6 @@ void test_all() {
     test_stack_peek();
     test_stack_pop();
     test_stack_empty();
+    test_stack_len();
+    test_stress_stack();
 }
