@@ -1,14 +1,9 @@
-// Requires bignum.c to be included first
+// Requires bignum*.c to be included first
 
 typedef struct stack_cell stack_cell;
-typedef struct smallnum smallnum;
-
-struct smallnum {
-    char element;
-};
 
 struct stack_cell {
-    smallnum element;
+    bignum* element;
     stack_cell *next_cell;
 };
 
@@ -18,22 +13,22 @@ struct stack {
 
 typedef struct stack stack;
 
-void push(stack *stack ,smallnum element){
+void push(stack *stack ,bignum* element){
     stack_cell *new_cell = malloc(sizeof(stack_cell));
     new_cell->element = element;
     new_cell->next_cell = stack->top;
     stack->top = new_cell;
 }
 
-smallnum pop(stack *stack) {
+bignum* pop(stack *stack) {
     stack_cell *popped = stack->top;
     stack->top = popped->next_cell;
-    smallnum value = popped->element;
+    bignum* value = popped->element;
     free(popped); //like a bird.
     return value;
 }
 
-smallnum peek(stack *stack) {
+bignum* peek(stack *stack) {
     return stack->top->element;
 }
 

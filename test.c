@@ -162,46 +162,47 @@ void test_bignum_mul() {
 
 void test_stack_push() {
     stack *s = new_stack();
-    smallnum a = {8};
-    smallnum b = {7};
+    bignum *a = bignum_fromstr("8");
+    bignum *b = bignum_fromstr("7");
 
     push(s, a);
-    ASSERT(s->top->element.element == 8 );
+    ASSERT(bignum_eq(*s->top->element, *a));
 
     push(s, b);
-    ASSERT(s->top->element.element == 7);
+    ASSERT(bignum_eq(*s->top->element, *b));
 }
 
 void test_stack_peek(){
     stack *s = new_stack();
-    smallnum a = {8};
+    bignum *a = bignum_fromstr("8");
     push(s, a);
 
-    ASSERT(peek(s).element == 8);
+    ASSERT(bignum_eq(*peek(s), *a));
 }
 
 void test_stack_pop(){
     stack *s = new_stack();
-
-    smallnum a = {8};
-    smallnum b = {9};
-    smallnum c = {34};
-    smallnum d = {-34};
+    
+    bignum *a = bignum_fromstr("8");
+    bignum *b = bignum_fromstr("9");
+    bignum *c = bignum_fromstr("34");
+    bignum *d = bignum_fromstr("-34");
 
     push(s, a);
     push(s, b);
     push(s, c);
     push(s, d);
 
-    ASSERT(pop(s).element == -34 );
-    ASSERT(pop(s).element == 34 );
-    ASSERT(pop(s).element == 9 );
-    ASSERT(pop(s).element == 8 );
+    ASSERT(bignum_eq(*pop(s), *a));
+    ASSERT(bignum_eq(*pop(s), *b));
+    ASSERT(bignum_eq(*pop(s), *c));
+    ASSERT(bignum_eq(*pop(s), *d));
 }
 
 void test_stack_empty(){
     stack *s = new_stack();
-    smallnum a = {6};
+    bignum *a = bignum_fromstr("8");
+
     ASSERT(empty(s));
 
     push(s, a);
