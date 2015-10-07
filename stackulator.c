@@ -132,10 +132,10 @@ int main(int argc, char* argv[]) {
                 printf("Stack vide\n");
             }
             waiting = TRUE;
-        } else if(c == 'd') {
+        } else if(c == '$') {
             // Dump stack
             stack_dump(s);
-        } else if(c == 'c') {
+        } else if(c == '#') {
             // Clear stack
             while(!stack_empty(s)) {
                 stack_pop(s);
