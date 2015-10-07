@@ -237,8 +237,8 @@ void test_all() {
     test_bignum_add();
 	test_bignum_mul();
     // stack.c
-    test_stack_stack_push();
+    test_stack_push();
     test_stack_peek();
-    test_stack_stack_pop();
+    test_stack_pop();
     test_stack_empty();
 }
