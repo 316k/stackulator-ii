@@ -174,9 +174,9 @@ void test_bignum_mul() {
 }
 
 void test_stack_push() {
-    stack *s = stack_init();
-    bignum *a = bignum_fromstr("8");
-    bignum *b = bignum_fromstr("7");
+    stack* s = stack_init();
+    bignum* a = bignum_fromstr("8");
+    bignum* b = bignum_fromstr("7");
 
     stack_push(s, a);
     ASSERT(bignum_eq(*s->top->element, *a));
@@ -186,20 +186,20 @@ void test_stack_push() {
 }
 
 void test_stack_peek() {
-    stack *s = stack_init();
-    bignum *a = bignum_fromstr("8");
+    stack* s = stack_init();
+    bignum* a = bignum_fromstr("8");
     stack_push(s, a);
 
     ASSERT(bignum_eq(*stack_peek(s), *a));
 }
 
 void test_stack_pop() {
-    stack *s = stack_init();
+    stack* s = stack_init();
 
-    bignum *a = bignum_fromstr("8");
-    bignum *b = bignum_fromstr("9");
-    bignum *c = bignum_fromstr("34");
-    bignum *d = bignum_fromstr("-34");
+    bignum* a = bignum_fromstr("8");
+    bignum* b = bignum_fromstr("9");
+    bignum* c = bignum_fromstr("34");
+    bignum* d = bignum_fromstr("-34");
 
     stack_stack_push(s, a);
     stack_push(s, b);
@@ -213,8 +213,8 @@ void test_stack_pop() {
 }
 
 void test_stack_empty() {
-    stack *s = stack_init();
-    bignum *a = bignum_fromstr("8");
+    stack* s = stack_init();
+    bignum* a = bignum_fromstr("8");
 
     ASSERT(stack_empty(s));
 
@@ -222,6 +222,29 @@ void test_stack_empty() {
     stack_pop(s);
 
     ASSERT(stack_empty(s));
+}
+
+void test_stack_len() {
+    stack* s = stack_init();
+    bignum* a = bignum_fromstr("8");
+
+    ASSERT(stack_len(s) == 0);
+
+    stack_push(a);
+
+    ASSERT(stack_len(s) == 1);
+
+    stack_push(a);
+
+    ASSERT(stack_len(s) == 2);
+
+    stack_pop(s);
+
+    ASSERT(stack_len(s) == 1);
+
+    stack_pop(s);
+
+    ASSERT(stack_len(s) == 0);
 }
 
 void test_all() {
