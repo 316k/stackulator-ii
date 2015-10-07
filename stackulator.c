@@ -42,7 +42,6 @@ int main(int argc, char* argv[]) {
                 printf("%c", c);
             }
             printf("\n");
-            waiting = TRUE;
 
         } else if(c == ' ' || c == '\n') {
             // Ignore
