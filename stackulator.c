@@ -48,7 +48,24 @@ int main(int argc, char* argv[]) {
             bigdigit* digit = NULL;
             bigdigit* prev_addr = NULL;
 
-            while(c != ' ' && c != '\n') {
+            // Si ça commence avec 0, on veut potentiellement garder le premier seulement
+            if(c == '0') {
+                digit = malloc(sizeof(bigdigit));
+
+                digit->next = NULL;
+                digit->value = 0;
+                prev_addr = digit;
+
+                while((c = getchar()) == '0');
+
+                // Si ça commençait avec des 0 non-significatifs, on les flush
+                if(c >= '1' && c <= '9') {
+                    digit->value = c - '0';
+                    c = getchar();
+                }
+            }
+
+            while(c >= '0' && c <= '9') {
 
                 digit = malloc(sizeof(bigdigit));
 
@@ -63,10 +80,6 @@ int main(int argc, char* argv[]) {
             }
 
             num->first = prev_addr;
-
-            bignum_clean(num);
-            
-            // printf("%s", bignum_tostr()
 
             stack_push(s, num);
 
@@ -84,6 +97,32 @@ int main(int argc, char* argv[]) {
                 bignum_destoroyah(a);
                 bignum_destoroyah(b);
             }
+        } else if(c == '-') {
+            if(stack_len(s) < 2) {
+                fprintf(stderr, "Pas assez de nombres sur le stack\n");
+            } else {
+                bignum* a = stack_pop(s);
+                bignum* b = stack_pop(s);
+
+                bignum* num = bignum_sub(*a, *b);
+                stack_push(s, num);
+
+                bignum_destoroyah(a);
+                bignum_destoroyah(b);
+            }
+        } else if(c == '*') {
+            if(stack_len(s) < 2) {
+                fprintf(stderr, "Pas assez de nombres sur le stack\n");
+            } else {
+                bignum* a = stack_pop(s);
+                bignum* b = stack_pop(s);
+
+                bignum* num = bignum_mul(*a, *b);
+                stack_push(s, num);
+
+                bignum_destoroyah(a);
+                bignum_destoroyah(b);
+            }
         } else if(c == ' ') {
             // Ignored
         } else if(c == '\n') {
@@ -93,6 +132,15 @@ int main(int argc, char* argv[]) {
                 printf("Stack vide\n");
             }
             waiting = TRUE;
+        } else if(c == 'd') {
+            // Dump stack
+            stack_dump(s);
+        } else if(c == 'c') {
+            // Clear stack
+            while(!stack_empty(s)) {
+                stack_pop(s);
+            }
+            printf("Stack cleared\n");
         } else {
             fprintf(stderr, "Symbole inconnu ignoré : %c", c);
             while(c != ' ' && c != '\n') {
