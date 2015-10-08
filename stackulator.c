@@ -8,10 +8,16 @@
 #include "test.c"
 
 int main(int argc, char* argv[]) {
-    int i;
+    int i, j;
     FILE* in = stdin;
     char c = ' ', waiting, interactive_mode = TRUE;
     stack* s = stack_init();
+
+    // Variables
+    bignum* variables[26];
+    for(i=0; i<26; i++) {
+        variables[i] = NULL;
+    }
 
     // Parse les arguments
     for(i = 1; i < argc && argv[i][0] == '-'; i++) {
@@ -40,6 +46,15 @@ int main(int argc, char* argv[]) {
         if(in == NULL) {
             return EXIT_FAILURE;
         }
+
+        // On ignore les #!/path/to/bin au besoin
+        char shebang[] = "00";
+        fread(shebang, sizeof(char), 2, in);
+
+        if(strcmp(shebang, "#!") == 0) {
+            while(getc(in) != '\n');
+        }
+
         interactive_mode = FALSE;
     }
 
@@ -58,6 +73,7 @@ int main(int argc, char* argv[]) {
             please_dont_segfault(num);
 
             num->sign = BIGNUM_POSITIVE; // Impossible d'entrer un nombre négatif
+            num->refs = 1;
 
             bigdigit* digit = NULL;
             bigdigit* prev_addr = NULL;
@@ -101,42 +117,67 @@ int main(int argc, char* argv[]) {
         } else if(c == '+') {
             if(stack_len(s) < 2) {
                 fprintf(stderr, "+ nécessite deux opérandes, taille du stack insuffisante\n");
-            } else {
-                bignum* a = stack_pop(s);
-                bignum* b = stack_pop(s);
-
-                bignum* num = bignum_add(*a, *b);
-                stack_push(s, num);
-
-                bignum_destoroyah(a);
-                bignum_destoroyah(b);
+                continue;
             }
+            bignum* a = stack_pop(s);
+            bignum* b = stack_pop(s);
+
+            bignum* num = bignum_add(*a, *b);
+            stack_push(s, num);
+
+            bignum_destoroyah(a);
+            bignum_destoroyah(b);
         } else if(c == '-') {
             if(stack_len(s) < 2) {
                 fprintf(stderr, "- nécessite deux opérandes, taille du stack insuffisante\n");
-            } else {
-                bignum* a = stack_pop(s);
-                bignum* b = stack_pop(s);
-
-                bignum* num = bignum_sub(*a, *b);
-                stack_push(s, num);
-
-                bignum_destoroyah(a);
-                bignum_destoroyah(b);
+                continue;
             }
+            bignum* a = stack_pop(s);
+            bignum* b = stack_pop(s);
+
+            bignum* num = bignum_sub(*a, *b);
+            stack_push(s, num);
+
+            bignum_destoroyah(a);
+            bignum_destoroyah(b);
         } else if(c == '*') {
             if(stack_len(s) < 2) {
                 fprintf(stderr, "* nécessite deux opérandes, taille du stack insuffisante\n");
-            } else {
-                bignum* a = stack_pop(s);
-                bignum* b = stack_pop(s);
-
-                bignum* num = bignum_mul(*a, *b);
-                stack_push(s, num);
-
-                bignum_destoroyah(a);
-                bignum_destoroyah(b);
+                continue;
             }
+
+            bignum* a = stack_pop(s);
+            bignum* b = stack_pop(s);
+
+            bignum* num = bignum_mul(*a, *b);
+            stack_push(s, num);
+
+            bignum_destoroyah(a);
+            bignum_destoroyah(b);
+        } else if(c == '=') {
+            char c = getc(in);
+            if(c < 'a' || c > 'z') {
+                fprintf(stderr, "Le nom de variable `%c` est erroné\n", c);
+                continue;
+            }
+
+            // Si le stack est empty, on met "NULL" dans la variable
+            if(stack_empty(s)) {
+                bignum_destoroyah(variables[c - 'a']);
+                variables[c - 'a'] = NULL;
+                continue;
+            }
+            variables[c - 'a'] = stack_peek(s);
+            stack_peek(s)->refs++;
+        } else if(c >= 'a' && c <= 'z') {
+
+            if(variables[c - 'a'] == NULL) {
+                fprintf(stderr, "La variable `%c` n'a pas été définie\n", c);
+                continue;
+            }
+
+            stack_push(s, variables[c - 'a']);
+            variables[c - 'a']->refs++;
         } else if(c == ' ') {
             // Ignored
         } else if(c == '\n') {
@@ -149,6 +190,16 @@ int main(int argc, char* argv[]) {
         } else if(c == '$') {
             // Dump stack
             stack_dump(s);
+        } else if(c == '%') {
+            // Dump les variables
+            printf("-- Variables --\n");
+            for(i = 0; i < 5; i++) {
+                for(j = 0; j < 5; j++) {
+                    printf("%c: %7x |", 'a' + i * 5 + j, variables[i * 5 + j]);
+                }
+                printf("\n");
+            }
+            printf("%c: %7x\n", 'z', variables[25]);
         } else if(c == '.') {
             // Pop
            if(!stack_empty(s)) {
@@ -158,7 +209,7 @@ int main(int argc, char* argv[]) {
         } else if(c == '#') {
             // Clear stack
             while(!stack_empty(s)) {
-                stack_pop(s);
+                bignum_destoroyah(stack_pop(s));
             }
         } else {
             fprintf(stderr, "Symbole inconnu ignoré : %c", c);
@@ -180,6 +231,11 @@ int main(int argc, char* argv[]) {
             }
         }
     }
+
+    while(!stack_empty(s)) {
+        bignum_destoroyah(stack_pop(s));
+    }
+    free(s);
 
     return EXIT_SUCCESS;
 }

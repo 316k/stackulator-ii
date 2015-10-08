@@ -15,23 +15,29 @@ struct bigdigit {
 struct bignum {
     char sign; // 0 => +, 1 => -
     bigdigit* first;
+    int refs;
 };
 
 /**
  * free() le bignum et tous les bigdigits associés
  */
 void bignum_destoroyah(bignum* num) {
-    // Vive les bignums libres !
-    bigdigit* current = num->first;
-    bigdigit* next = NULL;
+    num->refs--;
 
-    while(current != NULL) {
-        next = current->next;
-        free(current);
-        current = next;
+    if(num->refs == 0) {
+        printf("destoroyah in action !\n");
+        // Vive les bignums libres !
+        bigdigit* current = num->first;
+        bigdigit* next = NULL;
+
+        while(current != NULL) {
+            next = current->next;
+            free(current);
+            current = next;
+        }
+
+        free(num);
     }
-
-    free(num);
 }
 
 /*
@@ -95,6 +101,7 @@ bignum* bignum_fromstr(char str[]) {
 
     bigdigit* digit = NULL;
     num->sign = str[0] == '-';
+    num->refs = 1;
 
     bigdigit** next = &num->first;
 
@@ -178,6 +185,7 @@ bignum* bignum_rev(bignum num) {
 
     rev->sign = num.sign;
     rev->first = prev_addr;
+    rev->refs = 1;
 
     // Attention : les trailing zéros sont importants dans le contexte d'un bignum inversé
 
@@ -261,6 +269,8 @@ bignum* bignum_add(bignum a, bignum b) {
     int size_a = bignum_len(a), size_b = bignum_len(b), max_size = MAX(size_a, size_b);
 
     bignum* sum = malloc(sizeof(bignum));
+    sum->refs = 1;
+    sum->first = NULL;
 
     please_dont_segfault(sum);
 
