@@ -19,6 +19,32 @@ struct bignum {
 };
 
 /**
+ * Init un bignum (positif, sans digits)
+ */
+bignum* bignum_init() {
+    bignum* num = malloc(sizeof(bignum));
+    please_dont_segfault(num);
+    num->first = NULL;
+    num->refs = 1;
+    num->sign = 0;
+    return num;
+}
+
+/**
+ * Init un bigdigit (à zéro, sans élément suivant)
+ */
+bigdigit* bigdigit_init() {
+    bigdigit* digit = malloc(sizeof(bigdigit));
+
+    please_dont_segfault(digit);
+
+    digit->value = 0;
+    digit->next = NULL;
+
+    return digit;
+}
+
+/**
  * free() le bignum et tous les bigdigits associés
  * Voir https://ja.wikipedia.org/wiki/ザ・デストロイヤー pour plus de détails
  */
@@ -95,20 +121,14 @@ void bignum_clean(bignum* num) {
 bignum* bignum_fromstr(char str[]) {
     int i;
 
-    bignum* num = malloc(sizeof(bignum));
-
-    please_dont_segfault(num);
+    bignum* num = bignum_init();
+    num->sign = str[0] == '-';
 
     bigdigit* digit = NULL;
-    num->sign = str[0] == '-';
-    num->refs = 1;
-
     bigdigit** next = &num->first;
 
     for(i = strlen(str); i > num->sign; i--) {
-        digit = malloc(sizeof(bigdigit));
-
-        please_dont_segfault(digit);
+        digit = bigdigit_init();
 
         digit->value = str[i - 1] - '0';
 
@@ -161,9 +181,7 @@ char* bignum_tostr(bignum num) {
  * Construit un bignum avec les digits de num inversés
  */
 bignum* bignum_rev(bignum num) {
-    bignum* rev = malloc(sizeof(bignum));
-
-    please_dont_segfault(rev);
+    bignum* rev = bignum_init();
 
     bigdigit* rev_digit = NULL;
     bigdigit** digit_addr = &num.first;
@@ -172,7 +190,7 @@ bignum* bignum_rev(bignum num) {
     // Construit le nouveau bignum à l'envers
     while(*digit_addr != NULL) {
 
-        rev_digit = malloc(sizeof(bigdigit));
+        rev_digit = bigdigit_init();
 
         please_dont_segfault(rev_digit);
 
@@ -284,11 +302,7 @@ bignum* bignum_add(bignum a, bignum b) {
     int i = 0;
     int size_a = bignum_len(a), size_b = bignum_len(b), max_size = MAX(size_a, size_b);
 
-    bignum* sum = malloc(sizeof(bignum));
-    sum->refs = 1;
-    sum->first = NULL;
-
-    please_dont_segfault(sum);
+    bignum* sum = bignum_init();
 
     bigdigit* digit = NULL;
     bigdigit** da = &a.first;
@@ -307,9 +321,7 @@ bignum* bignum_add(bignum a, bignum b) {
     }
 
     for(i = 0; i < max_size + 1; i++) {
-        digit = malloc(sizeof(bigdigit));
-
-        please_dont_segfault(digit);
+        digit = bigdigit_init();
 
         digit->value = carry;
 
@@ -363,15 +375,6 @@ bignum* bignum_mul(bignum a, bignum b) {
     prod->sign = sign;
 
     return prod;
-}
-/* Initialize an empty positive bignum*/
-bignum* bignum_init() {
-    bignum* num = malloc(sizeof(bignum));
-    please_dont_segfault(num);
-    num->first = NULL;
-    num->refs = 1;
-    num->sign = 0;
-    return num;
 }
 
 /* Splitte un bignum en deux à la moitié de la longueur. Il faut passer deux
