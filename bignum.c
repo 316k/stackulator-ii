@@ -232,6 +232,22 @@ char bignum_absgt(bignum a, bignum b) {
 }
 
 /**
+ * Donne le booléen `a > b`.
+ */
+char bignum_gt(bignum a, bignum b) {
+
+    if(a.sign != b.sign) {
+        return a.sign == BIGNUM_POSITIVE;
+    }
+
+    if(a.sign == BIGNUM_POSITIVE) {
+        bignum_absgt(a, b);
+    }
+
+    return bignum_absgt(b, a);
+}
+
+/**
  * Donne le booléen `a == b`
  */
 char bignum_eq(bignum a, bignum b) {
