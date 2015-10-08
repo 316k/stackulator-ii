@@ -66,7 +66,7 @@ void stack_dump(stack* s) {
 
     printf("-- Stack dump --\n");
     for(i = 0; i < stack_len(s); i++) {
+        printf("%ld: %s\n", stack_len(s) - i, bignum_tostr(*cell->element));
         cell = cell->next_cell;
     }
-    printf("\n");
 }
