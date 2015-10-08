@@ -323,10 +323,10 @@ bignum* bignum_sub(bignum a, bignum b) {
     return bignum_add(a, b);
 }
 
-bignum* bignum_mul(bignum a, bignum b) {
+bignum* bignum_dumb_mul(bignum a, bignum b) {
     // Optimisation
     if(bignum_absgt(b, a))
-        return bignum_mul(b, a);
+        return bignum_dumb_mul(b, a);
 
     bignum* prod = bignum_fromstr("0");
     bignum* zero = bignum_fromstr("0");
@@ -431,13 +431,16 @@ void bignum_shift_left(bignum* out, int shamt) {
     }
 }
 
-/*bignum* karatsuba(bignum a, bignum b) {
-    //compute the size of both nums.
+/**
+ * Algo de karatsuba pour la multiplication de grands entiers
+ */
+bignum* bignum_mul(bignum a, bignum b) {
+    //compute the size of both nums
     int len_a = bignum_len(a);
     int len_b = bignum_len(b);
     //if any of the num is <10, multiply normally
     if( len_a < 2 || bignum_len(b) < 2) {
-        return bignum_mul(a,b);
+        return bignum_dumb_mul(a,b);
     }
     int max_middle = MAX(len_a, len_b);
     bignum* high_a = bignum_init();
@@ -446,12 +449,26 @@ void bignum_shift_left(bignum* out, int shamt) {
     bignum* low_b = bignum_init();
     bignum_split(max_middle, a, high_a, low_a);
     bignum_split(max_middle, b, high_b, low_b);
-    
-    bignum* z0 = karatsuba(*low_a, *low_b);
-    bignum* z1 = karatsuba(*bignum_add(*low_a, *low_b), *bignum_add(*high_a, *high_b));
-    bignum* z2 = karatsuba(*high_a, *high_b);
-    
-    //temporaire
-    return
-    //return (z2*10^(2*m2))+((z1-z2-z0)*10^(m2))+(z0);
-}*/
+
+    bignum* z0 = bignum_mul(*low_a, *low_b);
+    //This is painful to code : (z2*10^(2*m2))+((z1-z2-z0)*10^(m2))+(z0)
+    bignum* z1 = bignum_mul(*bignum_add(*low_a, *low_b), *bignum_add(*high_a, *high_b));
+    bignum* z2 = bignum_mul(*high_a, *high_b);
+
+    //Saletés de pointeurs, c'est la guerre des étoiles
+    bignum* the_res_menace = bignum_copy(z2);
+    bignum_shift_left(the_res_menace, 2*max_middle);
+    bignum* attack_of_the_res = bignum_sub(*z1, *z2);
+    bignum* a_new_res = bignum_sub(*attack_of_the_res, *z0);
+    bignum_shift_left(a_new_res, max_middle);
+    bignum* res_strikes_back = bignum_add(*a_new_res, *z0);
+    bignum* of_the_res = bignum_add(*res_strikes_back, *the_res_menace);
+
+    //Free everything.
+    bignum_destoroyah(the_res_menace);
+    bignum_destoroyah(attack_of_the_res);
+    bignum_destoroyah(a_new_res);
+    bignum_destoroyah(res_strikes_back);
+
+    return of_the_res;
+}
