@@ -9,6 +9,7 @@
 
 int main(int argc, char* argv[]) {
     int i;
+    FILE* in = stdin;
     char c = ' ', waiting, interactive_mode = TRUE;
     stack* s = stack_init();
 
@@ -25,13 +26,21 @@ int main(int argc, char* argv[]) {
             printf("options :\n");
             printf("    -s, --silent : don't show '>' prompt character\n");
             printf("    -v, --verbose : show useful stuff instead of just the '>' prompt character\n");
-            // printf("    -e, --ed : `ed` mode\n");
             printf("    -h, --help : displays help\n");
+            printf("    -t, --test : runs the tests\n");
             return EXIT_SUCCESS;
         } else if(strcmp(argv[i], "-t") == 0 || strcmp(argv[i], "--test") == 0) {
-            test_all();
-            return EXIT_SUCCESS;
+            return test_all() ? EXIT_SUCCESS : EXIT_FAILURE;
         }
+    }
+
+    // Fichier en entrée
+    if(i < argc) {
+        in = fopen(argv[i], "r");
+        if(in == NULL) {
+            return EXIT_FAILURE;
+        }
+        interactive_mode = FALSE;
     }
 
     if(interactive_mode == 1) {
@@ -40,7 +49,7 @@ int main(int argc, char* argv[]) {
         printf("0:(null)> ");
     }
 
-    while((c = getchar()) != EOF) {
+    while((c = getc(in)) != EOF) {
         waiting = FALSE;
 
         if(c >= '0' && c <= '9') {
@@ -61,12 +70,12 @@ int main(int argc, char* argv[]) {
                 digit->value = 0;
                 prev_addr = digit;
 
-                while((c = getchar()) == '0');
+                while((c = getc(in)) == '0');
 
                 // Si ça commençait avec des 0 non-significatifs, on les flush
                 if(c >= '1' && c <= '9') {
                     digit->value = c - '0';
-                    c = getchar();
+                    c = getc(in);
                 }
             }
 
@@ -81,7 +90,7 @@ int main(int argc, char* argv[]) {
 
                 prev_addr = digit;
 
-                c = getchar();
+                c = getc(in);
             }
 
             num->first = prev_addr;
@@ -145,17 +154,16 @@ int main(int argc, char* argv[]) {
            if(!stack_empty(s)) {
                 bignum* a = stack_pop(s);
                 bignum_destoroyah(a);
-            }   
+            }
         } else if(c == '#') {
             // Clear stack
             while(!stack_empty(s)) {
                 stack_pop(s);
             }
-            printf("Stack cleared\n");
         } else {
             fprintf(stderr, "Symbole inconnu ignoré : %c", c);
             while(c != ' ' && c != '\n') {
-                c = getchar();
+                c = getc(in);
                 fprintf(stderr, "%c", c);
             }
             fprintf(stderr, "\n");
