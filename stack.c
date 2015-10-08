@@ -9,12 +9,12 @@ struct stack_cell {
 
 struct stack {
     stack_cell* top;
-    unsigned long len;
+    long len;
 };
 
 typedef struct stack stack;
 
-unsigned long stack_len(stack* stack) {
+long stack_len(stack* stack) {
     return stack->len;
 }
 
@@ -50,7 +50,7 @@ int stack_empty(stack* s) {
 }
 
 stack* stack_init() {
-    stack* s = malloc(sizeof(s));
+    stack* s = malloc(sizeof(stack));
 
     please_dont_segfault(s);
 
@@ -66,7 +66,6 @@ void stack_dump(stack* s) {
 
     printf("-- Stack dump --\n");
     for(i = 0; i < stack_len(s); i++) {
-        printf("%d : %s\n", i, bignum_tostr(*cell->element));
         cell = cell->next_cell;
     }
     printf("\n");
