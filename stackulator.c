@@ -7,6 +7,19 @@
 #include "stack.c"
 #include "test.c"
 
+
+void prompt(char interactive_mode, stack* s) {
+    if(interactive_mode == 1) {
+        printf("> ");
+    } else if(interactive_mode == 2) {
+        if(stack_empty(s)) {
+            printf("0:(null)> ");
+        } else {
+            printf("%ld:%s> ", stack_len(s), bignum_tostr(*stack_peek(s)));
+        }
+    }
+}
+
 int main(int argc, char* argv[]) {
     int i, j;
     FILE* in = stdin;
@@ -58,15 +71,12 @@ int main(int argc, char* argv[]) {
         interactive_mode = FALSE;
     }
 
-    if(interactive_mode == 1) {
-        printf("> ");
-    } else if(interactive_mode == 2) {
-        printf("0:(null)> ");
-    }
+    prompt(interactive_mode, s);
 
     while((c = getc(in)) != EOF) {
         waiting = FALSE;
 
+        // Push un nouveau nombre sur la pile
         if(c >= '0' && c <= '9') {
             bignum* num = malloc(sizeof(bignum));
 
@@ -114,6 +124,7 @@ int main(int argc, char* argv[]) {
             stack_push(s, num);
 
             waiting = c == '\n';
+        // Addition
         } else if(c == '+') {
             if(stack_len(s) < 2) {
                 fprintf(stderr, "+ nécessite deux opérandes, taille du stack insuffisante\n");
@@ -127,6 +138,7 @@ int main(int argc, char* argv[]) {
 
             bignum_destoroyah(a);
             bignum_destoroyah(b);
+        // Soustraction
         } else if(c == '-') {
             if(stack_len(s) < 2) {
                 fprintf(stderr, "- nécessite deux opérandes, taille du stack insuffisante\n");
@@ -140,6 +152,7 @@ int main(int argc, char* argv[]) {
 
             bignum_destoroyah(a);
             bignum_destoroyah(b);
+        // Multiplication
         } else if(c == '*') {
             if(stack_len(s) < 2) {
                 fprintf(stderr, "* nécessite deux opérandes, taille du stack insuffisante\n");
@@ -154,9 +167,31 @@ int main(int argc, char* argv[]) {
 
             bignum_destoroyah(a);
             bignum_destoroyah(b);
+        // Assignation & test d'égalité
         } else if(c == '=') {
             char c = getc(in);
-            if(c < 'a' || c > 'z') {
+
+            // Extra : Test d'égalité
+            if(c == '=') {
+                if(stack_len(s) < 2) {
+                    fprintf(stderr, "La comparaison == nécessite deux opérandes, taille du stack insuffisante\n");
+                    continue;
+                }
+
+                bignum* a = stack_pop(s);
+                bignum* b = stack_pop(s);
+
+                bignum* num = bignum_fromstr("0");
+
+                num->first->value = bignum_eq(*a, *b);
+
+                stack_push(s, num);
+
+                bignum_destoroyah(a);
+                bignum_destoroyah(b);
+
+                continue;
+            } else if(c < 'a' || c > 'z') {
                 fprintf(stderr, "Le nom de variable `%c` est erroné\n", c);
                 continue;
             }
@@ -169,6 +204,7 @@ int main(int argc, char* argv[]) {
             }
             variables[c - 'a'] = stack_peek(s);
             stack_peek(s)->refs++;
+        // Push une variable sur la pile
         } else if(c >= 'a' && c <= 'z') {
 
             if(variables[c - 'a'] == NULL) {
@@ -178,41 +214,71 @@ int main(int argc, char* argv[]) {
 
             stack_push(s, variables[c - 'a']);
             variables[c - 'a']->refs++;
+        // Ignore les espaces
         } else if(c == ' ') {
-            // Ignored
+        // \n affiche le top du stack
         } else if(c == '\n') {
             if(!stack_empty(s)) {
                 printf("%s\n", bignum_tostr(*stack_peek(s)));
-            } else {
+            } else if(interactive_mode) {
                 printf("Stack vide\n");
             }
             waiting = TRUE;
+        // Extra : comparateurs booléens > et <
+        } else if(c == '>' || c == '<') {
+
+            if(stack_len(s) < 2) {
+                fprintf(stderr, "La comparaison %c nécessite deux opérandes, taille du stack insuffisante\n", c);
+                continue;
+            }
+
+            bignum* a = stack_pop(s);
+            bignum* b = stack_pop(s);
+
+            bignum* num = bignum_fromstr("0");
+
+            switch(c) {
+                case '<':
+                    num->first->value = bignum_gt(*b, *a);
+                    break;
+                case '>':
+                    num->first->value = bignum_gt(*a, *b);
+                    break;
+                default: break;
+            }
+
+            stack_push(s, num);
+
+            bignum_destoroyah(a);
+            bignum_destoroyah(b);
+
+        // Extra : dump le contenu du stack
         } else if(c == '$') {
-            // Dump stack
             stack_dump(s);
+        // Extra : dump le contenu des variables (adresses des bignums référencés)
         } else if(c == '%') {
-            // Dump les variables
             printf("-- Variables --\n");
             for(i = 0; i < 5; i++) {
                 for(j = 0; j < 5; j++) {
-                    printf("%c: %7x |", 'a' + i * 5 + j, variables[i * 5 + j]);
+                    printf("%c: %9p |", 'a' + i * 5 + j, variables[i * 5 + j]);
                 }
                 printf("\n");
             }
-            printf("%c: %7x\n", 'z', variables[25]);
+            printf("%c: %9p\n", 'z', variables[25]);
+        // Extra : pop le top
         } else if(c == '.') {
-            // Pop
            if(!stack_empty(s)) {
                 bignum* a = stack_pop(s);
                 bignum_destoroyah(a);
             }
+        // Extra : clear le stack
         } else if(c == '#') {
-            // Clear stack
             while(!stack_empty(s)) {
                 bignum_destoroyah(stack_pop(s));
             }
+        // Gestion des expressions inconnues
         } else {
-            fprintf(stderr, "Symbole inconnu ignoré : %c", c);
+            fprintf(stderr, "Expression inconnue ignorée : %c", c);
             while(c != ' ' && c != '\n') {
                 c = getc(in);
                 fprintf(stderr, "%c", c);
@@ -221,14 +287,8 @@ int main(int argc, char* argv[]) {
             waiting = c == '\n';
         }
 
-        if(waiting && interactive_mode == 1) {
-            printf("> ");
-        } else if(waiting && interactive_mode == 2) {
-            if(stack_empty(s)) {
-                printf("0:(null)> ");
-            } else {
-                printf("%ld:%s> ", stack_len(s), bignum_tostr(*stack_peek(s)));
-            }
+        if(waiting) {
+            prompt(interactive_mode, s);
         }
     }
 
