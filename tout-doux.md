@@ -11,14 +11,14 @@
    - [X] Lecture de l'entrée dans un bignum
 - [X] Évaluation du top du stack (+ - *)
 - [ ] Variables
-   - [ ] Assignation du top du stack dans des variables (10 =x)
-   - [ ] assignations de variables par références (10 =x =y)
-   - [ ] Lecture des variables vers le top stack (10 a +)
-   - [ ] Libération de la mémoire qui ne sera plus utilisée (genre, 10 =x =y 200 =x 500 =y ---> le 10 ne devrait plus être nulle part)
+   - [X] Assignation du top du stack dans des variables (10 =x)
+   - [X] Assignations de variables par références (10 =x =y)
+   - [X] Lecture des variables vers le top stack (10 a +)
+   - [X] Libération de la mémoire qui ne sera plus utilisée (genre, 10 =x =y 200 =x 500 =y ---> le 10 ne devrait plus être nulle part)
 - [ ] Optimisations
    - [ ] Multiplication moins tarée
-- [ ] Messages d'erreur possibles (à la fin, penser aux cas où ça peut planter)
-   -  [ ] Accès à une variable qui n'existe pas
+- [X] Messages d'erreur possibles (à la fin, penser aux cas où ça peut planter)
+   -  [X] Accès à une variable qui n'existe pas
    -  [X] Input invalide en général
    -  [X] Malloc qui donne NULL -> Macro `please_dont_segfault()`
 - [ ] Rédaction du rapport (à deux, quand tout le reste est fait)
