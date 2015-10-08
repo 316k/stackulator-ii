@@ -9,8 +9,8 @@
         exit(-1); \
     }
 
-#define MIN(a, b) a <= b ? a : b
-#define MAX(a, b) a >= b ? a : b
+#define MIN(a, b) (a <= b ? a : b)
+#define MAX(a, b) (a >= b ? a : b)
 
 // see https://stackoverflow.com/questions/198199/how-do-you-reverse-a-string-in-place-in-c-or-c
 void strrev(char *p) {
