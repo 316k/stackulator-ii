@@ -180,6 +180,24 @@ void test_bignum_mul() {
     ASSERT(bignum_eq(*bignum_mul(*h, *g), *d));
 }
 
+void test_bignum_split(){
+    bignum* a = bignum_fromstr("6666888");
+    bignum* b = bignum_fromstr("6666");
+    bignum* c = bignum_fromstr("888");
+    
+    bignum* high = bignum_init();
+    bignum* low = bignum_init();
+
+    bignum_split(*a, high, low);
+    
+    printf("%s\n", bignum_tostr(*high));
+    printf("%s\n", bignum_tostr(*low));
+    
+    ASSERT(bignum_eq(*high, *b));
+    ASSERT(bignum_eq(*low, *c));
+    return;
+}
+
 void test_stack_push() {
     stack* s = stack_init();
     bignum* a = bignum_fromstr("8");
@@ -289,6 +307,7 @@ char test_all() {
     test_bignum_gt();
     test_bignum_add();
 	test_bignum_mul();
+	test_bignum_split();
     // stack.c
     test_stack_push();
     test_stack_peek();
