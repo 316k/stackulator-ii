@@ -39,9 +39,7 @@ void bignum_destoroyah(bignum* num) {
  */
 int bignum_len(bignum num) {
     long len = 0;
-    bigdigit** ptr_addr = NULL;
-
-    ptr_addr = &num.first;
+    bigdigit** ptr_addr = &num.first;
 
     while(*ptr_addr != NULL) {
         len++;
