@@ -1,12 +1,15 @@
 #include <string.h>
-#define ASSERT(expr) assert(expr, __func__, __LINE__)
+#define ASSERT(expr) test_all_works = test_all_works && assert(expr, __func__, __LINE__)
+
+// Oui oui, c'est une variable globale. Vous avez un problème avec ça ?
+char test_all_works = TRUE;
 
 char assert(char exp, const char* func, int line) {
     if(exp != 1) {
         printf("** %s ** : Assertion failed in test.c line %d\n", func, line);
     }
 
-    return exp != 1;
+    return exp;
 }
 
 void test_strpad() {
@@ -144,7 +147,6 @@ void test_bignum_add() {
 
     bignum* m = bignum_fromstr("000001");
     bignum* n = bignum_fromstr("000002");
-    printf("%s %s \n", bignum_tostr(*m), bignum_tostr(*n));
     ASSERT(bignum_eq(*bignum_add(*n, *m), *bignum_fromstr("3")));
 }
 
@@ -275,7 +277,7 @@ void test_stress_stack() {
     }
 }
 
-void test_all() {
+char test_all() {
     // help.c
     test_strpad();
     // bignum.c
@@ -294,4 +296,6 @@ void test_all() {
     test_stack_empty();
     test_stack_len();
     test_stress_stack();
+
+    return test_all_works;
 }
