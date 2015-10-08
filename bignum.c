@@ -349,3 +349,65 @@ bignum* bignum_mul(bignum a, bignum b) {
 
     return prod;
 }
+/* Initialize an empty positive bignum*/
+bignum* bignum_init() {
+    bignum* num = malloc(sizeof(bignum));
+    please_dont_segfault(num);
+    num->first = NULL;
+    num->refs = 1;
+    num->sign = 0;
+    return num;
+}
+
+/* Splitte un bignum en deux à la moitié de la longueur. Il faut passer deux
+  pointeurs Vers ce qui va contenir high et low.
+*/
+void bignum_split(bignum a, bignum* high, bignum* low) {
+    int middle = bignum_len(a)/2;
+
+    high->sign = a.sign;
+    low->sign = a.sign;
+
+    bigdigit* new_digit = NULL;
+    bigdigit* prev_new_digit = NULL;
+    bigdigit* current_digit = a.first;
+    int i = 1;
+    while(current_digit != NULL){
+        //Copies the current digit.
+        new_digit = malloc(sizeof(bignum));
+        please_dont_segfault(new_digit);
+        new_digit->next = NULL;
+        new_digit->value = current_digit->value;
+        //if its not the start of high and a previous digit exists, its next is 
+        //the new one.
+        if(i != middle+1 && prev_new_digit != NULL){
+            
+            prev_new_digit->next = new_digit;
+        }
+        if(i == 1) {
+            low->first = new_digit;
+        } else if(i == middle+1) {
+            prev_new_digit = NULL;
+            high->first = new_digit;
+        }
+        prev_new_digit = new_digit;
+        current_digit = current_digit->next;
+        i++;
+    }
+}
+
+
+
+/*bignum* karatsuba_mul(bignum a, bignum b) {
+    //compute the size of both nums.
+    int len_a = bignum_len(a);
+    int len_b = bignum_len(b);
+    //if any of the num is <10, multiply normally
+    if( len_a < 2 || bignum_len(b) < 2) {
+        return bignum_mul(a,b);
+    }
+    int m = MAX(len_a, len_b);
+    
+    //temporaire
+    return &a;
+}*/
