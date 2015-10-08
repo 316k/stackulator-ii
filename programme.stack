@@ -1,0 +1,3 @@
+#!./stackulator -s
+155 10 =a =b % $
+* . . =a b b *
