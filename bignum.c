@@ -302,6 +302,7 @@ bignum* bignum_add(bignum a, bignum b) {
         next = &digit->next;
     }
 
+    *next = NULL;
     bignum_clean(sum);
 
     return sum;
