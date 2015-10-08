@@ -26,7 +26,6 @@ void bignum_destoroyah(bignum* num) {
     num->refs--;
 
     if(num->refs == 0) {
-        printf("destoroyah in action !\n");
         // Vive les bignums libres !
         bigdigit* current = num->first;
         bigdigit* next = NULL;
