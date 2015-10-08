@@ -465,6 +465,13 @@ bignum* bignum_mul(bignum a, bignum b) {
     bignum* of_the_res = bignum_add(*res_strikes_back, *the_res_menace);
 
     //Free everything.
+    bignum_destoroyah(high_a);
+    bignum_destoroyah(high_b);
+    bignum_destoroyah(low_a);
+    bignum_destoroyah(low_b);
+    bignum_destoroyah(z0);
+    bignum_destoroyah(z1);
+    bignum_destoroyah(z2);
     bignum_destoroyah(the_res_menace);
     bignum_destoroyah(attack_of_the_res);
     bignum_destoroyah(a_new_res);
