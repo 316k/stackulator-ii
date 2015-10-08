@@ -60,33 +60,33 @@ int bignum_len(bignum num) {
  */
 void bignum_clean(bignum* num) {
     int len = bignum_len(*num), relevant_size = 0, i;
-    bigdigit** digit_addr = &num->first;
-    bigdigit** current = NULL;
-    bigdigit** next = NULL;
-    bigdigit** prev = NULL;
+    bigdigit* digit_addr = num->first;
+    bigdigit* current = NULL;
+    bigdigit* next = NULL;
+    bigdigit* prev = NULL;
 
     for(i = 0; i < len; i++) {
-        relevant_size = (*digit_addr)->value ? i : relevant_size;
-        digit_addr = &(*digit_addr)->next;
+        relevant_size = digit_addr->value ? i : relevant_size;
+        digit_addr = digit_addr->next;
     }
 
     relevant_size++;
 
-    digit_addr = &num->first;
+    digit_addr = num->first;
 
-    for(i = 0; i<relevant_size; i++) {
+    for(i = 0; i < relevant_size; i++) {
         prev = digit_addr;
-        digit_addr = &(*digit_addr)->next;
+        digit_addr = digit_addr->next;
     }
 
     current = digit_addr;
 
     for(i = relevant_size; i < len; i++) {
-        next = &(*current)->next;
-        free(*current);
+        next = current->next;
+        free(current);
         current = next;
     }
-    (*prev)->next = NULL;
+    prev->next = NULL;
 }
 
 /**
