@@ -247,6 +247,31 @@ int main(int argc, char* argv[]) {
             bignum_destoroyah(a);
             bignum_destoroyah(b);
 
+        // Extra : opérateur ternaire
+        } else if(c == '?') {
+
+            if(stack_len(s) < 3) {
+                fprintf(stderr, "La ternaire (?) nécessite trois opérandes, taille du stack insuffisante\n");
+                continue;
+            }
+
+            bignum* zero = bignum_fromstr("0");
+
+            bignum* condition = stack_pop(s);
+            bignum* v_false = stack_pop(s);
+            bignum* v_true = stack_pop(s);
+
+            if(!bignum_eq(*condition, *zero)) {
+                stack_push(s, v_true);
+                bignum_destoroyah(v_false);
+            } else {
+                stack_push(s, v_false);
+                bignum_destoroyah(v_true);
+            }
+
+            bignum_destoroyah(zero);
+            bignum_destoroyah(condition);
+
         // Extra : dump le contenu du stack
         } else if(c == '$') {
             stack_dump(s);
