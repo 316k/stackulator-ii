@@ -380,7 +380,7 @@ bignum* bignum_dumb_mul(bignum a, bignum b) {
 /* Splitte un bignum en deux à la moitié de la longueur. Il faut passer deux
   pointeurs Vers ce qui va contenir high et low.
 */
-void bignum_split(int split_index ,bignum a, bignum* high, bignum* low) {
+void bignum_split(int split_index, bignum a, bignum* high, bignum* low) {
 
     high->sign = a.sign;
     low->sign = a.sign;
@@ -423,9 +423,7 @@ bignum* bignum_copy(bignum* num) {
     
     while(current_digit != NULL){
         //Copies the current digit.
-        new_digit = malloc(sizeof(bignum));
-        please_dont_segfault(new_digit);
-        new_digit->next = NULL;
+        new_digit = bigdigit_init();
         new_digit->value = current_digit->value;
 
         if(prev_new_digit != NULL){
@@ -439,11 +437,13 @@ bignum* bignum_copy(bignum* num) {
 
 /* Arithmetic base 10 left shift on a bignum.*/
 void bignum_shift_left(bignum* out, int shamt) {
-    bigdigit* zero = NULL;
-    bigdigit* old_first = NULL;
+    bigdigit* zero;
+    bigdigit* old_first;
     int i;
-    for(i=0; i<shamt; i++) {
-        zero = malloc(sizeof(bigdigit));
+
+    for(i=0; i < shamt; i++) {
+        zero = bigdigit_init();
+
         old_first = out->first;
         zero->next = old_first;
         out->first = zero;
@@ -454,27 +454,41 @@ void bignum_shift_left(bignum* out, int shamt) {
  * Algo de karatsuba pour la multiplication de grands entiers
  */
 bignum* bignum_mul(bignum a, bignum b) {
-    //compute the size of both nums
     int len_a = bignum_len(a);
     int len_b = bignum_len(b);
-    //if any of the num is <10, multiply normally
-    if( len_a < 2 || bignum_len(b) < 2) {
+
+    // Multiplication stupide pour les petits nombres
+    if(len_a < 2 || len_b < 2) {
         return bignum_dumb_mul(a,b);
     }
-    int max_middle = MAX(len_a, len_b);
+    int max_middle = MAX(len_a, len_b)/2;
+    printf("m2: %d\n", max_middle);
+
     bignum* high_a = bignum_init();
     bignum* high_b = bignum_init();
     bignum* low_a = bignum_init();
     bignum* low_b = bignum_init();
+
     bignum_split(max_middle, a, high_a, low_a);
     bignum_split(max_middle, b, high_b, low_b);
 
-    bignum* z0 = bignum_mul(*low_a, *low_b);
-    //This is painful to code : (z2*10^(2*m2))+((z1-z2-z0)*10^(m2))+(z0)
-    bignum* z1 = bignum_mul(*bignum_add(*low_a, *low_b), *bignum_add(*high_a, *high_b));
-    bignum* z2 = bignum_mul(*high_a, *high_b);
+    printf("h1: %s l1: %s h2: %s l2: %s\n", bignum_tostr(*high_a), bignum_tostr(*low_a), bignum_tostr(*high_b),bignum_tostr(*low_b));
 
-    //Saletés de pointeurs, c'est la guerre des étoiles
+    bignum* z0 = bignum_mul(*low_a, *low_b);
+
+    printf("z0: %s\n", bignum_tostr(*z0));
+
+    // Je voudrais de l'operator overloading : (z2*10^(2*m2))+((z1-z2-z0)*10^(m2))+(z0)
+    bignum* sum_a = bignum_add(*low_a, *high_a);
+    bignum* sum_b = bignum_add(*low_b, *high_b);
+
+    bignum* z1 = bignum_mul(*sum_a, *sum_b);
+    printf("z1: %s\n", bignum_tostr(*z1));
+
+    bignum* z2 = bignum_mul(*high_a, *high_b);
+    printf("z2: %s\n", bignum_tostr(*z2));
+
+    // Saletés de pointeurs, c'est la guerre des étoiles
     bignum* the_res_menace = bignum_copy(z2);
     bignum_shift_left(the_res_menace, 2*max_middle);
     bignum* attack_of_the_res = bignum_sub(*z1, *z2);
@@ -495,6 +509,5 @@ bignum* bignum_mul(bignum a, bignum b) {
     bignum_destoroyah(attack_of_the_res);
     bignum_destoroyah(a_new_res);
     bignum_destoroyah(res_strikes_back);
-
     return of_the_res;
 }
