@@ -12,11 +12,6 @@ char assert(char exp, const char* func, int line) {
     return exp;
 }
 
-void test_strpad() {
-    ASSERT(strcmp(strpad("1230000", '0', 3), "1230000") == 0);
-    ASSERT(strcmp(strpad("123", '0', 5), "00123") == 0);
-}
-
 void test_bignum_tostr() {
     bignum num;
     bigdigit d1, d2, d3, d0;
@@ -312,8 +307,6 @@ void test_stress_stack() {
 }
 
 char test_all() {
-    // help.c
-    test_strpad();
     // bignum.c
     test_bignum_tostr();
     test_bignum_fromstr();
