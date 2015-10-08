@@ -16,12 +16,15 @@ int main(int argc, char* argv[]) {
     for(i = 1; i < argc && argv[i][0] == '-'; i++) {
         if(strcmp(argv[i], "-s") == 0 || strcmp(argv[i], "--silent") == 0) {
             interactive_mode = FALSE;
+        } else if(strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--verbose") == 0) {
+            interactive_mode = 2; // verbose
         } else if(strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
             printf("usage : stackulator [options]\n");
             printf("stackulator is a postfix calculator evaluates stdin into stdout\n");
             printf("Enter prints the top of the stack, supported operations are + - *\n");
             printf("options :\n");
             printf("    -s, --silent : don't show '>' prompt character\n");
+            printf("    -v, --verbose : show useful stuff instead of just the '>' prompt character\n");
             // printf("    -e, --ed : `ed` mode\n");
             printf("    -h, --help : displays help\n");
             return EXIT_SUCCESS;
@@ -31,8 +34,10 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    if(interactive_mode) {
+    if(interactive_mode == 1) {
         printf("> ");
+    } else if(interactive_mode == 2) {
+        printf("0:(null)> ");
     }
 
     while((c = getchar()) != EOF) {
@@ -86,7 +91,7 @@ int main(int argc, char* argv[]) {
             waiting = c == '\n';
         } else if(c == '+') {
             if(stack_len(s) < 2) {
-                fprintf(stderr, "Pas assez de nombres sur le stack\n");
+                fprintf(stderr, "+ nécessite deux opérandes, taille du stack insuffisante\n");
             } else {
                 bignum* a = stack_pop(s);
                 bignum* b = stack_pop(s);
@@ -99,7 +104,7 @@ int main(int argc, char* argv[]) {
             }
         } else if(c == '-') {
             if(stack_len(s) < 2) {
-                fprintf(stderr, "Pas assez de nombres sur le stack\n");
+                fprintf(stderr, "- nécessite deux opérandes, taille du stack insuffisante\n");
             } else {
                 bignum* a = stack_pop(s);
                 bignum* b = stack_pop(s);
@@ -112,7 +117,7 @@ int main(int argc, char* argv[]) {
             }
         } else if(c == '*') {
             if(stack_len(s) < 2) {
-                fprintf(stderr, "Pas assez de nombres sur le stack\n");
+                fprintf(stderr, "* nécessite deux opérandes, taille du stack insuffisante\n");
             } else {
                 bignum* a = stack_pop(s);
                 bignum* b = stack_pop(s);
@@ -135,6 +140,12 @@ int main(int argc, char* argv[]) {
         } else if(c == '$') {
             // Dump stack
             stack_dump(s);
+        } else if(c == '.') {
+            // Pop
+           if(!stack_empty(s)) {
+                bignum* a = stack_pop(s);
+                bignum_destoroyah(a);
+            }   
         } else if(c == '#') {
             // Clear stack
             while(!stack_empty(s)) {
@@ -151,8 +162,14 @@ int main(int argc, char* argv[]) {
             waiting = c == '\n';
         }
 
-        if(waiting && interactive_mode) {
+        if(waiting && interactive_mode == 1) {
             printf("> ");
+        } else if(waiting && interactive_mode == 2) {
+            if(stack_empty(s)) {
+                printf("0:(null)> ");
+            } else {
+                printf("%ld:%s> ", stack_len(s), bignum_tostr(*stack_peek(s)));
+            }
         }
     }
 
