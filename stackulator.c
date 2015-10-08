@@ -57,6 +57,7 @@ int main(int argc, char* argv[]) {
     if(i < argc) {
         in = fopen(argv[i], "r");
         if(in == NULL) {
+            fprintf(stderr, "Impossible d'ouvrir le fichier %s\n", argv[i]);
             return EXIT_FAILURE;
         }
 
@@ -78,22 +79,15 @@ int main(int argc, char* argv[]) {
 
         // Push un nouveau nombre sur la pile
         if(c >= '0' && c <= '9') {
-            bignum* num = malloc(sizeof(bignum));
-
-            please_dont_segfault(num);
-
-            num->sign = BIGNUM_POSITIVE; // Impossible d'entrer un nombre négatif
-            num->refs = 1;
+            bignum* num = bignum_init();
 
             bigdigit* digit = NULL;
             bigdigit* prev_addr = NULL;
 
             // Si ça commence avec 0, on veut potentiellement garder le premier seulement
             if(c == '0') {
-                digit = malloc(sizeof(bigdigit));
+                digit = bigdigit_init();
 
-                digit->next = NULL;
-                digit->value = 0;
                 prev_addr = digit;
 
                 while((c = getc(in)) == '0');
@@ -107,9 +101,7 @@ int main(int argc, char* argv[]) {
 
             while(c >= '0' && c <= '9') {
 
-                digit = malloc(sizeof(bigdigit));
-
-                please_dont_segfault(digit);
+                digit = bigdigit_init();
 
                 digit->next = prev_addr;
                 digit->value = c - '0';
@@ -196,12 +188,15 @@ int main(int argc, char* argv[]) {
                 continue;
             }
 
-            // Si le stack est empty, on met "NULL" dans la variable
+            // Si le stack est vide, on met (ou on laisse) NULL dans la variable
             if(stack_empty(s)) {
-                bignum_destoroyah(variables[c - 'a']);
+                if(variables[c - 'a']) {
+                    bignum_destoroyah(variables[c - 'a']);
+                }
                 variables[c - 'a'] = NULL;
                 continue;
             }
+
             variables[c - 'a'] = stack_peek(s);
             stack_peek(s)->refs++;
         // Push une variable sur la pile
