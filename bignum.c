@@ -361,8 +361,7 @@ bignum* bignum_init() {
 /* Splitte un bignum en deux à la moitié de la longueur. Il faut passer deux
   pointeurs Vers ce qui va contenir high et low.
 */
-void bignum_split(bignum a, bignum* high, bignum* low) {
-    int middle = bignum_len(a)/2;
+void bignum_split(int split_index ,bignum a, bignum* high, bignum* low) {
 
     high->sign = a.sign;
     low->sign = a.sign;
@@ -379,13 +378,12 @@ void bignum_split(bignum a, bignum* high, bignum* low) {
         new_digit->value = current_digit->value;
         //if its not the start of high and a previous digit exists, its next is 
         //the new one.
-        if(i != middle+1 && prev_new_digit != NULL){
-            
+        if(i != split_index+1 && prev_new_digit != NULL){
             prev_new_digit->next = new_digit;
         }
         if(i == 1) {
             low->first = new_digit;
-        } else if(i == middle+1) {
+        } else if(i == split_index+1) {
             prev_new_digit = NULL;
             high->first = new_digit;
         }
@@ -395,9 +393,45 @@ void bignum_split(bignum a, bignum* high, bignum* low) {
     }
 }
 
+bignum* bignum_copy(bignum* num) {
 
+    bignum* copy = bignum_init();
+    copy->sign = num->sign;
 
-/*bignum* karatsuba_mul(bignum a, bignum b) {
+    bigdigit* new_digit = NULL;
+    bigdigit* prev_new_digit = NULL;
+    bigdigit* current_digit = num->first;
+    
+    while(current_digit != NULL){
+        //Copies the current digit.
+        new_digit = malloc(sizeof(bignum));
+        please_dont_segfault(new_digit);
+        new_digit->next = NULL;
+        new_digit->value = current_digit->value;
+
+        if(prev_new_digit != NULL){
+            prev_new_digit->next = new_digit;
+        }
+        prev_new_digit = new_digit;
+        current_digit = current_digit->next;
+    }
+    return copy;
+}
+
+/* Arithmetic base 10 left shift on a bignum.*/
+void bignum_shift_left(bignum* out, int shamt) {
+    bigdigit* zero = NULL;
+    bigdigit* old_first = NULL;
+    int i;
+    for(i=0; i<shamt; i++) {
+        zero = malloc(sizeof(bigdigit));
+        old_first = out->first;
+        zero->next = old_first;
+        out->first = zero;
+    }
+}
+
+/*bignum* karatsuba(bignum a, bignum b) {
     //compute the size of both nums.
     int len_a = bignum_len(a);
     int len_b = bignum_len(b);
@@ -405,8 +439,19 @@ void bignum_split(bignum a, bignum* high, bignum* low) {
     if( len_a < 2 || bignum_len(b) < 2) {
         return bignum_mul(a,b);
     }
-    int m = MAX(len_a, len_b);
+    int max_middle = MAX(len_a, len_b);
+    bignum* high_a = bignum_init();
+    bignum* high_b = bignum_init();
+    bignum* low_a = bignum_init();
+    bignum* low_b = bignum_init();
+    bignum_split(max_middle, a, high_a, low_a);
+    bignum_split(max_middle, b, high_b, low_b);
+    
+    bignum* z0 = karatsuba(*low_a, *low_b);
+    bignum* z1 = karatsuba(*bignum_add(*low_a, *low_b), *bignum_add(*high_a, *high_b));
+    bignum* z2 = karatsuba(*high_a, *high_b);
     
     //temporaire
-    return &a;
+    return
+    //return (z2*10^(2*m2))+((z1-z2-z0)*10^(m2))+(z0);
 }*/
