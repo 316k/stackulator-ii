@@ -20,7 +20,7 @@ struct bignum {
 
 /**
  * free() le bignum et tous les bigdigits associés
- * デストロヤ
+ * Voir https://ja.wikipedia.org/wiki/ザ・デストロイヤー pour plus de détails
  */
 void bignum_destoroyah(bignum* num) {
     num->refs--;
