@@ -18,7 +18,7 @@ char* strpad(char str[], char pad, int size) {
     if(strlen(str) > size)
         return str;
 
-    char* out = malloc(sizeof(char) * size + 1);
+    char* out = malloc(sizeof(char) * (size + 1));
 
     please_dont_segfault(out);
 
