@@ -465,8 +465,8 @@ void bignum_split(int split_index, bignum a, bignum* high, bignum* low) {
         i++;
     }
 
-    // bignum_clean(high);
-    // bignum_clean(low);
+    bignum_clean(high);
+    bignum_clean(low);
 }
 
 /* Arithmetic base 10 left shift on a bignum.*/
