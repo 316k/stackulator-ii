@@ -391,9 +391,7 @@ void bignum_split(int split_index, bignum a, bignum* high, bignum* low) {
     int i = 1;
     while(current_digit != NULL){
         //Copies the current digit.
-        new_digit = malloc(sizeof(bignum));
-        please_dont_segfault(new_digit);
-        new_digit->next = NULL;
+        new_digit = bigdigit_init();
         new_digit->value = current_digit->value;
         //if its not the start of high and a previous digit exists, its next is 
         //the new one.
