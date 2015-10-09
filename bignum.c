@@ -24,6 +24,9 @@ struct bignum {
 bignum* bignum_init() {
     bignum* num = malloc(sizeof(bignum));
     please_dont_segfault(num);
+    #ifdef debug
+    fprintf(stderr, "+num %9p\n", num);
+    #endif
     num->first = NULL;
     num->refs = 1;
     num->sign = 0;
@@ -37,7 +40,9 @@ bigdigit* bigdigit_init() {
     bigdigit* digit = malloc(sizeof(bigdigit));
 
     please_dont_segfault(digit);
-
+    #ifdef debug
+    fprintf(stderr, "+dig %9p\n", digit);
+    #endif
     digit->value = 0;
     digit->next = NULL;
 
@@ -58,12 +63,41 @@ void bignum_destoroyah(bignum* num) {
 
         while(current != NULL) {
             next = current->next;
+            #ifdef debug
+            fprintf(stderr, "-dig %9p\n", current);
+            #endif
             free(current);
             current = next;
         }
 
+        #ifdef debug
+        fprintf(stderr, "-num %9p\n", num);
+        #endif
         free(num);
     }
+}
+
+bignum* bignum_copy(bignum* num) {
+
+    bignum* copy = bignum_init();
+    copy->sign = num->sign;
+
+    bigdigit* new_digit = NULL;
+    bigdigit* current_digit = num->first;
+    bigdigit** prev = &copy->first;
+
+    while(current_digit != NULL) {
+        // Copies the current digit.
+        new_digit = bigdigit_init();
+        new_digit->value = current_digit->value;
+
+        current_digit = current_digit->next;
+
+        *prev = new_digit;
+        prev = &new_digit->next;
+    }
+
+    return copy;
 }
 
 /*
@@ -71,11 +105,11 @@ void bignum_destoroyah(bignum* num) {
  */
 int bignum_len(bignum num) {
     long len = 0;
-    bigdigit** ptr_addr = &num.first;
+    bigdigit* ptr_addr = num.first;
 
-    while(*ptr_addr != NULL) {
+    while(ptr_addr != NULL) {
         len++;
-        ptr_addr = &(*ptr_addr)->next;
+        ptr_addr = ptr_addr->next;
     }
 
     return len;
@@ -165,8 +199,6 @@ char* bignum_tostr(bignum num) {
         out[0] = '-';
     }
 
-    digit_addr = &num.first;
-
     for(i = len + num.sign; i > num.sign; i--) {
         out[i-1] = (*digit_addr)->value + '0';
         digit_addr = &(*digit_addr)->next;
@@ -175,6 +207,18 @@ char* bignum_tostr(bignum num) {
     out[len + num.sign] = '\0';
 
     return out;
+}
+
+/**
+ * Donne la représentation en char* d'un bignum
+ */
+void bignum_dump(bignum* num) {
+    bigdigit* digit_addr = num->first;
+
+    while(digit_addr != NULL) {
+        printf("%d at %p\n", digit_addr->value, digit_addr);
+        digit_addr = digit_addr->next;
+    }
 }
 
 /**
@@ -361,14 +405,25 @@ bignum* bignum_dumb_mul(bignum a, bignum b) {
     bignum* dec = bignum_fromstr("-1");
 
     char sign = a.sign != b.sign;
-    b.sign = 0;
+
+    bignum* b_copy = bignum_copy(&b);
+    b_copy->sign = 0;
+    bignum* add_result = NULL;
+    bignum* prod_result = NULL;
+
     a.sign = 0;
 
-    while(!bignum_eq(b, *zero)) {
-        b = *bignum_add(b, *dec); // Decrement b
-        prod = bignum_add(*prod, a);
+    while(!bignum_eq(*b_copy, *zero)) {
+        add_result = bignum_add(*b_copy, *dec);
+        free(b_copy);
+        b_copy = add_result;
+
+        prod_result = bignum_add(*prod, a);
+        free(prod);
+        prod = prod_result;
     }
 
+    free(b_copy);
     bignum_destoroyah(zero);
     bignum_destoroyah(dec);
 
@@ -410,31 +465,6 @@ void bignum_split(int split_index, bignum a, bignum* high, bignum* low) {
     }
 }
 
-bignum* bignum_copy(bignum* num) {
-
-    bignum* copy = bignum_init();
-    copy->sign = num->sign;
-
-    bigdigit* new_digit;
-    bigdigit* prev_new_digit = NULL;
-    bigdigit* current_digit = num->first;
-
-    new_digit = bigdigit_init();
-    new_digit->value = current_digit->value;
-    copy->first = new_digit;
-    prev_new_digit = new_digit;
-    current_digit = current_digit->next;
-    while(current_digit != NULL){
-        //Copies the current digit.
-        new_digit = bigdigit_init();
-        new_digit->value = current_digit->value;
-        prev_new_digit->next = new_digit;
-        prev_new_digit = new_digit;
-        current_digit = current_digit->next;
-    }
-    return copy;
-}
-
 /* Arithmetic base 10 left shift on a bignum.*/
 void bignum_shift_left(bignum* out, int shamt) {
     bigdigit* zero;
@@ -450,6 +480,7 @@ void bignum_shift_left(bignum* out, int shamt) {
     }
 }
 
+int powerglobal = 0;
 /**
  * Algo de karatsuba pour la multiplication de grands entiers
  */
@@ -457,12 +488,14 @@ bignum* bignum_mul(bignum a, bignum b) {
     int len_a = bignum_len(a);
     int len_b = bignum_len(b);
 
+    fprintf(stderr, "powerglobal : %d\n", powerglobal);
+    powerglobal++;
     // Multiplication stupide pour les petits nombres
     if(len_a < 2 || len_b < 2) {
         return bignum_dumb_mul(a,b);
     }
     int max_middle = MAX(len_a, len_b)/2;
-    printf("m2: %d\n", max_middle);
+
 
     bignum* high_a = bignum_init();
     bignum* high_b = bignum_init();
@@ -472,42 +505,45 @@ bignum* bignum_mul(bignum a, bignum b) {
     bignum_split(max_middle, a, high_a, low_a);
     bignum_split(max_middle, b, high_b, low_b);
 
-    printf("h1: %s l1: %s h2: %s l2: %s\n", bignum_tostr(*high_a), bignum_tostr(*low_a), bignum_tostr(*high_b),bignum_tostr(*low_b));
-
     bignum* z0 = bignum_mul(*low_a, *low_b);
-
-    printf("z0: %s\n", bignum_tostr(*z0));
 
     // Je voudrais de l'operator overloading : (z2*10^(2*m2))+((z1-z2-z0)*10^(m2))+(z0)
     bignum* sum_a = bignum_add(*low_a, *high_a);
     bignum* sum_b = bignum_add(*low_b, *high_b);
 
-    bignum* z1 = bignum_mul(*sum_a, *sum_b);
-    printf("z1: %s\n", bignum_tostr(*z1));
-
     bignum* z2 = bignum_mul(*high_a, *high_b);
-    printf("z2: %s\n", bignum_tostr(*z2));
 
-    // Saletés de pointeurs, c'est la guerre des étoiles
-    bignum* the_res_menace = bignum_copy(z2);
-    bignum_shift_left(the_res_menace, 2*max_middle);
-    bignum* attack_of_the_res = bignum_sub(*z1, *z2);
-    bignum* a_new_res = bignum_sub(*attack_of_the_res, *z0);
-    bignum_shift_left(a_new_res, max_middle);
-    bignum* res_strikes_back = bignum_add(*a_new_res, *z0);
-    bignum* of_the_res = bignum_add(*res_strikes_back, *the_res_menace);
-
-    //Free everything.
     bignum_destoroyah(high_a);
     bignum_destoroyah(high_b);
     bignum_destoroyah(low_a);
     bignum_destoroyah(low_b);
-    bignum_destoroyah(z0);
+
+    bignum* z1 = bignum_mul(*sum_a, *sum_b);
+
+    bignum_destoroyah(sum_a);
+    bignum_destoroyah(sum_b);
+
+    // Saletés de pointeurs, c'est la guerre des étoiles
+    bignum* the_res_menace = bignum_copy(z2);
+    bignum_shift_left(the_res_menace, 2*max_middle);
+
+    bignum* attack_of_the_res = bignum_sub(*z1, *z2);
     bignum_destoroyah(z1);
     bignum_destoroyah(z2);
-    bignum_destoroyah(the_res_menace);
+
+    bignum* a_new_res = bignum_sub(*attack_of_the_res, *z0);
     bignum_destoroyah(attack_of_the_res);
+
+    bignum_shift_left(a_new_res, max_middle);
+    bignum* res_strikes_back = bignum_add(*a_new_res, *z0);
+
+    bignum_destoroyah(z0);
     bignum_destoroyah(a_new_res);
+
+    bignum* of_the_res = bignum_add(*res_strikes_back, *the_res_menace);
+
+    bignum_destoroyah(the_res_menace);
     bignum_destoroyah(res_strikes_back);
+
     return of_the_res;
 }
