@@ -160,6 +160,21 @@ int main(int argc, char* argv[]) {
             bignum_destoroyah(a);
             bignum_destoroyah(b);
         // Assignation & test d'égalité
+        } else if(c == '&') {
+            if(stack_len(s) < 2) {
+                fprintf(stderr, "* nécessite deux opérandes, taille du stack insuffisante\n");
+                continue;
+            }
+
+            bignum* a = stack_pop(s);
+            bignum* b = stack_pop(s);
+
+            bignum* num = bignum_dumb_mul(*a, *b);
+            stack_push(s, num);
+
+            bignum_destoroyah(a);
+            bignum_destoroyah(b);
+        // Assignation & test d'égalité
         } else if(c == '=') {
             char c = getc(in);
 
@@ -271,7 +286,13 @@ int main(int argc, char* argv[]) {
 
             bignum_destoroyah(zero);
             bignum_destoroyah(condition);
-
+        // Extra : duplique le top du stack
+        } else if(c == '@') {
+            if(stack_empty(s)) {
+                fprintf(stderr, "La copie nécessite un élément sur le stack\n");
+                continue;
+            }
+            stack_push(s, bignum_copy(stack_peek(s)));
         // Extra : dump le contenu du stack
         } else if(c == '$') {
             stack_dump(s);
