@@ -213,14 +213,23 @@ void test_bignum_split() {
     bignum* g = bignum_fromstr("668");
     bignum* h = bignum_fromstr("66");
     bignum* i = bignum_fromstr("8");
+    bignum* j = bignum_fromstr("8");
 
     high = bignum_init();
     low = bignum_init();
 
-    bignum_split(3, *g, high, low);
+    bignum_split(1, *g, high, low);
 
     ASSERT(bignum_eq(*high, *h));
     ASSERT(bignum_eq(*low, *i));
+
+    high = bignum_init();
+    low = bignum_init();
+
+    bignum_split(1, *h, high, low);
+
+    ASSERT(bignum_eq(*high, *i));
+    ASSERT(bignum_eq(*low, *j));
 }
 
 void test_bignum_shift_left() {

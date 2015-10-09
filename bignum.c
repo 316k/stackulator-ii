@@ -443,29 +443,30 @@ void bignum_split(int split_index, bignum a, bignum* high, bignum* low) {
     bigdigit* prev_new_digit = NULL;
     bigdigit* current_digit = a.first;
     int i = 1;
+
     while(current_digit != NULL) {
-        //Copies the current digit.
         new_digit = bigdigit_init();
         new_digit->value = current_digit->value;
-        //if its not the start of high and a previous digit exists, its next is 
-        //the new one.
-        if(i != split_index+1 && prev_new_digit != NULL){
-            prev_new_digit->next = new_digit;
-        }
 
+        // Première fois
         if(i == 1) {
             low->first = new_digit;
         } else if(i == split_index + 1) {
             prev_new_digit = NULL;
             high->first = new_digit;
         }
+
+        if(i != split_index+1 && prev_new_digit != NULL){
+            prev_new_digit->next = new_digit;
+        }
+
         prev_new_digit = new_digit;
         current_digit = current_digit->next;
         i++;
     }
 
-    bignum_clean(high);
-    bignum_clean(low);
+    // bignum_clean(high);
+    // bignum_clean(low);
 }
 
 /* Arithmetic base 10 left shift on a bignum.*/
@@ -494,6 +495,7 @@ bignum* bignum_mul(bignum* a, bignum* b) {
     if(len_a < 2 || len_b < 2) {
         return bignum_dumb_mul(*a, *b);
     }
+    
     int max_middle = MAX(len_a, len_b)/2;
 
     bignum* high_a = bignum_init();
@@ -503,24 +505,29 @@ bignum* bignum_mul(bignum* a, bignum* b) {
 
     bignum_split(max_middle, *a, high_a, low_a);
     bignum_split(max_middle, *b, high_b, low_b);
-    bignum* z0 = bignum_fromstr("1"); // bignum_mul(low_a, low_b);
 
+    printf("z0 : %7s * %7s\n", bignum_tostr(*low_a), bignum_tostr(*low_b));
+    bignum* z0 = bignum_mul(low_a, low_b);
+    printf("= %7s\n", bignum_tostr(*z0));
     // Je voudrais de l'operator overloading : (z2*10^(2*max_middle))+((z1-z2-z0)*10^(max_middle))+(z0)
     bignum* sum_a = bignum_add(*low_a, *high_a);
     bignum* sum_b = bignum_add(*low_b, *high_b);
 
-    bignum* z2 = bignum_fromstr("1"); // bignum_mul(high_a, high_b);
+    printf("z2 : %7s * %7s\n", bignum_tostr(*high_a), bignum_tostr(*high_b));
+    bignum* z2 = bignum_mul(high_a, high_b);
+    printf("= %7s\n", bignum_tostr(*z2));
 
     bignum_destoroyah(high_a);
     bignum_destoroyah(high_b);
     bignum_destoroyah(low_a);
     bignum_destoroyah(low_b);
 
-    bignum* z1 = bignum_fromstr("1"); // bignum_mul(sum_a, sum_b);
+    printf("z1 : %7s * %7s\n", bignum_tostr(*sum_a), bignum_tostr(*sum_b));
+    bignum* z1 = bignum_mul(sum_a, sum_b);
+    printf("= %7s\n", bignum_tostr(*z1));
 
     bignum_destoroyah(sum_a);
     bignum_destoroyah(sum_b);
-
     // Saletés de pointeurs, c'est la guerre des étoiles
     bignum* the_res_menace = bignum_copy(z2);
     bignum_shift_left(the_res_menace, 2 * max_middle);
@@ -529,7 +536,9 @@ bignum* bignum_mul(bignum* a, bignum* b) {
     bignum_destoroyah(z1);
     bignum_destoroyah(z2);
 
+    printf("affiché\n");
     bignum* a_new_res = bignum_sub(*attack_of_the_res, *z0);
+    printf("pas affiché\n");
     bignum_destoroyah(attack_of_the_res);
 
     bignum_shift_left(a_new_res, max_middle);
