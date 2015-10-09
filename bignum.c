@@ -417,18 +417,20 @@ bignum* bignum_copy(bignum* num) {
     bignum* copy = bignum_init();
     copy->sign = num->sign;
 
-    bigdigit* new_digit = NULL;
+    bigdigit* new_digit;
     bigdigit* prev_new_digit = NULL;
     bigdigit* current_digit = num->first;
-    
+
+    new_digit = bigdigit_init();
+    new_digit->value = current_digit->value;
+    copy->first = new_digit;
+    prev_new_digit = new_digit;
+    current_digit = current_digit->next;
     while(current_digit != NULL){
         //Copies the current digit.
         new_digit = bigdigit_init();
         new_digit->value = current_digit->value;
-
-        if(prev_new_digit != NULL){
-            prev_new_digit->next = new_digit;
-        }
+        prev_new_digit->next = new_digit;
         prev_new_digit = new_digit;
         current_digit = current_digit->next;
     }

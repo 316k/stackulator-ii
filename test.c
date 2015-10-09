@@ -204,9 +204,11 @@ void test_bignum_shift_left() {
 void test_bignum_copy() {
     bignum* a = bignum_fromstr("6666888");
     bignum* b = bignum_copy(a);
-    
+
+    ASSERT(bignum_eq(*a, *b));
+
     bignum_shift_left(a, 3);
-    
+
     ASSERT(!bignum_eq(*a, *b));
 }
 
