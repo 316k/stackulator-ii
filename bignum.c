@@ -3,7 +3,6 @@
 #define BIGNUM_NEGATIVE 1
 #define BIGNUM_POSITIVE 0
 
-// Note : le truc est actuellement en big-endian
 typedef struct bigdigit bigdigit;
 typedef struct bignum bignum;
 
@@ -433,7 +432,7 @@ bignum* bignum_dumb_mul(bignum a, bignum b) {
 }
 
 /* Splitte un bignum en deux à la moitié de la longueur. Il faut passer deux
-  pointeurs Vers ce qui va contenir high et low.
+  pointeurs vers ce qui va contenir high et low.
 */
 void bignum_split(int split_index, bignum a, bignum* high, bignum* low) {
 
@@ -444,7 +443,7 @@ void bignum_split(int split_index, bignum a, bignum* high, bignum* low) {
     bigdigit* prev_new_digit = NULL;
     bigdigit* current_digit = a.first;
     int i = 1;
-    while(current_digit != NULL){
+    while(current_digit != NULL) {
         //Copies the current digit.
         new_digit = bigdigit_init();
         new_digit->value = current_digit->value;
@@ -453,9 +452,10 @@ void bignum_split(int split_index, bignum a, bignum* high, bignum* low) {
         if(i != split_index+1 && prev_new_digit != NULL){
             prev_new_digit->next = new_digit;
         }
+
         if(i == 1) {
             low->first = new_digit;
-        } else if(i == split_index+1) {
+        } else if(i == split_index + 1) {
             prev_new_digit = NULL;
             high->first = new_digit;
         }
@@ -463,6 +463,9 @@ void bignum_split(int split_index, bignum a, bignum* high, bignum* low) {
         current_digit = current_digit->next;
         i++;
     }
+
+    bignum_clean(high);
+    bignum_clean(low);
 }
 
 /* Arithmetic base 10 left shift on a bignum.*/
@@ -480,52 +483,47 @@ void bignum_shift_left(bignum* out, int shamt) {
     }
 }
 
-int powerglobal = 0;
 /**
  * Algo de karatsuba pour la multiplication de grands entiers
  */
-bignum* bignum_mul(bignum a, bignum b) {
-    int len_a = bignum_len(a);
-    int len_b = bignum_len(b);
+bignum* bignum_mul(bignum* a, bignum* b) {
+    int len_a = bignum_len(*a);
+    int len_b = bignum_len(*b);
 
-    fprintf(stderr, "powerglobal : %d\n", powerglobal);
-    powerglobal++;
     // Multiplication stupide pour les petits nombres
     if(len_a < 2 || len_b < 2) {
-        return bignum_dumb_mul(a,b);
+        return bignum_dumb_mul(*a, *b);
     }
     int max_middle = MAX(len_a, len_b)/2;
-
 
     bignum* high_a = bignum_init();
     bignum* high_b = bignum_init();
     bignum* low_a = bignum_init();
     bignum* low_b = bignum_init();
 
-    bignum_split(max_middle, a, high_a, low_a);
-    bignum_split(max_middle, b, high_b, low_b);
+    bignum_split(max_middle, *a, high_a, low_a);
+    bignum_split(max_middle, *b, high_b, low_b);
+    bignum* z0 = bignum_fromstr("1"); // bignum_mul(low_a, low_b);
 
-    bignum* z0 = bignum_mul(*low_a, *low_b);
-
-    // Je voudrais de l'operator overloading : (z2*10^(2*m2))+((z1-z2-z0)*10^(m2))+(z0)
+    // Je voudrais de l'operator overloading : (z2*10^(2*max_middle))+((z1-z2-z0)*10^(max_middle))+(z0)
     bignum* sum_a = bignum_add(*low_a, *high_a);
     bignum* sum_b = bignum_add(*low_b, *high_b);
 
-    bignum* z2 = bignum_mul(*high_a, *high_b);
+    bignum* z2 = bignum_fromstr("1"); // bignum_mul(high_a, high_b);
 
     bignum_destoroyah(high_a);
     bignum_destoroyah(high_b);
     bignum_destoroyah(low_a);
     bignum_destoroyah(low_b);
 
-    bignum* z1 = bignum_mul(*sum_a, *sum_b);
+    bignum* z1 = bignum_fromstr("1"); // bignum_mul(sum_a, sum_b);
 
     bignum_destoroyah(sum_a);
     bignum_destoroyah(sum_b);
 
     // Saletés de pointeurs, c'est la guerre des étoiles
     bignum* the_res_menace = bignum_copy(z2);
-    bignum_shift_left(the_res_menace, 2*max_middle);
+    bignum_shift_left(the_res_menace, 2 * max_middle);
 
     bignum* attack_of_the_res = bignum_sub(*z1, *z2);
     bignum_destoroyah(z1);

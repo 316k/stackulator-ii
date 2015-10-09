@@ -154,7 +154,7 @@ int main(int argc, char* argv[]) {
             bignum* a = stack_pop(s);
             bignum* b = stack_pop(s);
 
-            bignum* num = bignum_mul(*a, *b);
+            bignum* num = bignum_mul(a, b);
             stack_push(s, num);
 
             bignum_destoroyah(a);
