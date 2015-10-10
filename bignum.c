@@ -271,19 +271,24 @@ char bignum_absgt(bignum a, bignum b) {
     bignum* ar = bignum_rev(a);
     bignum* br = bignum_rev(b);
 
-    bigdigit** ptr_addr_a = &ar->first;
-    bigdigit** ptr_addr_b = &br->first;
+    printf("a: %s b: %s ar: %s br: %s\n", bignum_tostr(a), bignum_tostr(b), bignum_tostr(*ar), bignum_tostr(*br));
+
+    bigdigit* ptr_a = ar->first;
+    bigdigit* ptr_b = br->first;
 
     for(i = 0; i < size_a; i++) {
-        if((*ptr_addr_a)->value > (*ptr_addr_b)->value) {
+        if(ptr_a->value != ptr_b->value) {
+
+            char ret = ptr_a->value > ptr_b->value;
 
             bignum_destoroyah(ar);
             bignum_destoroyah(br);
 
-            return TRUE;
+            return ret;
         }
-        ptr_addr_a = &(*ptr_addr_a)->next;
-        ptr_addr_b = &(*ptr_addr_b)->next;
+
+        ptr_a = ptr_a->next;
+        ptr_b = ptr_b->next;
     }
 
     bignum_destoroyah(ar);
@@ -302,7 +307,7 @@ char bignum_gt(bignum a, bignum b) {
     }
 
     if(a.sign == BIGNUM_POSITIVE) {
-        bignum_absgt(a, b);
+        return bignum_absgt(a, b);
     }
 
     return bignum_absgt(b, a);
@@ -356,8 +361,10 @@ bignum* bignum_add(bignum a, bignum b) {
         sum->sign = a.sign;
     } else {
         // Assure que |a| >= |b| par la suite
-        if(bignum_absgt(b, a))
+        if(bignum_absgt(b, a)) {
+            printf("|%s| >= |%s|\n", bignum_tostr(b), bignum_tostr(a));
             return bignum_add(b, a);
+        }
 
         sum->sign = a.sign;
         op = -1;
