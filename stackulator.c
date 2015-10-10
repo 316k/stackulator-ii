@@ -13,7 +13,7 @@ void prompt(char interactive_mode, stack* s) {
         printf("> ");
     } else if(interactive_mode == 2) {
         if(stack_empty(s)) {
-            printf("0:(null)> ");
+            printf("0:(nil)> ");
         } else {
             char* str = bignum_tostr(*stack_peek(s));
             printf("%ld:%s> ", stack_len(s), str);
@@ -94,23 +94,58 @@ char push_test(char c, stack* s, FILE* in) {
     bignum* b = stack_pop(s);
 
     bignum* num = bignum_fromstr("0");
+    bignum* zero = bignum_fromstr("0");
 
     switch(c) {
         case '<':
-            num->first->value = bignum_gt(*a, *b);
+            num->first->value = bignum_gt(*a, *b) && !bignum_eq(*a, *b);
             break;
         case '>':
             num->first->value = bignum_gt(*b, *a);
             break;
         case '=':
             num->first->value = bignum_eq(*a, *b);
+            break;
+        case '|':
+            num->first->value = !bignum_eq(*a, *zero) || !bignum_eq(*b, *zero);
+            break;
+        case '&':
+            num->first->value = !bignum_eq(*a, *zero) && !bignum_eq(*b, *zero);
+            break;
         default: break;
     }
 
     stack_push(s, num);
 
     bignum_destoroyah(a);
+    bignum_destoroyah(zero);
     bignum_destoroyah(b);
+
+    return c;
+}
+
+char push_ternary(char c, stack* s, FILE* in) {
+    if(stack_len(s) < 3) {
+        fprintf(stderr, "La ternaire (?) nécessite trois opérandes, taille du stack insuffisante\n");
+        return c;
+    }
+
+    bignum* zero = bignum_fromstr("0");
+
+    bignum* condition = stack_pop(s);
+    bignum* v_false = stack_pop(s);
+    bignum* v_true = stack_pop(s);
+
+    if(!bignum_eq(*condition, *zero)) {
+        stack_push(s, v_true);
+        bignum_destoroyah(v_false);
+    } else {
+        stack_push(s, v_false);
+        bignum_destoroyah(v_true);
+    }
+
+    bignum_destoroyah(zero);
+    bignum_destoroyah(condition);
 
     return c;
 }
@@ -201,8 +236,8 @@ int main(int argc, char* argv[]) {
     }
 
     if(interactive_mode) {
-        printf("Stackulator v1.0\n");
-        printf("Entrez ^ pour voir la liste des commandes ou Ctrl+D pour quitter\n");
+        printf("-- Stackulator v1.0 --\n");
+        printf("Entrez Ctrl+D pour quitter\n");
     }
 
     prompt(interactive_mode, s);
@@ -227,7 +262,7 @@ int main(int argc, char* argv[]) {
         } else if(c == '*') {
             push_op(c, s, in, bignum_mul);
         // Extra : Multiplication par additions successives (dumb_mul)
-        } else if(c == '&') {
+        } else if(c == '!') {
             push_op(c, s, in, bignum_dumb_mul);
         // Assignation & test d'égalité
         } else if(c == '=') {
@@ -260,35 +295,14 @@ int main(int argc, char* argv[]) {
             }
 
             waiting = TRUE;
-        // Extra : comparateurs booléens > et <
-        } else if(c == '>' || c == '<') {
+        // Extra : comparateurs booléens &, |, > et <
+        } else if(c == '>' || c == '<' || c == '&' || c == '|') {
 
             push_test(c, s, in);
 
         // Extra : opérateur ternaire
         } else if(c == '?') {
-
-            if(stack_len(s) < 3) {
-                fprintf(stderr, "La ternaire (?) nécessite trois opérandes, taille du stack insuffisante\n");
-                continue;
-            }
-
-            bignum* zero = bignum_fromstr("0");
-
-            bignum* condition = stack_pop(s);
-            bignum* v_false = stack_pop(s);
-            bignum* v_true = stack_pop(s);
-
-            if(!bignum_eq(*condition, *zero)) {
-                stack_push(s, v_true);
-                bignum_destoroyah(v_false);
-            } else {
-                stack_push(s, v_false);
-                bignum_destoroyah(v_true);
-            }
-
-            bignum_destoroyah(zero);
-            bignum_destoroyah(condition);
+            push_ternary(c, s, in);
         // Extra : duplique le top du stack
         } else if(c == '@') {
             if(stack_empty(s)) {
