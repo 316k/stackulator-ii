@@ -115,6 +115,38 @@ int bignum_len(bignum num) {
 }
 
 /**
+ * Donne la représentation en char* d'un bignum
+ */
+char* bignum_tostr(bignum num) {
+    // Assume que num a été `bignum_cleané`
+
+    int len = bignum_len(num), i;
+    bigdigit* digit_addr = num.first;
+
+    // Traite le '0' seul
+    if(digit_addr->next == NULL && digit_addr->value == 0) {
+        return "0";
+    }
+
+    char* out = malloc(sizeof(char) * (len + 1 + num.sign));
+
+    please_dont_segfault(out);
+
+    if(num.sign) {
+        out[0] = '-';
+    }
+
+    for(i = len + num.sign; i > num.sign; i--) {
+        out[i-1] = digit_addr->value + '0';
+        digit_addr = digit_addr->next;
+    }
+
+    out[len + num.sign] = '\0';
+
+    return out;
+}
+
+/**
  * Détruit les trailing zéros
  */
 void bignum_clean(bignum* num) {
@@ -132,6 +164,8 @@ void bignum_clean(bignum* num) {
     relevant_size++;
 
     digit_addr = num->first;
+
+    printf("K: %d -> %s\n", relevant_size, bignum_tostr(*num));
 
     for(i = 0; i < relevant_size; i++) {
         prev = digit_addr;
@@ -174,38 +208,6 @@ bignum* bignum_fromstr(char str[]) {
     bignum_clean(num); // Lazy way
 
     return num;
-}
-
-/**
- * Donne la représentation en char* d'un bignum
- */
-char* bignum_tostr(bignum num) {
-    // Assume que num a été `bignum_cleané`
-
-    int len = bignum_len(num), i;
-    bigdigit** digit_addr = &num.first;
-
-    // Traite le '0' seul
-    if((*digit_addr)->next == NULL && (*digit_addr)->value == 0) {
-        return "0";
-    }
-
-    char* out = malloc(sizeof(char) * (len + 1 + num.sign));
-
-    please_dont_segfault(out);
-
-    if(num.sign) {
-        out[0] = '-';
-    }
-
-    for(i = len + num.sign; i > num.sign; i--) {
-        out[i-1] = (*digit_addr)->value + '0';
-        digit_addr = &(*digit_addr)->next;
-    }
-
-    out[len + num.sign] = '\0';
-
-    return out;
 }
 
 /**
