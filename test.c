@@ -212,7 +212,7 @@ void test_bignum_split() {
 
     bignum* g = bignum_fromstr("668");
     bignum* h = bignum_fromstr("66");
-    bignum* i = bignum_fromstr("8");
+    bignum* i = bignum_fromstr("8s");
     bignum* k = bignum_fromstr("6");
 
     high = bignum_init();

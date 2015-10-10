@@ -513,8 +513,8 @@ bignum* bignum_mul(bignum a, bignum b) {
     if(len_a < 2 || len_b < 2) {
         return bignum_dumb_mul(a, b);
     }
-
-    int max_middle = MAX(len_a, len_b)/2;
+    int max = MAX(len_a, len_b);
+    int max_middle = max/2;
 
     bignum* high_a = bignum_init();
     bignum* high_b = bignum_init();
@@ -526,42 +526,53 @@ bignum* bignum_mul(bignum a, bignum b) {
 
     bignum* z0 = bignum_mul(*low_a, *low_b);
 
-    // Je voudrais de l'operator overloading : (z2*10^(2*max_middle))+((z1-z2-z0)*10^(max_middle))+(z0)
+    // Je voudrais de l'operator overloading : (z2*10^(max))+((z1-z2-z0)*10^(max_middle))+(z0)
     bignum* sum_a = bignum_add(*low_a, *high_a);
     bignum* sum_b = bignum_add(*low_b, *high_b);
 
     bignum* z2 = bignum_mul(*high_a, *high_b);
-
+    printf("z2: %s\n", bignum_tostr(*z2));
     bignum_destoroyah(high_a);
     bignum_destoroyah(high_b);
     bignum_destoroyah(low_a);
     bignum_destoroyah(low_b);
 
-    bignum* z1 = bignum_mul(*sum_a, *sum_b);
-
+    // z1 = (sum_a*sum_b) - z2 - z0
+    bignum* mul_of_sum = bignum_mul(*sum_a, *sum_b);
+    bignum* diff_a = bignum_sub(*mul_of_sum,*z2);
+    bignum* z1 = bignum_sub(*diff_a*, z0);
+    
+    printf("mos: %s\ndifa: %s\nz1: %s\n",bignum_tostr(*mul_of_sum), bignum_tostr(*diff_a), bignum_tostr(*z1));
+    
+    bignum_destoroyah(mul_of_sum);
+    bignum_destoroyah(diff_a);
     bignum_destoroyah(sum_a);
     bignum_destoroyah(sum_b);
     // Saletés de pointeurs, c'est la guerre des étoiles
+    //a = z2*10^(max)
     bignum* the_res_menace = bignum_copy(z2);
-    bignum_shift_left(the_res_menace, 2 * max_middle);
-
+    bignum_shift_left(the_res_menace, max);
+    //b = z1-z2
     bignum* attack_of_the_res = bignum_sub(*z1, *z2);
-    bignum_destoroyah(z1);
-    bignum_destoroyah(z2);
-
-    bignum* a_new_res = bignum_sub(*attack_of_the_res, *z0);
+    //bignum_destoroyah(z1);
+    //bignum_destoroyah(z2);
+    //c = b-z0
+    bignum* a_new_res = bignum_sub(*attack_of_the_res*, z0);
     bignum_destoroyah(attack_of_the_res);
-
+    //d = c*10^(max_middle)
     bignum_shift_left(a_new_res, max_middle);
     bignum* res_strikes_back = bignum_add(*a_new_res, *z0);
 
-    bignum_destoroyah(z0);
+    //bignum_destoroyah(z0);
     bignum_destoroyah(a_new_res);
-
+    //e = a+b+d
     bignum* of_the_res = bignum_add(*res_strikes_back, *the_res_menace);
 
     bignum_destoroyah(the_res_menace);
     bignum_destoroyah(res_strikes_back);
-
+    printf("z0: %s\nz1: %s\nz2: %s\n",bignum_tostr(*z0), bignum_tostr(*z1), bignum_tostr(*z2));
+    bignum_destoroyah(z0);
+    bignum_destoroyah(z1);
+    bignum_destoroyah(z2);
     return of_the_res;
 }
