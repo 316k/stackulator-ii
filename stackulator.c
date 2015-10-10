@@ -75,7 +75,7 @@ char push_op(char c, stack* s, FILE* in, bignum* (*fct)(bignum, bignum)) {
     bignum* a = stack_pop(s);
     bignum* b = stack_pop(s);
 
-    bignum* num = (*fct)(*a, *b);
+    bignum* num = (*fct)(*b, *a);
     stack_push(s, num);
 
     bignum_destoroyah(a);
@@ -249,7 +249,6 @@ int main(int argc, char* argv[]) {
         if(c >= '0' && c <= '9') {
 
             c = push_number(c, s, in);
-
             waiting = c == '\n';
 
         // Addition
@@ -328,7 +327,27 @@ int main(int argc, char* argv[]) {
            if(!stack_empty(s)) {
                 bignum_destoroyah(stack_pop(s));
             }
-        // Extra : clear le stack
+        // Extra : lis un nombre depuis stdin
+        } else if(c == ',') {
+
+            c = getc(stdin);
+            while(c == '\n' || c == ' ') {
+                c = getc(stdin);
+            }
+
+            char negative = 0;
+
+            if(c == '-') {
+                negative = 1;
+                c = getc(stdin);
+            }
+
+            c = push_number(c, s, stdin);
+
+            stack_peek(s)->sign = negative;
+            waiting = TRUE;
+
+        // Addition
         } else if(c == '#') {
             while(!stack_empty(s)) {
                 bignum_destoroyah(stack_pop(s));
