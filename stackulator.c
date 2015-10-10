@@ -15,7 +15,9 @@ void prompt(char interactive_mode, stack* s) {
         if(stack_empty(s)) {
             printf("0:(null)> ");
         } else {
-            printf("%ld:%s> ", stack_len(s), bignum_tostr(*stack_peek(s)));
+            char* str = bignum_tostr(*stack_peek(s));
+            printf("%ld:%s> ", stack_len(s), str);
+            free(str);
         }
     }
 }
@@ -147,7 +149,6 @@ char push_var(char c, stack* s, FILE* in, bignum* variables[]) {
     return c;
 }
 
-
 int main(int argc, char* argv[]) {
     int i, j;
     FILE* in = stdin;
@@ -199,6 +200,11 @@ int main(int argc, char* argv[]) {
         interactive_mode = FALSE;
     }
 
+    if(interactive_mode) {
+        printf("Stackulator v1.0\n");
+        printf("Entrez ^ pour voir la liste des commandes ou Ctrl+D pour quitter\n");
+    }
+
     prompt(interactive_mode, s);
 
     while((c = getc(in)) != EOF) {
@@ -246,7 +252,9 @@ int main(int argc, char* argv[]) {
         } else if(c == '\n') {
 
             if(!stack_empty(s)) {
-                printf("%s\n", bignum_tostr(*stack_peek(s)));
+                char* str = bignum_tostr(*stack_peek(s));
+                printf("%s\n", str);
+                free(str);
             } else if(interactive_mode) {
                 printf("Stack vide\n");
             }
@@ -304,8 +312,7 @@ int main(int argc, char* argv[]) {
         // Extra : pop le top
         } else if(c == '.') {
            if(!stack_empty(s)) {
-                bignum* a = stack_pop(s);
-                bignum_destoroyah(a);
+                bignum_destoroyah(stack_pop(s));
             }
         // Extra : clear le stack
         } else if(c == '#') {
@@ -331,7 +338,14 @@ int main(int argc, char* argv[]) {
     while(!stack_empty(s)) {
         bignum_destoroyah(stack_pop(s));
     }
+
     free(s);
+
+    for(i=0; i<26; i++) {
+        if(variables[i] != NULL) {
+            free(variables[i]);
+        }
+    }
 
     return EXIT_SUCCESS;
 }
