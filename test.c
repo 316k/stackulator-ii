@@ -172,7 +172,7 @@ void test_bignum_mul() {
     // Gros nombres
     ASSERT(bignum_eq(*bignum_mul(*d, *e), *f));
     // Gros Gros nombres
-    // ASSERT(bignum_eq(*bignum_mul(*e, *f), *k));
+    ASSERT(bignum_eq(*bignum_mul(*e, *f), *k));
     // Nombres négatifs
     bignum* g = bignum_fromstr("-2");
     bignum* h = bignum_fromstr("-3");
@@ -192,7 +192,7 @@ void test_bignum_split() {
     bignum* high = bignum_init();
     bignum* low = bignum_init();
 
-    bignum_split(3, *a, high, low);
+    bignum_split(*a, 3, high, low);
 
     ASSERT(bignum_eq(*high, *b));
     ASSERT(bignum_eq(*low, *c));
@@ -204,7 +204,7 @@ void test_bignum_split() {
     high = bignum_init();
     low = bignum_init();
 
-    bignum_split(3, *d, high, low);
+    bignum_split(*d, 3, high, low);
 
     ASSERT(bignum_eq(*high, *e));
     ASSERT(bignum_eq(*low, *f));
@@ -213,12 +213,12 @@ void test_bignum_split() {
     bignum* g = bignum_fromstr("668");
     bignum* h = bignum_fromstr("66");
     bignum* i = bignum_fromstr("8");
-    bignum* j = bignum_fromstr("8");
+    bignum* k = bignum_fromstr("6");
 
     high = bignum_init();
     low = bignum_init();
 
-    bignum_split(1, *g, high, low);
+    bignum_split(*g, 1, high, low);
 
     ASSERT(bignum_eq(*high, *h));
     ASSERT(bignum_eq(*low, *i));
@@ -226,10 +226,10 @@ void test_bignum_split() {
     high = bignum_init();
     low = bignum_init();
 
-    bignum_split(1, *h, high, low);
+    bignum_split(*h, 1, high, low);
 
-    ASSERT(bignum_eq(*high, *i));
-    ASSERT(bignum_eq(*low, *j));
+    ASSERT(bignum_eq(*high, *k));
+    ASSERT(bignum_eq(*low, *k));
 }
 
 void test_bignum_shift_left() {
