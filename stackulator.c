@@ -342,6 +342,10 @@ int main(int argc, char* argv[]) {
                 c = getc(stdin);
             }
 
+            while(c < '0' || c > '9') {
+                c = getc(stdin);
+            }
+
             c = push_number(c, s, stdin);
 
             stack_peek(s)->sign = negative;
