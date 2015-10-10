@@ -123,12 +123,17 @@ char* bignum_tostr(bignum num) {
     int len = bignum_len(num), i;
     bigdigit* digit_addr = num.first;
 
+    char* out;
+
     // Traite le '0' seul
     if(digit_addr->next == NULL && digit_addr->value == 0) {
-        return "0";
+        out = malloc(sizeof(char) * 2);
+        out[0] = '0';
+        out[1] = '\0';
+        return out;
     }
 
-    char* out = malloc(sizeof(char) * (len + 1 + num.sign));
+    out = malloc(sizeof(char) * (len + 1 + num.sign));
 
     please_dont_segfault(out);
 
