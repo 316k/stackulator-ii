@@ -165,8 +165,6 @@ void bignum_clean(bignum* num) {
 
     digit_addr = num->first;
 
-    printf("K: %d -> %s\n", relevant_size, bignum_tostr(*num));
-
     for(i = 0; i < relevant_size; i++) {
         prev = digit_addr;
         digit_addr = digit_addr->next;
@@ -216,8 +214,9 @@ bignum* bignum_fromstr(char str[]) {
 void bignum_dump(bignum* num) {
     bigdigit* digit_addr = num->first;
 
+    printf("--Dumping num at %p--\n", num);
     while(digit_addr != NULL) {
-        printf("%d at %p\n", digit_addr->value, digit_addr);
+        printf("%d at %p (next: %p)\n", digit_addr->value, digit_addr, digit_addr->next);
         digit_addr = digit_addr->next;
     }
 }
@@ -272,8 +271,6 @@ char bignum_absgt(bignum a, bignum b) {
 
     bignum* ar = bignum_rev(a);
     bignum* br = bignum_rev(b);
-
-    printf("a: %s b: %s ar: %s br: %s\n", bignum_tostr(a), bignum_tostr(b), bignum_tostr(*ar), bignum_tostr(*br));
 
     bigdigit* ptr_a = ar->first;
     bigdigit* ptr_b = br->first;
@@ -447,7 +444,7 @@ bignum* bignum_dumb_mul(bignum a, bignum b) {
 /* Splitte un bignum en deux à la moitié de la longueur. Il faut passer deux
   pointeurs vers ce qui va contenir high et low.
 */
-void bignum_split(int split_index, bignum a, bignum* high, bignum* low) {
+void bignum_split(bignum a, int split_index, bignum* high, bignum* low) {
 
     high->sign = a.sign;
     low->sign = a.sign;
@@ -469,13 +466,21 @@ void bignum_split(int split_index, bignum a, bignum* high, bignum* low) {
             high->first = new_digit;
         }
 
-        if(i != split_index+1 && prev_new_digit != NULL){
+        if(i != split_index+1 && prev_new_digit != NULL) {
             prev_new_digit->next = new_digit;
         }
 
         prev_new_digit = new_digit;
         current_digit = current_digit->next;
         i++;
+    }
+
+    if(high->first == NULL) {
+        high->first = bigdigit_init();
+    }
+
+    if(low->first == NULL) {
+        low->first = bigdigit_init();
     }
 
     bignum_clean(high);
@@ -508,7 +513,7 @@ bignum* bignum_mul(bignum a, bignum b) {
     if(len_a < 2 || len_b < 2) {
         return bignum_dumb_mul(a, b);
     }
-    
+
     int max_middle = MAX(len_a, len_b)/2;
 
     bignum* high_a = bignum_init();
@@ -516,28 +521,23 @@ bignum* bignum_mul(bignum a, bignum b) {
     bignum* low_a = bignum_init();
     bignum* low_b = bignum_init();
 
-    bignum_split(max_middle, a, high_a, low_a);
-    bignum_split(max_middle, b, high_b, low_b);
+    bignum_split(a, max_middle, high_a, low_a);
+    bignum_split(b, max_middle, high_b, low_b);
 
-    printf("z0 : %7s * %7s\n", bignum_tostr(*low_a), bignum_tostr(*low_b));
     bignum* z0 = bignum_mul(*low_a, *low_b);
-    printf("= %7s\n", bignum_tostr(*z0));
+
     // Je voudrais de l'operator overloading : (z2*10^(2*max_middle))+((z1-z2-z0)*10^(max_middle))+(z0)
     bignum* sum_a = bignum_add(*low_a, *high_a);
     bignum* sum_b = bignum_add(*low_b, *high_b);
 
-    printf("z2 : %7s * %7s\n", bignum_tostr(*high_a), bignum_tostr(*high_b));
     bignum* z2 = bignum_mul(*high_a, *high_b);
-    printf("= %7s\n", bignum_tostr(*z2));
 
     bignum_destoroyah(high_a);
     bignum_destoroyah(high_b);
     bignum_destoroyah(low_a);
     bignum_destoroyah(low_b);
 
-    printf("z1 : %7s * %7s\n", bignum_tostr(*sum_a), bignum_tostr(*sum_b));
     bignum* z1 = bignum_mul(*sum_a, *sum_b);
-    printf("= %7s\n", bignum_tostr(*z1));
 
     bignum_destoroyah(sum_a);
     bignum_destoroyah(sum_b);
@@ -549,9 +549,7 @@ bignum* bignum_mul(bignum a, bignum b) {
     bignum_destoroyah(z1);
     bignum_destoroyah(z2);
 
-    printf("affiché\n");
     bignum* a_new_res = bignum_sub(*attack_of_the_res, *z0);
-    printf("pas affiché\n");
     bignum_destoroyah(attack_of_the_res);
 
     bignum_shift_left(a_new_res, max_middle);
