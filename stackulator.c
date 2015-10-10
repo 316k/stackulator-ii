@@ -20,6 +20,134 @@ void prompt(char interactive_mode, stack* s) {
     }
 }
 
+char push_number(char c, stack* s, FILE* in) {
+    bignum* num = bignum_init();
+
+    bigdigit* digit = NULL;
+    bigdigit* prev_addr = NULL;
+
+    // Si ça commence avec 0, on veut potentiellement garder le premier seulement
+    if(c == '0') {
+        digit = bigdigit_init();
+
+        prev_addr = digit;
+
+        while((c = getc(in)) == '0');
+
+        // Si ça commençait avec des 0 non-significatifs, on les flush
+        if(c >= '1' && c <= '9') {
+            digit->value = c - '0';
+            c = getc(in);
+        }
+    }
+
+    while(c >= '0' && c <= '9') {
+
+        digit = bigdigit_init();
+
+        digit->next = prev_addr;
+        digit->value = c - '0';
+
+        prev_addr = digit;
+
+        c = getc(in);
+    }
+
+    if(c != ' ' && c != '\n') {
+        fprintf(stderr, "Attention : les suffixes de nombres ne sont pas pris en compte (%c ignoré)\n", c);
+    }
+
+    num->first = prev_addr;
+
+    stack_push(s, num);
+
+    return c;
+}
+
+char push_op(char c, stack* s, FILE* in, bignum* (*fct)(bignum, bignum)) {
+    if(stack_len(s) < 2) {
+        fprintf(stderr, "%c nécessite deux opérandes, taille du stack insuffisante\n", c);
+        return c;
+    }
+
+    bignum* a = stack_pop(s);
+    bignum* b = stack_pop(s);
+
+    bignum* num = (*fct)(*a, *b);
+    stack_push(s, num);
+
+    bignum_destoroyah(a);
+    bignum_destoroyah(b);
+
+    return c;
+}
+
+char push_test(char c, stack* s, FILE* in) {
+    if(stack_len(s) < 2) {
+        fprintf(stderr, "Une comparaison booléenne nécessite deux opérandes, taille du stack insuffisante\n");
+        return c;
+    }
+
+    bignum* a = stack_pop(s);
+    bignum* b = stack_pop(s);
+
+    bignum* num = bignum_fromstr("0");
+
+    switch(c) {
+        case '<':
+            num->first->value = bignum_gt(*a, *b);
+            break;
+        case '>':
+            num->first->value = bignum_gt(*b, *a);
+            break;
+        case '=':
+            num->first->value = bignum_eq(*a, *b);
+        default: break;
+    }
+
+    stack_push(s, num);
+
+    bignum_destoroyah(a);
+    bignum_destoroyah(b);
+
+    return c;
+}
+
+char assign_var(char c, stack* s, FILE* in, bignum* variables[]) {
+    if(c < 'a' || c > 'z') {
+        fprintf(stderr, "Le nom de variable `%c` est erroné\n", c);
+        return c;
+    }
+
+    // Si le stack est vide, on met (ou on laisse) NULL dans la variable
+    if(stack_empty(s)) {
+        if(variables[c - 'a']) {
+            bignum_destoroyah(variables[c - 'a']);
+        }
+
+        variables[c - 'a'] = NULL;
+        return c;
+    }
+
+    variables[c - 'a'] = stack_peek(s);
+    stack_peek(s)->refs++;
+
+    return c;
+}
+
+char push_var(char c, stack* s, FILE* in, bignum* variables[]) {
+    if(variables[c - 'a'] == NULL) {
+        fprintf(stderr, "La variable `%c` n'a pas été définie\n", c);
+        return c;
+    }
+
+    stack_push(s, variables[c - 'a']);
+    variables[c - 'a']->refs++;
+
+    return c;
+}
+
+
 int main(int argc, char* argv[]) {
     int i, j;
     FILE* in = stdin;
@@ -31,7 +159,6 @@ int main(int argc, char* argv[]) {
     for(i=0; i<26; i++) {
         variables[i] = NULL;
     }
-
     // Parse les arguments
     for(i = 1; i < argc && argv[i][0] == '-'; i++) {
         if(strcmp(argv[i], "-s") == 0 || strcmp(argv[i], "--silent") == 0) {
@@ -79,71 +206,17 @@ int main(int argc, char* argv[]) {
 
         // Push un nouveau nombre sur la pile
         if(c >= '0' && c <= '9') {
-            bignum* num = bignum_init();
 
-            bigdigit* digit = NULL;
-            bigdigit* prev_addr = NULL;
-
-            // Si ça commence avec 0, on veut potentiellement garder le premier seulement
-            if(c == '0') {
-                digit = bigdigit_init();
-
-                prev_addr = digit;
-
-                while((c = getc(in)) == '0');
-
-                // Si ça commençait avec des 0 non-significatifs, on les flush
-                if(c >= '1' && c <= '9') {
-                    digit->value = c - '0';
-                    c = getc(in);
-                }
-            }
-
-            while(c >= '0' && c <= '9') {
-
-                digit = bigdigit_init();
-
-                digit->next = prev_addr;
-                digit->value = c - '0';
-
-                prev_addr = digit;
-
-                c = getc(in);
-            }
-
-            num->first = prev_addr;
-
-            stack_push(s, num);
+            c = push_number(c, s, in);
 
             waiting = c == '\n';
+
         // Addition
         } else if(c == '+') {
-            if(stack_len(s) < 2) {
-                fprintf(stderr, "+ nécessite deux opérandes, taille du stack insuffisante\n");
-                continue;
-            }
-            bignum* a = stack_pop(s);
-            bignum* b = stack_pop(s);
-
-            bignum* num = bignum_add(*a, *b);
-            stack_push(s, num);
-
-            bignum_destoroyah(a);
-            bignum_destoroyah(b);
+            push_op(c, s, in, bignum_add);
         // Soustraction
         } else if(c == '-') {
-            if(stack_len(s) < 2) {
-                fprintf(stderr, "- nécessite deux opérandes, taille du stack insuffisante\n");
-                continue;
-            }
-            bignum* a = stack_pop(s);
-            bignum* b = stack_pop(s);
-
-            bignum* num = bignum_sub(*a, *b);
-            stack_push(s, num);
-
-            bignum_destoroyah(a);
-            bignum_destoroyah(b);
+            push_op(c, s, in, bignum_sub);
         // Multiplication
         } else if(c == '*') {
             if(stack_len(s) < 2) {
@@ -159,108 +232,43 @@ int main(int argc, char* argv[]) {
 
             bignum_destoroyah(a);
             bignum_destoroyah(b);
-        // Assignation & test d'égalité
+
+        // Extra : Multiplication par additions successives (dumb_mul)
         } else if(c == '&') {
-            if(stack_len(s) < 2) {
-                fprintf(stderr, "* nécessite deux opérandes, taille du stack insuffisante\n");
-                continue;
-            }
-
-            bignum* a = stack_pop(s);
-            bignum* b = stack_pop(s);
-
-            bignum* num = bignum_dumb_mul(*a, *b);
-            stack_push(s, num);
-
-            bignum_destoroyah(a);
-            bignum_destoroyah(b);
+            push_op(c, s, in, bignum_dumb_mul);
         // Assignation & test d'égalité
         } else if(c == '=') {
             char c = getc(in);
 
             // Extra : Test d'égalité
             if(c == '=') {
-                if(stack_len(s) < 2) {
-                    fprintf(stderr, "La comparaison == nécessite deux opérandes, taille du stack insuffisante\n");
-                    continue;
-                }
-
-                bignum* a = stack_pop(s);
-                bignum* b = stack_pop(s);
-
-                bignum* num = bignum_fromstr("0");
-
-                num->first->value = bignum_eq(*a, *b);
-
-                stack_push(s, num);
-
-                bignum_destoroyah(a);
-                bignum_destoroyah(b);
-
-                continue;
-            } else if(c < 'a' || c > 'z') {
-                fprintf(stderr, "Le nom de variable `%c` est erroné\n", c);
+                push_test(c, s, in);
                 continue;
             }
 
-            // Si le stack est vide, on met (ou on laisse) NULL dans la variable
-            if(stack_empty(s)) {
-                if(variables[c - 'a']) {
-                    bignum_destoroyah(variables[c - 'a']);
-                }
-                variables[c - 'a'] = NULL;
-                continue;
-            }
+            assign_var(c, s, in, variables);
 
-            variables[c - 'a'] = stack_peek(s);
-            stack_peek(s)->refs++;
         // Push une variable sur la pile
         } else if(c >= 'a' && c <= 'z') {
 
-            if(variables[c - 'a'] == NULL) {
-                fprintf(stderr, "La variable `%c` n'a pas été définie\n", c);
-                continue;
-            }
+            push_var(c, s, in, variables);
 
-            stack_push(s, variables[c - 'a']);
-            variables[c - 'a']->refs++;
         // Ignore les espaces
         } else if(c == ' ') {
         // \n affiche le top du stack
         } else if(c == '\n') {
+
             if(!stack_empty(s)) {
                 printf("%s\n", bignum_tostr(*stack_peek(s)));
             } else if(interactive_mode) {
                 printf("Stack vide\n");
             }
+
             waiting = TRUE;
         // Extra : comparateurs booléens > et <
         } else if(c == '>' || c == '<') {
 
-            if(stack_len(s) < 2) {
-                fprintf(stderr, "La comparaison %c nécessite deux opérandes, taille du stack insuffisante\n", c);
-                continue;
-            }
-
-            bignum* a = stack_pop(s);
-            bignum* b = stack_pop(s);
-
-            bignum* num = bignum_fromstr("0");
-
-            switch(c) {
-                case '<':
-                    num->first->value = bignum_gt(*b, *a);
-                    break;
-                case '>':
-                    num->first->value = bignum_gt(*a, *b);
-                    break;
-                default: break;
-            }
-
-            stack_push(s, num);
-
-            bignum_destoroyah(a);
-            bignum_destoroyah(b);
+            push_test(c, s, in);
 
         // Extra : opérateur ternaire
         } else if(c == '?') {
