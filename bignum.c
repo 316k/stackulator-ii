@@ -545,10 +545,10 @@ bignum* bignum_mul(bignum a, bignum b) {
     // z1 = (sum_a*sum_b) - z2 - z0
     bignum* mul_of_sum = bignum_mul(*sum_a, *sum_b);
     bignum* diff_a = bignum_sub(*mul_of_sum,*z2);
-    bignum* z1 = bignum_sub(*diff_a*, z0);
-    
+    bignum* z1 = bignum_sub(*diff_a, *z0);
+
     printf("mos: %s\ndifa: %s\nz1: %s\n",bignum_tostr(*mul_of_sum), bignum_tostr(*diff_a), bignum_tostr(*z1));
-    
+
     bignum_destoroyah(mul_of_sum);
     bignum_destoroyah(diff_a);
     bignum_destoroyah(sum_a);
@@ -562,7 +562,7 @@ bignum* bignum_mul(bignum a, bignum b) {
     //bignum_destoroyah(z1);
     //bignum_destoroyah(z2);
     //c = b-z0
-    bignum* a_new_res = bignum_sub(*attack_of_the_res*, z0);
+    bignum* a_new_res = bignum_sub(*attack_of_the_res, *z0);
     bignum_destoroyah(attack_of_the_res);
     //d = c*10^(max_middle)
     bignum_shift_left(a_new_res, max_middle);
