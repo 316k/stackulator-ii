@@ -219,20 +219,7 @@ int main(int argc, char* argv[]) {
             push_op(c, s, in, bignum_sub);
         // Multiplication
         } else if(c == '*') {
-            if(stack_len(s) < 2) {
-                fprintf(stderr, "* nécessite deux opérandes, taille du stack insuffisante\n");
-                continue;
-            }
-
-            bignum* a = stack_pop(s);
-            bignum* b = stack_pop(s);
-
-            bignum* num = bignum_mul(a, b);
-            stack_push(s, num);
-
-            bignum_destoroyah(a);
-            bignum_destoroyah(b);
-
+            push_op(c, s, in, bignum_mul);
         // Extra : Multiplication par additions successives (dumb_mul)
         } else if(c == '&') {
             push_op(c, s, in, bignum_dumb_mul);

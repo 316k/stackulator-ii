@@ -362,7 +362,6 @@ bignum* bignum_add(bignum a, bignum b) {
     } else {
         // Assure que |a| >= |b| par la suite
         if(bignum_absgt(b, a)) {
-            printf("|%s| >= |%s|\n", bignum_tostr(b), bignum_tostr(a));
             return bignum_add(b, a);
         }
 
@@ -398,7 +397,12 @@ bignum* bignum_add(bignum a, bignum b) {
 
 bignum* bignum_sub(bignum a, bignum b) {
     b.sign = !b.sign;
-    return bignum_add(a, b);
+
+    bignum* sum = bignum_add(a, b);
+    // XXX : Aucune idée de ce qui se passe, mais ça marche avec cette ligne...
+    sum->sign = !sum->sign;
+
+    return sum;
 }
 
 bignum* bignum_dumb_mul(bignum a, bignum b) {
@@ -494,13 +498,13 @@ void bignum_shift_left(bignum* out, int shamt) {
 /**
  * Algo de karatsuba pour la multiplication de grands entiers
  */
-bignum* bignum_mul(bignum* a, bignum* b) {
-    int len_a = bignum_len(*a);
-    int len_b = bignum_len(*b);
+bignum* bignum_mul(bignum a, bignum b) {
+    int len_a = bignum_len(a);
+    int len_b = bignum_len(b);
 
     // Multiplication stupide pour les petits nombres
     if(len_a < 2 || len_b < 2) {
-        return bignum_dumb_mul(*a, *b);
+        return bignum_dumb_mul(a, b);
     }
     
     int max_middle = MAX(len_a, len_b)/2;
@@ -510,18 +514,18 @@ bignum* bignum_mul(bignum* a, bignum* b) {
     bignum* low_a = bignum_init();
     bignum* low_b = bignum_init();
 
-    bignum_split(max_middle, *a, high_a, low_a);
-    bignum_split(max_middle, *b, high_b, low_b);
+    bignum_split(max_middle, a, high_a, low_a);
+    bignum_split(max_middle, b, high_b, low_b);
 
     printf("z0 : %7s * %7s\n", bignum_tostr(*low_a), bignum_tostr(*low_b));
-    bignum* z0 = bignum_mul(low_a, low_b);
+    bignum* z0 = bignum_mul(*low_a, *low_b);
     printf("= %7s\n", bignum_tostr(*z0));
     // Je voudrais de l'operator overloading : (z2*10^(2*max_middle))+((z1-z2-z0)*10^(max_middle))+(z0)
     bignum* sum_a = bignum_add(*low_a, *high_a);
     bignum* sum_b = bignum_add(*low_b, *high_b);
 
     printf("z2 : %7s * %7s\n", bignum_tostr(*high_a), bignum_tostr(*high_b));
-    bignum* z2 = bignum_mul(high_a, high_b);
+    bignum* z2 = bignum_mul(*high_a, *high_b);
     printf("= %7s\n", bignum_tostr(*z2));
 
     bignum_destoroyah(high_a);
@@ -530,7 +534,7 @@ bignum* bignum_mul(bignum* a, bignum* b) {
     bignum_destoroyah(low_b);
 
     printf("z1 : %7s * %7s\n", bignum_tostr(*sum_a), bignum_tostr(*sum_b));
-    bignum* z1 = bignum_mul(sum_a, sum_b);
+    bignum* z1 = bignum_mul(*sum_a, *sum_b);
     printf("= %7s\n", bignum_tostr(*z1));
 
     bignum_destoroyah(sum_a);

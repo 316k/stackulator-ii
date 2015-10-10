@@ -163,14 +163,14 @@ void test_bignum_mul() {
     bignum* k = bignum_fromstr("9947977004544");
 
     // Trivial
-    ASSERT(bignum_eq(*bignum_mul(a, a), *a));
+    ASSERT(bignum_eq(*bignum_mul(*a, *a), *a));
 
     // Simples
-    ASSERT(bignum_eq(*bignum_mul(a, b), *b));
-    ASSERT(bignum_eq(*bignum_mul(a, d), *d));
-    ASSERT(bignum_eq(*bignum_mul(b, c), *d));
+    ASSERT(bignum_eq(*bignum_mul(*a, *b), *b));
+    ASSERT(bignum_eq(*bignum_mul(*a, *d), *d));
+    ASSERT(bignum_eq(*bignum_mul(*b, *c), *d));
     // Gros nombres
-    ASSERT(bignum_eq(*bignum_mul(d, e), *f));
+    ASSERT(bignum_eq(*bignum_mul(*d, *e), *f));
     // Gros Gros nombres
     // ASSERT(bignum_eq(*bignum_mul(*e, *f), *k));
     // Nombres négatifs
@@ -178,10 +178,10 @@ void test_bignum_mul() {
     bignum* h = bignum_fromstr("-3");
     bignum* i = bignum_fromstr("-6");
 
-    ASSERT(bignum_eq(*bignum_mul(g, c), *i));
-    ASSERT(bignum_eq(*bignum_mul(c, g), *i));
-    ASSERT(bignum_eq(*bignum_mul(g, h), *d));
-    ASSERT(bignum_eq(*bignum_mul(h, g), *d));
+    ASSERT(bignum_eq(*bignum_mul(*g, *c), *i));
+    ASSERT(bignum_eq(*bignum_mul(*c, *g), *i));
+    ASSERT(bignum_eq(*bignum_mul(*g, *h), *d));
+    ASSERT(bignum_eq(*bignum_mul(*h, *g), *d));
 }
 
 void test_bignum_split() {
