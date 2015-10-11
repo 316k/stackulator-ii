@@ -10,13 +10,13 @@
    - [X] Opérations sur les bignum
    - [X] Lecture de l'entrée dans un bignum
 - [X] Évaluation du top du stack (+ - *)
-- [ ] Variables
+- [X] Variables
    - [X] Assignation du top du stack dans des variables (10 =x)
    - [X] Assignations de variables par références (10 =x =y)
    - [X] Lecture des variables vers le top stack (10 a +)
    - [X] Libération de la mémoire qui ne sera plus utilisée (genre, 10 =x =y 200 =x 500 =y ---> le 10 ne devrait plus être nulle part)
-- [ ] Optimisations
-   - [ ] Multiplication moins tarée
+- [X] Optimisations
+   - [X] Multiplication moins tarée
 - [X] Messages d'erreur possibles (à la fin, penser aux cas où ça peut planter)
    -  [X] Accès à une variable qui n'existe pas
    -  [X] Input invalide en général
