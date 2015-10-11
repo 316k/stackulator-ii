@@ -1,0 +1,5 @@
+#!./stackulator -s
+0 =p 1 =q
+"Entrez le nombre recherché (>=2) : " , 1 - =a
+[ . + =p q =p . =q p q a 1 - =a ] . ^ "
+"
