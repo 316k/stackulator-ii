@@ -536,7 +536,7 @@ bignum* bignum_mul(bignum a, bignum b) {
     bignum* sum_b = bignum_add(*low_b, *high_b);
 
     bignum* z2 = bignum_mul(*high_a, *high_b);
-    printf("z2: %s\n", bignum_tostr(*z2));
+    //printf("z2: %s\n", bignum_tostr(*z2));
     bignum_destoroyah(high_a);
     bignum_destoroyah(high_b);
     bignum_destoroyah(low_a);
@@ -545,9 +545,9 @@ bignum* bignum_mul(bignum a, bignum b) {
     // z1 = (sum_a*sum_b) - z2 - z0
     bignum* mul_of_sum = bignum_mul(*sum_a, *sum_b);
     bignum* diff_a = bignum_sub(*mul_of_sum,*z2);
-    bignum* z1 = bignum_sub(*diff_a*, z0);
+    bignum* z1 = bignum_sub(*diff_a, *z0);
     
-    printf("mos: %s\ndifa: %s\nz1: %s\n",bignum_tostr(*mul_of_sum), bignum_tostr(*diff_a), bignum_tostr(*z1));
+    //printf("mos: %s\ndifa: %s\nz1: %s\n",bignum_tostr(*mul_of_sum), bignum_tostr(*diff_a), bignum_tostr(*z1));
     
     bignum_destoroyah(mul_of_sum);
     bignum_destoroyah(diff_a);
@@ -562,7 +562,7 @@ bignum* bignum_mul(bignum a, bignum b) {
     //bignum_destoroyah(z1);
     //bignum_destoroyah(z2);
     //c = b-z0
-    bignum* a_new_res = bignum_sub(*attack_of_the_res*, z0);
+    bignum* a_new_res = bignum_sub(*attack_of_the_res, *z0);
     bignum_destoroyah(attack_of_the_res);
     //d = c*10^(max_middle)
     bignum_shift_left(a_new_res, max_middle);
@@ -575,7 +575,7 @@ bignum* bignum_mul(bignum a, bignum b) {
 
     bignum_destoroyah(the_res_menace);
     bignum_destoroyah(res_strikes_back);
-    printf("z0: %s\nz1: %s\nz2: %s\n",bignum_tostr(*z0), bignum_tostr(*z1), bignum_tostr(*z2));
+    //printf("z0: %s\nz1: %s\nz2: %s\n",bignum_tostr(*z0), bignum_tostr(*z1), bignum_tostr(*z2));
     bignum_destoroyah(z0);
     bignum_destoroyah(z1);
     bignum_destoroyah(z2);
