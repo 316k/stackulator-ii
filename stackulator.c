@@ -203,7 +203,12 @@ int main(int argc, char* argv[]) {
     context_stack* c_s = context_stack_init();
     // Variables
     bignum* variables[26];
+    // Procédures
+    circular_list* procedures[26];
+
     bignum* zero = bignum_fromstr("0");
+
+
     for(i=0; i<26; i++) {
         variables[i] = NULL;
     }
@@ -301,9 +306,9 @@ int main(int argc, char* argv[]) {
             push_var(c, s, variables);
 
         // Ignore les espaces
-        } else if(c == ' ') {
+        } else if(c == ' ') {s
         // ^ affiche le top du stack et \n aussi si interactif
-        } else if(c == '^' || ((c == '\n') && interactive_mode)) {
+        } else if(((c == '^') && !interactive_mode) || ((c == '\n') && interactive_mode)) {
 
             if(!stack_empty(s)) {
                 char* str = bignum_tostr(*stack_peek(s));
@@ -372,6 +377,14 @@ int main(int argc, char* argv[]) {
             }
             // Sinon, tue le contexte.
             circular_list_destoroyah(context_stack_pop(c_s));
+        // Extra : début d'une procédure.
+        } else if(c == ':') {
+            c = get_next();
+            if(c < 'a' || c > 'z') {
+                fprintf(stderr, "Le nom de variable `%c` est erroné\n", c);
+                continue;
+            }
+        }
         // Extra : dump le contenu du stack
         } else if(c == '$') {
             stack_dump(s);
