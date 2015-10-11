@@ -5,6 +5,7 @@
 
 #include "help.c"
 #include "circular_list.c"
+#include "context_stack.c"
 #include "bignum.c"
 #include "stack.c"
 #include "test.c"
@@ -23,8 +24,16 @@ void prompt(char interactive_mode, stack* s) {
         }
     }
 }
+//Retourne le prochain charactère du programme.
+char get_next(FILE* in, context_stack* c_s){
+    if(context_stack_empty(c_s)){
+        return getc(in);
+    }
 
-char push_number(char c, stack* s, FILE* in) {
+    return circular_list_next(context_stack_peek(c_s));
+}
+
+char push_number(char c, stack* s, FILE* in, context_stack* c_s) {
     bignum* num = bignum_init();
 
     bigdigit* digit = NULL;
@@ -36,12 +45,12 @@ char push_number(char c, stack* s, FILE* in) {
 
         prev_addr = digit;
 
-        while((c = getc(in)) == '0');
+        while((c = get_next(in, c_s)) == '0');
 
         // Si ça commençait avec des 0 non-significatifs, on les flush
         if(c >= '1' && c <= '9') {
             digit->value = c - '0';
-            c = getc(in);
+            c = get_next(in, c_s);
         }
     }
 
@@ -54,7 +63,7 @@ char push_number(char c, stack* s, FILE* in) {
 
         prev_addr = digit;
 
-        c = getc(in);
+        c = get_next(in, c_s);
     }
 
     if(c != ' ' && c != '\n') {
@@ -68,7 +77,7 @@ char push_number(char c, stack* s, FILE* in) {
     return c;
 }
 
-char push_op(char c, stack* s, FILE* in, bignum* (*fct)(bignum, bignum)) {
+char push_op(char c, stack* s, bignum* (*fct)(bignum, bignum)) {
     if(stack_len(s) < 2) {
         fprintf(stderr, "%c nécessite deux opérandes, taille du stack insuffisante\n", c);
         return c;
@@ -86,7 +95,7 @@ char push_op(char c, stack* s, FILE* in, bignum* (*fct)(bignum, bignum)) {
     return c;
 }
 
-char push_test(char c, stack* s, FILE* in) {
+char push_test(char c, stack* s) {
     if(stack_len(s) < 2) {
         fprintf(stderr, "Une comparaison booléenne nécessite deux opérandes, taille du stack insuffisante\n");
         return c;
@@ -126,7 +135,7 @@ char push_test(char c, stack* s, FILE* in) {
     return c;
 }
 
-char push_ternary(char c, stack* s, FILE* in) {
+char push_ternary(char c, stack* s) {
     if(stack_len(s) < 3) {
         fprintf(stderr, "La ternaire (?) nécessite trois opérandes, taille du stack insuffisante\n");
         return c;
@@ -152,7 +161,7 @@ char push_ternary(char c, stack* s, FILE* in) {
     return c;
 }
 
-char assign_var(char c, stack* s, FILE* in, bignum* variables[]) {
+char assign_var(char c, stack* s, bignum* variables[]) {
     if(c < 'a' || c > 'z') {
         fprintf(stderr, "Le nom de variable `%c` est erroné\n", c);
         return c;
@@ -174,7 +183,7 @@ char assign_var(char c, stack* s, FILE* in, bignum* variables[]) {
     return c;
 }
 
-char push_var(char c, stack* s, FILE* in, bignum* variables[]) {
+char push_var(char c, stack* s, bignum* variables[]) {
     if(variables[c - 'a'] == NULL) {
         fprintf(stderr, "La variable `%c` n'a pas été définie\n", c);
         return c;
@@ -191,9 +200,10 @@ int main(int argc, char* argv[]) {
     FILE* in = stdin;
     char c = ' ', waiting, interactive_mode = TRUE;
     stack* s = stack_init();
-
+    context_stack* c_s = context_stack_init();
     // Variables
     bignum* variables[26];
+    bignum* zero = bignum_fromstr("0");
     for(i=0; i<26; i++) {
         variables[i] = NULL;
     }
@@ -244,51 +254,51 @@ int main(int argc, char* argv[]) {
 
     prompt(interactive_mode, s);
 
-    while((c = getc(in)) != EOF) {
+    while((c = get_next(in, c_s)) != EOF) {
         waiting = FALSE;
 
         // Push un nouveau nombre sur la pile
         if(c >= '0' && c <= '9') {
 
-            c = push_number(c, s, in);
+            c = push_number(c, s, in, c_s);
             waiting = c == '\n';
 
         // Addition
         } else if(c == '+') {
-            push_op(c, s, in, bignum_add);
+            push_op(c, s, bignum_add);
         // Soustraction
         } else if(c == '-') {
-            push_op(c, s, in, bignum_sub);
+            push_op(c, s, bignum_sub);
         // Multiplication
         } else if(c == '*') {
-            push_op(c, s, in, bignum_mul);
+            push_op(c, s, bignum_mul);
         // Extra : Multiplication par additions successives (dumb_mul)
         } else if(c == '!') {
-            push_op(c, s, in, bignum_dumb_mul);
+            push_op(c, s, bignum_dumb_mul);
         // Assignation & test d'égalité
         } else if(c == '=') {
-            char c = getc(in);
+            char c = get_next(in, c_s);
 
             // Extra : Test d'égalité
             if(c == '=') {
-                push_test(c, s, in);
+                push_test(c, s);
                 continue;
             }
 
-            assign_var(c, s, in, variables);
+            assign_var(c, s, variables);
 
         // Assignation explicite de NULL dans une variable
         } else if(c == '_') {
-            char c = getc(in);
+            char c = get_next(in, c_s);
 
             stack* empty_stack = stack_init();
-            assign_var(c, empty_stack, in, variables);
+            assign_var(c, empty_stack, variables);
             free(empty_stack);
 
         // Push une variable sur la pile
         } else if(c >= 'a' && c <= 'z') {
 
-            push_var(c, s, in, variables);
+            push_var(c, s, variables);
 
         // Ignore les espaces
         } else if(c == ' ') {
@@ -307,11 +317,11 @@ int main(int argc, char* argv[]) {
         // Extra : comparateurs booléens &, |, > et <
         } else if(c == '>' || c == '<' || c == '&' || c == '|') {
 
-            push_test(c, s, in);
+            push_test(c, s);
 
         // Extra : opérateur ternaire
         } else if(c == '?') {
-            push_ternary(c, s, in);
+            push_ternary(c, s);
         // Extra : duplique le top du stack
         } else if(c == '@') {
             if(stack_empty(s)) {
@@ -319,6 +329,43 @@ int main(int argc, char* argv[]) {
                 continue;
             }
             stack_push(s, bignum_copy(stack_peek(s)));
+        // Extra : Début de loop.
+        } else if(c == '[') {
+            int loop_start_count = 1;
+            //Si le stack est vide ou que le top == 0
+            if(stack_empty(s) || bignum_eq(*stack_peek(s), *zero) ) {
+                // Va jusqu'à la fin de la boucle et continue l'exec.
+                while(loop_start_count){
+                    c = get_next(in, c_s);
+                    if(c == '['){
+                        loop_start_count++;
+                    }else if (c == ']'){
+                        loop_start_count--;
+                    }
+                }
+                continue;
+            }
+            //Sinon, construit un contexte dans une liste circulaire.
+            circular_list* loop_context = circular_list_init();
+            while(loop_start_count){
+                c = get_next(in, c_s);
+                    if(c == '['){
+                        loop_start_count++;
+                    }else if (c == ']'){
+                        loop_start_count--;
+                    }
+                circular_list_append(loop_context, c);
+            }
+            //Ajoute le contexte sur le context_stack.
+            context_stack_push(c_s, loop_context);
+        // Fin de boucle.
+        } else if(c == ']') {
+            // Si le top du stack est existant et positif, continue comme ça
+            if(!stack_empty(s) && bignum_absgt(*stack_peek(s), *zero) ) {
+                continue;
+            }
+            // Sinon, tue le contexte.
+            circular_list_destoroyah(context_stack_pop(c_s));
         // Extra : dump le contenu du stack
         } else if(c == '$') {
             stack_dump(s);
@@ -356,7 +403,10 @@ int main(int argc, char* argv[]) {
                 c = getc(stdin);
             }
 
-            c = push_number(c, s, stdin);
+            //Si des char sont lu de l'entrée, il ne faut pas les prendres dans le contexte courrant.
+            context_stack* empty_stack = context_stack_init();
+            c = push_number(c, s, stdin, empty_stack);
+            free(empty_stack);
 
             stack_peek(s)->sign = negative;
             waiting = TRUE;
@@ -365,18 +415,18 @@ int main(int argc, char* argv[]) {
         } else if(c == '"') {
 
             char last_char = c;
-            c = getc(in);
+            c = get_next(in, c_s);
 
             while((c != '"' || last_char == '\\') && c != EOF) {
                 if(last_char != '\\' && c == '\\') {
                     last_char = c;
-                    c = getc(in);
+                    c = get_next(in, c_s);
                     continue;
                 }
 
                 printf("%c", c);
                 last_char = c;
-                c = getc(in);
+                c = get_next(in, c_s);
             }
 
             waiting = TRUE;
@@ -389,7 +439,7 @@ int main(int argc, char* argv[]) {
         } else {
             fprintf(stderr, "Expression inconnue ignorée : %c", c);
             while(c != ' ' && c != '\n') {
-                c = getc(in);
+                c = get_next(in, c_s);
                 fprintf(stderr, "%c", c);
             }
             fprintf(stderr, "\n");
