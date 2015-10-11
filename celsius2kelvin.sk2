@@ -1,3 +1,13 @@
 #!./stackulator -s
 "Convertisseur de \"Celsius\" en \"Kelvins\"
-Veuillez entrer une température en Celcius : " 0 273 - , =a a 0 273 - < ? 273 + "Équivalent en Kelvins : "
+Veuillez entrer une température en Celcius : "
+,
+@ 0 273 - <
+    ["Impossible ! À -273 Celcius, plus rien n'a d'énergie cinétique ! HA !
+" 1 -]
+.
+@ 0 274 - >
+    [ . 273 + "Équivalent en Kelvins : " ^ "
+" [ . ]
+
+]
