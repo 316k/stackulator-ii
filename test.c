@@ -161,6 +161,12 @@ void test_bignum_mul() {
     bignum* e = bignum_fromstr("1287632");
     bignum* f = bignum_fromstr("7725792");
     bignum* k = bignum_fromstr("9947977004544");
+    bignum* l = bignum_fromstr("2059382758674938485968473649684859684758");
+    bignum* m = bignum_fromstr("234578987654321345678976546645683886265566");
+    bignum* n = bignum_fromstr("483087922722730630250067024317194093041407432889519830343462235739489856630443028");
+    bignum* o = bignum_fromstr("34209584728385749586758493847593847520958");
+    bignum* p = bignum_fromstr("2346578765467890984345483479587968796789483");
+    bignum* q = bignum_fromstr("80275485099104648981509634319095041186709545181267873374554113275067193548956484714");
 
     // Trivial
     ASSERT(bignum_eq(*bignum_mul(*a, *a), *a));
@@ -173,6 +179,9 @@ void test_bignum_mul() {
     ASSERT(bignum_eq(*bignum_mul(*d, *e), *f));
     // Gros Gros nombres
     ASSERT(bignum_eq(*bignum_mul(*e, *f), *k));
+    // GROS GROS GROS GROS GROS GROS nombres.
+    ASSERT(bignum_eq(*bignum_mul(*l, *m), *n));
+    ASSERT(bignum_eq(*bignum_mul(*o, *p), *q));
     // Nombres négatifs
     bignum* g = bignum_fromstr("-2");
     bignum* h = bignum_fromstr("-3");
@@ -212,7 +221,7 @@ void test_bignum_split() {
 
     bignum* g = bignum_fromstr("668");
     bignum* h = bignum_fromstr("66");
-    bignum* i = bignum_fromstr("8s");
+    bignum* i = bignum_fromstr("8");
     bignum* k = bignum_fromstr("6");
 
     high = bignum_init();
@@ -356,8 +365,10 @@ void test_circular_list_append() {
     circular_list_append(list, 'c');
     ASSERT(list->current->previous->element == 'c');
     ASSERT(list->current->next->next->element == 'c');
+    printf("%c",list->current->next->next->element);
     circular_list_append(list, 'd');
     ASSERT(list->current->previous->element == 'd');
+    printf("%c",list->current->next->next->element);
     ASSERT(list->current->next->next->next->element == 'd');
 }
 

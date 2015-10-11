@@ -36,7 +36,9 @@ void circular_list_append(circular_list* list, char elem){
     //C-A-D derrière l'élément courrant.
     } else {
         cell->next = list->current;
+        cell->previous = list->current->previous;
         list->current->previous->next = cell;
+        list->current->previous = cell;
     }
 }
 //Donne l'élément courrant et avance l'élément courrant.
