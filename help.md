@@ -23,6 +23,7 @@
 ---------+-------------------------------------------
     .    | pop le dessus de la pile
   "..."  | copie le texte entre " sur la sortie standard
+         |      (\" affiche ", \\ affiche \)
     #    | vide la pile
     $    | dump le contenu de la pile
     %    | dump les adresses contenues dans les variables

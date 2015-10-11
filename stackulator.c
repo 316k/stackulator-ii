@@ -356,10 +356,18 @@ int main(int argc, char* argv[]) {
         // Extra : echo
         } else if(c == '"') {
 
+            char last_char = c;
             c = getc(in);
 
-            while(c != '"' && c != EOF) {
+            while((c != '"' || last_char == '\\') && c != EOF) {
+                if(last_char != '\\' && c == '\\') {
+                    last_char = c;
+                    c = getc(in);
+                    continue;
+                }
+
                 printf("%c", c);
+                last_char = c;
                 c = getc(in);
             }
 
