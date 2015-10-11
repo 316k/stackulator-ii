@@ -14,8 +14,8 @@ struct stack {
 
 typedef struct stack stack;
 
-long stack_len(stack* stack) {
-    return stack->len;
+long stack_len(stack* s) {
+    return s->len;
 }
 
 void stack_push(stack* s, bignum* element){
