@@ -353,7 +353,18 @@ int main(int argc, char* argv[]) {
             stack_peek(s)->sign = negative;
             waiting = TRUE;
 
-        // Addition
+        // Extra : echo
+        } else if(c == '"') {
+
+            c = getc(in);
+
+            while(c != '"' && c != EOF) {
+                printf("%c", c);
+                c = getc(in);
+            }
+
+            waiting = TRUE;
+        // Extra : vide le stack
         } else if(c == '#') {
             while(!stack_empty(s)) {
                 bignum_destoroyah(stack_pop(s));

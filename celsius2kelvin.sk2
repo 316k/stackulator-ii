@@ -1,2 +1,3 @@
 #!./stackulator -s
-, 273 +
+"Convertisseur de Celsius en Kelvins
+Veuillez entrer une température en celcius : " , 273 + "Équivalent en Kelvins : "
