@@ -30,8 +30,9 @@
 
 # Variables
 
-   =a : assigne le dessus de la pile dans a
-    a : push le contenu de a sur la pile
+   =a : assigne le dessus de la pile dans la variable a
+   _a : assigne NULL dans la variable a
+    a : push le contenu de la variable a sur la pile
 
 Les variables disponibles sont les lettres a à z
 

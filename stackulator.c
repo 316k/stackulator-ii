@@ -277,6 +277,14 @@ int main(int argc, char* argv[]) {
 
             assign_var(c, s, in, variables);
 
+        // Assignation explicite de NULL dans une variable
+        } else if(c == '_') {
+            char c = getc(in);
+
+            stack* empty_stack = stack_init();
+            assign_var(c, empty_stack, in, variables);
+            free(empty_stack);
+
         // Push une variable sur la pile
         } else if(c >= 'a' && c <= 'z') {
 
