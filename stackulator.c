@@ -302,18 +302,24 @@ int main(int argc, char* argv[]) {
 
         // Ignore les espaces
         } else if(c == ' ') {
-        // \n affiche le top du stack
-        } else if(c == '\n') {
+        // ^ affiche le top du stack et \n aussi si interactif
+        } else if(c == '^' || ((c == '\n') && interactive_mode)) {
 
             if(!stack_empty(s)) {
                 char* str = bignum_tostr(*stack_peek(s));
-                printf("%s\n", str);
+                printf("%s", str);
                 free(str);
             } else if(interactive_mode) {
                 printf("Stack vide\n");
             }
 
+            if(interactive_mode){
+                printf("\n");
+            }
+
             waiting = TRUE;
+        // Ignore le \n si le mode interactif est off
+        } else if(c == '\n'){
         // Extra : comparateurs booléens &, |, > et <
         } else if(c == '>' || c == '<' || c == '&' || c == '|') {
 
@@ -431,7 +437,7 @@ int main(int argc, char* argv[]) {
 
             waiting = TRUE;
         // Extra : vide le stack
-        } else if(c == '#') {
+        } else if(c == '~') {
             while(!stack_empty(s)) {
                 bignum_destoroyah(stack_pop(s));
             }

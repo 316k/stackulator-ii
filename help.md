@@ -24,10 +24,10 @@
     .    | pop le dessus de la pile
   "..."  | copie le texte entre " sur la sortie standard
          |      (\" affiche ", \\ affiche \)
-    #    | vide la pile
+    ~    | vide la pile
     $    | dump le contenu de la pile
     %    | dump les adresses contenues dans les variables
-
+    ^    | affiche le dessus du stack
 # Variables
 
    =a : assigne le dessus de la pile dans la variable a
