@@ -98,11 +98,20 @@ char push_op(char c, stack* s, bignum* (*fct)(bignum, bignum)) {
     return c;
 }
 
-void shift_op(char c, stack* s) {
+void push_shift(char c, stack* s) {
     if(stack_len(s) < 1) {
         fprintf(stderr, "%c nécessite une opérandes, taille du stack insuffisante\n", c);
         return;
     }
+    bignum* popped = stack_pop(s);
+    bignum* shifted = bignum_copy(popped);
+    if(c == '{') {
+        bignum_shift_left(shifted, 1);
+    } else {
+        bignum_shift_right(shifted, 1);
+    }
+    stack_push(s, shifted);
+    bignum_destoroyah(popped);
 }
 
 char push_test(char c, stack* s) {
@@ -352,7 +361,6 @@ int main(int argc, char* argv[]) {
                 free(str);
 
             } else if(interactive_mode) {
-                c
                 printf("Stack vide\n");
             }
 
@@ -374,6 +382,9 @@ int main(int argc, char* argv[]) {
                 continue;
             }
             stack_push(s, bignum_copy(stack_peek(s)));
+        // Extra : Shifts arithmétiques.
+        } else if(c == '{' || c == '}') {
+            push_shift(c, s);
         // Extra : Début de loop.
         } else if(c == '[') {
             circular_list* loop_context = create_context(in, c_s, '[', ']');

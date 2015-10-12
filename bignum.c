@@ -506,6 +506,25 @@ void bignum_shift_left(bignum* out, int shamt) {
     //clean le résultat.
     bignum_clean(out);
 }
+/* Arithmetic base 10 right shift on a bignum */
+void bignum_shift_right(bignum* out, int shamt) {
+    int i;
+    int len;
+    bigdigit* out_first;
+    for(i=0; (i < shamt) && (len = bignum_len(*out)) > 0; i++) {
+        if(len == 1){
+            out->first->value = 0;
+            continue;
+        }
+        //prend le deuxième, free le premier, met le deuxième comme premier.
+        out_first = out->first;
+        out->first = out_first->next;
+        free(out_first);
+    }
+
+    //clean le résultat.
+    bignum_clean(out);
+}
 
 /**
  * Algo de karatsuba pour la multiplication de grands entiers

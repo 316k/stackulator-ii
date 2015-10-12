@@ -249,6 +249,19 @@ void test_bignum_shift_left() {
     ASSERT(bignum_eq(*a, *b));
 }
 
+void test_bignum_shift_right() {
+    bignum* a = bignum_fromstr("10");
+    bignum* b = bignum_fromstr("10000");
+    bignum* zero = bignum_fromstr("0");
+    bignum_shift_right(b, 3);
+    printf("\n num is now : %s \n", bignum_tostr(*b));
+    ASSERT(bignum_eq(*a, *b));
+
+    bignum_shift_right(b, 10);
+
+    ASSERT(bignum_eq(*b, *zero));
+}
+
 void test_bignum_copy() {
     bignum* a = bignum_fromstr("6666888");
     bignum* b = bignum_copy(a);
@@ -431,6 +444,7 @@ char test_all() {
 	test_bignum_split();
 	test_bignum_copy();
 	test_bignum_shift_left();
+	test_bignum_shift_right();
     // stack.c
     test_stack_push();
     test_stack_peek();
