@@ -95,6 +95,13 @@ char push_op(char c, stack* s, bignum* (*fct)(bignum, bignum)) {
     return c;
 }
 
+void shift_op(char c, stack* s){
+    if(stack_len(s) < 1) {
+        fprintf(stderr, "%c nécessite une opérandes, taille du stack insuffisante\n", c);
+        return;
+    }
+}
+
 char push_test(char c, stack* s) {
     if(stack_len(s) < 2) {
         fprintf(stderr, "Une comparaison booléenne nécessite deux opérandes, taille du stack insuffisante\n");
@@ -389,7 +396,7 @@ int main(int argc, char* argv[]) {
             procedures[c - 'A'] = procedure_context;
 
         // Extra : le retour d'une procédure
-        } else if(c == ';') {
+        } else if(c == ';' && !context_stack_empty(c_s)) {
             context_stack_pop(c_s);
         // Extra : L'appel d'une procédure
         } else if(c >= 'A' && c <= 'Z') {
