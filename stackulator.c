@@ -256,15 +256,6 @@ int main(int argc, char* argv[]) {
             fprintf(stderr, "Impossible d'ouvrir le fichier %s\n", argv[i]);
             return EXIT_FAILURE;
         }
-
-        // On ignore les #!/path/to/bin au besoin
-        char shebang[] = "00";
-        fread(shebang, sizeof(char), 2, in);
-
-        if(strcmp(shebang, "#!") == 0) {
-            while(getc(in) != '\n');
-        }
-
         interactive_mode = FALSE;
     }
 
@@ -323,6 +314,11 @@ int main(int argc, char* argv[]) {
 
         // Ignore les espaces
         } else if(c == ' ') {
+        // Ignore tout ce qu'il y a entre # et \n
+        } else if(c == '#') {
+            while(c != '\n'){
+                c = get_next(in, c_s);
+            }
         // ^ affiche le top du stack et \n aussi si interactif
         } else if(((c == '^') && !interactive_mode) || ((c == '\n') && interactive_mode)) {
 
