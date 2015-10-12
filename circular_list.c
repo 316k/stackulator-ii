@@ -29,7 +29,7 @@ void circular_list_append(circular_list* list, char elem){
     //précédent et suivant sont == à lui même.
     if(list->current == NULL){
         list->current = cell;
-        
+
         cell->previous = cell;
         cell->next = cell;
     //Si la liste n'est pas vide, on insère l'élément à la fin relative de la liste
