@@ -1,0 +1,5 @@
+#!./stackulator -s
+:a @ * ;
+"Calculateur de carré avec procédures :D. Entrez votre nombre " , /a 
+"le carré est : " ^ "
+"

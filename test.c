@@ -365,10 +365,8 @@ void test_circular_list_append() {
     circular_list_append(list, 'c');
     ASSERT(list->current->previous->element == 'c');
     ASSERT(list->current->next->next->element == 'c');
-    printf("%c",list->current->next->next->element);
     circular_list_append(list, 'd');
     ASSERT(list->current->previous->element == 'd');
-    printf("%c",list->current->next->next->element);
     ASSERT(list->current->next->next->next->element == 'd');
 }
 
