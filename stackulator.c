@@ -352,6 +352,7 @@ int main(int argc, char* argv[]) {
                 free(str);
 
             } else if(interactive_mode) {
+                c
                 printf("Stack vide\n");
             }
 
@@ -375,11 +376,12 @@ int main(int argc, char* argv[]) {
             stack_push(s, bignum_copy(stack_peek(s)));
         // Extra : Début de loop.
         } else if(c == '[') {
+            circular_list* loop_context = create_context(in, c_s, '[', ']');
             if(stack_empty(s) || bignum_eq(*stack_peek(s), *zero) ) {
+                circular_list_destoroyah(loop_context);
                 continue;
             }
 
-            circular_list* loop_context = create_context(in, c_s, '[', ']');
             context_stack_push(c_s, loop_context);
         // Fin de boucle.
         } else if(c == ']') {
