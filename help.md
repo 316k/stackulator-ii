@@ -37,6 +37,11 @@
 
 Les variables disponibles sont les lettres a à z
 
+# Procédures
+
+   :A expressions; : assigne les expressions de A à ; exclusivement à la procédure A
+    A              : appelle la procédure A.
+
 # Structure de contrôle
 
 La seule structure de contrôle est la boucle : `20 =a . 10 [a 10 + =a . 1 - ]`
