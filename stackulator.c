@@ -378,15 +378,15 @@ int main(int argc, char* argv[]) {
                 fprintf(stderr, "Vous ne pouvez définir une fonction qu'hors d'une boucle ou d'une fonction.");
             }
             c = get_next(in, c_s);
-            if(c < 'a' || c > 'z') {
-                fprintf(stderr, "Le nom de variable `%c` est erroné\n", c);
+            if(c < 'A' || c > 'Z') {
+                fprintf(stderr, "Le nom de fonction `%c` est erroné\n", c);
                 continue;
             }
             // Définis la procédure en créant un contexte et en y mettant tous
             // Les trucs jusqu'au ';'.
             circular_list* procedure_context = circular_list_init();
             fill_context(procedure_context, in, c_s, ':', ';');
-            procedures[c - 'a'] = procedure_context;
+            procedures[c - 'A'] = procedure_context;
 
         // Extra : le retour d'une procédure
         } else if(c == ';') {
@@ -394,15 +394,15 @@ int main(int argc, char* argv[]) {
         // Extra : L'appel d'une procédure
         } else if(c == '/') {
             c = get_next(in, c_s);
-            if(c < 'a' || c > 'z') {
+            if(c < 'A' || c > 'Z') {
                 fprintf(stderr, "Le nom de variable `%c` est erroné\n", c);
                 continue;
             }
-            if(procedures[c - 'a'] == NULL){
+            if(procedures[c - 'A'] == NULL){
                 fprintf(stderr, "La procédure `%c` n'est pas définie.", c);
                 continue;
             }
-            context_stack_push(c_s, procedures[c - 'a']);
+            context_stack_push(c_s, procedures[c - 'A']);
         // Extra : dump le contenu du stack
         } else if(c == '$') {
             stack_dump(s);
