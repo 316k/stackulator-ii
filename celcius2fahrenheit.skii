@@ -1,8 +1,11 @@
 #!./stackulator -s
+#C est abs(top du stack).
+:C =z . 0 z - ;
 #B est un modulo 10
 :B @ 10 > [ . 10 - @ 10 > ] . @ 10 == [ . 10 - @ ] . ;
 #A calcule la partie décimale et la met dans a et met la partie entière dans b.
-:A @ 18 * 320 + B =a . 18 * } 32 + =b ~;
+:A @ 18 * 320 + @ 0 < [ "pass" . C 0 ] .  B =a . $ 18 * } 32 + =b ~;
+#@ < 0 [ . C @ 0 0 . ] .
 "Entrez la température en Celcius : " ,
 A a b 
  "
