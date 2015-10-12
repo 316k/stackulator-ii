@@ -24,7 +24,10 @@ void prompt(char interactive_mode, stack* s) {
         }
     }
 }
-//Retourne le prochain charactère du programme.
+
+/**
+ * Donne la prochaine instruction à exécuter
+ */
 char get_next(FILE* in, context_stack* c_s){
     if(context_stack_empty(c_s)){
         return getc(in);
@@ -95,7 +98,7 @@ char push_op(char c, stack* s, bignum* (*fct)(bignum, bignum)) {
     return c;
 }
 
-void shift_op(char c, stack* s){
+void shift_op(char c, stack* s) {
     if(stack_len(s) < 1) {
         fprintf(stderr, "%c nécessite une opérandes, taille du stack insuffisante\n", c);
         return;
@@ -202,18 +205,25 @@ char push_var(char c, stack* s, bignum* variables[]) {
     return c;
 }
 
-void fill_context(circular_list* context, FILE* in, context_stack* c_s,  char enter, char exit){
+circular_list* create_context(FILE* in, context_stack* c_s,  char enter, char exit) {
+    circular_list* context = circular_list_init();
+
+    // Pour supporter les contextes dans des contextes (ex.: loop dans une loop)
     int enter_count = 1;
     char c;
-    while(enter_count){
+
+    while(enter_count) {
         c = get_next(in, c_s);
-        if(c == enter){
+
+        if(c == enter) {
             enter_count++;
-        }else if (c == exit){
+        } else if (c == exit) {
             enter_count--;
         }
+
         circular_list_append(context, c);
     }
+    return context;
 }
 
 int main(int argc, char* argv[]) {
@@ -222,14 +232,16 @@ int main(int argc, char* argv[]) {
     char c = ' ', waiting, interactive_mode = TRUE;
     stack* s = stack_init();
     context_stack* c_s = context_stack_init();
+
     // Variables
     bignum* variables[26];
+
     // Procédures
     circular_list* procedures[26];
 
     bignum* zero = bignum_fromstr("0");
 
-    //Sette toutes les vars et proc à NULL;
+    //Set toutes les variables et procédures à NULL
     for(i=0; i<26; i++) {
         variables[i] = NULL;
         procedures[i] = NULL;
@@ -321,29 +333,31 @@ int main(int argc, char* argv[]) {
 
         // Ignore les espaces
         } else if(c == ' ') {
-        // Ignore tout ce qu'il y a entre # et \n
+        // Extra : commentaires. Ignore tout ce qu'il y a entre # et \n
         } else if(c == '#') {
             while(c != '\n'){
                 c = get_next(in, c_s);
             }
-        // ^ affiche le top du stack et \n aussi si interactif
-        } else if(((c == '^') && !interactive_mode) || ((c == '\n') && interactive_mode)) {
+        // affiche le top du stack : ^ (ou \n en mode interactif)
+        } else if(c == '^' || (c == '\n' && interactive_mode)) {
 
             if(!stack_empty(s)) {
                 char* str = bignum_tostr(*stack_peek(s));
                 printf("%s", str);
+
+                if(interactive_mode){
+                    printf("\n");
+                }
+
                 free(str);
+
             } else if(interactive_mode) {
                 printf("Stack vide\n");
             }
 
-            if(interactive_mode){
-                printf("\n");
-            }
-
-            waiting = TRUE;
+            waiting = c == '\n';
         // Ignore le \n si le mode interactif est off
-        } else if(c == '\n'){
+        } else if(c == '\n') {
         // Extra : comparateurs booléens &, |, > et <
         } else if(c == '>' || c == '<' || c == '&' || c == '|') {
 
@@ -361,16 +375,12 @@ int main(int argc, char* argv[]) {
             stack_push(s, bignum_copy(stack_peek(s)));
         // Extra : Début de loop.
         } else if(c == '[') {
-            circular_list* loop_context = circular_list_init();
-            //Construit le contexte
-            fill_context(loop_context, in, c_s, '[', ']');
-            //Si le stack est vide ou que le top == 0 détruit le contexte et continue.
             if(stack_empty(s) || bignum_eq(*stack_peek(s), *zero) ) {
-                circular_list_destoroyah(loop_context);
-            } else {
-                //Sinon ajoute le contexte sur le context_stack.
-                context_stack_push(c_s, loop_context);
+                continue;
             }
+
+            circular_list* loop_context = create_context(in, c_s, '[', ']');
+            context_stack_push(c_s, loop_context);
         // Fin de boucle.
         } else if(c == ']') {
             // Si le top du stack est existant et positif, continue comme ça
@@ -384,15 +394,14 @@ int main(int argc, char* argv[]) {
             if(!context_stack_empty(c_s)) {
                 fprintf(stderr, "Impossible de définir une procédure depuis une boucle ou une procédure\n");
             }
+
             c = get_next(in, c_s);
             if(c < 'A' || c > 'Z') {
                 fprintf(stderr, "Le nom de procédure `%c` est erroné\n", c);
                 continue;
             }
-            // Définis la procédure en créant un contexte et en y mettant tous
-            // Les trucs jusqu'au ';'.
-            circular_list* procedure_context = circular_list_init();
-            fill_context(procedure_context, in, c_s, ':', ';');
+
+            circular_list* procedure_context = create_context(in, c_s, ':', ';');
             procedures[c - 'A'] = procedure_context;
 
         // Extra : le retour d'une procédure
@@ -468,7 +477,7 @@ int main(int argc, char* argv[]) {
                 c = get_next(in, c_s);
             }
 
-            waiting = TRUE;
+            waiting = c == '\n';
         // Extra : vide le stack
         } else if(c == '~') {
             while(!stack_empty(s)) {
