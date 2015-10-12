@@ -392,12 +392,7 @@ int main(int argc, char* argv[]) {
         } else if(c == ';') {
             context_stack_pop(c_s);
         // Extra : L'appel d'une procédure
-        } else if(c == '/') {
-            c = get_next(in, c_s);
-            if(c < 'A' || c > 'Z') {
-                fprintf(stderr, "Le nom de variable `%c` est erroné\n", c);
-                continue;
-            }
+        } else if(c >= 'A' && c <= 'Z') {
             if(procedures[c - 'A'] == NULL){
                 fprintf(stderr, "La procédure `%c` n'est pas définie.", c);
                 continue;
