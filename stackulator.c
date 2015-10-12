@@ -195,6 +195,20 @@ char push_var(char c, stack* s, bignum* variables[]) {
     return c;
 }
 
+void fill_context(circular_list* context, FILE* in, context_stack* c_s,  char enter, char exit){
+    int enter_count = 1;
+    char c;
+    while(enter_count){
+        c = get_next(in, c_s);
+        if(c == enter){
+            enter_count++;
+        }else if (c == exit){
+            enter_count--;
+        }
+        circular_list_append(context, c);
+    }
+}
+
 int main(int argc, char* argv[]) {
     int i, j;
     FILE* in = stdin;
@@ -208,10 +222,12 @@ int main(int argc, char* argv[]) {
 
     bignum* zero = bignum_fromstr("0");
 
-
+    //Sette toutes les vars et proc à NULL;
     for(i=0; i<26; i++) {
         variables[i] = NULL;
+        procedures[i] = NULL;
     }
+
     // Parse les arguments
     for(i = 1; i < argc && argv[i][0] == '-'; i++) {
         if(strcmp(argv[i], "-s") == 0 || strcmp(argv[i], "--silent") == 0) {
@@ -306,7 +322,7 @@ int main(int argc, char* argv[]) {
             push_var(c, s, variables);
 
         // Ignore les espaces
-        } else if(c == ' ') {s
+        } else if(c == ' ') {
         // ^ affiche le top du stack et \n aussi si interactif
         } else if(((c == '^') && !interactive_mode) || ((c == '\n') && interactive_mode)) {
 
@@ -342,33 +358,16 @@ int main(int argc, char* argv[]) {
             stack_push(s, bignum_copy(stack_peek(s)));
         // Extra : Début de loop.
         } else if(c == '[') {
-            int loop_start_count = 1;
-            //Si le stack est vide ou que le top == 0
-            if(stack_empty(s) || bignum_eq(*stack_peek(s), *zero) ) {
-                // Va jusqu'à la fin de la boucle et continue l'exec.
-                while(loop_start_count){
-                    c = get_next(in, c_s);
-                    if(c == '['){
-                        loop_start_count++;
-                    }else if (c == ']'){
-                        loop_start_count--;
-                    }
-                }
-                continue;
-            }
-            //Sinon, construit un contexte dans une liste circulaire.
             circular_list* loop_context = circular_list_init();
-            while(loop_start_count){
-                c = get_next(in, c_s);
-                    if(c == '['){
-                        loop_start_count++;
-                    }else if (c == ']'){
-                        loop_start_count--;
-                    }
-                circular_list_append(loop_context, c);
+            //Construit le contexte
+            fill_context(loop_context, in, c_s, '[', ']');
+            //Si le stack est vide ou que le top == 0 détruit le contexte et continue.
+            if(stack_empty(s) || bignum_eq(*stack_peek(s), *zero) ) {
+                circular_list_destoroyah(loop_context);
+            } else {
+                //Sinon ajoute le contexte sur le context_stack.
+                context_stack_push(c_s, loop_context);
             }
-            //Ajoute le contexte sur le context_stack.
-            context_stack_push(c_s, loop_context);
         // Fin de boucle.
         } else if(c == ']') {
             // Si le top du stack est existant et positif, continue comme ça
@@ -379,12 +378,35 @@ int main(int argc, char* argv[]) {
             circular_list_destoroyah(context_stack_pop(c_s));
         // Extra : début d'une procédure.
         } else if(c == ':') {
-            c = get_next();
+            if(!context_stack_empty(c_s)) {
+                fprintf(stderr, "Vous ne pouvez définir une fonction qu'hors d'une boucle ou d'une fonction.");
+            }
+            c = get_next(in, c_s);
             if(c < 'a' || c > 'z') {
                 fprintf(stderr, "Le nom de variable `%c` est erroné\n", c);
                 continue;
             }
-        }
+            // Définis la procédure en créant un contexte et en y mettant tous
+            // Les trucs jusqu'au ';'.
+            circular_list* procedure_context = circular_list_init();
+            fill_context(procedure_context, in, c_s, ':', ';');
+            procedures[c - 'a'] = procedure_context;
+
+        // Extra : le retour d'une procédure
+        } else if(c == ';') {
+            context_stack_pop(c_s);
+        // Extra : L'appel d'une procédure
+        } else if(c == '/') {
+            c = get_next(in, c_s);
+            if(c < 'a' || c > 'z') {
+                fprintf(stderr, "Le nom de variable `%c` est erroné\n", c);
+                continue;
+            }
+            if(procedures[c - 'a'] == NULL){
+                fprintf(stderr, "La procédure `%c` n'est pas définie.", c);
+                continue;
+            }
+            context_stack_push(c_s, procedures[c - 'a']);
         // Extra : dump le contenu du stack
         } else if(c == '$') {
             stack_dump(s);
