@@ -1,0 +1,10 @@
+#!./stackulator -s
+#B est un modulo 10
+:B @ 10 > [ . 10 - @ 10 > ] . @ 10 == [ . 10 - @ ] . ;
+#A calcule la partie décimale et la met dans a et met la partie entière dans b.
+:A @ 18 * 320 + B =a . 18 * } 32 + =b ~;
+"Entrez la température en Celcius : " ,
+A a b 
+ "
+Équivalent en Fahrenheit (+- 1) : " ^. "," ^
+"
