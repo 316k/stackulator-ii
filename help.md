@@ -16,6 +16,8 @@
     &    |     2     | 1 si op1 != 0 *et* op2 != 0
     |    |     2     | 1 si op1 != 0 *ou* op2 != 0
     ?    |     3     | op1 si op3 != 0, op2 sinon
+    {    |     1     | op1 << 1
+    }    |     1     | op1 >> 1
 
 # Autres commandes
 
