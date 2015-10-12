@@ -375,11 +375,11 @@ int main(int argc, char* argv[]) {
         // Extra : début d'une procédure.
         } else if(c == ':') {
             if(!context_stack_empty(c_s)) {
-                fprintf(stderr, "Vous ne pouvez définir une fonction qu'hors d'une boucle ou d'une fonction.");
+                fprintf(stderr, "Impossible de définir une procédure depuis une boucle ou une procédure\n");
             }
             c = get_next(in, c_s);
             if(c < 'A' || c > 'Z') {
-                fprintf(stderr, "Le nom de fonction `%c` est erroné\n", c);
+                fprintf(stderr, "Le nom de procédure `%c` est erroné\n", c);
                 continue;
             }
             // Définis la procédure en créant un contexte et en y mettant tous
@@ -394,7 +394,7 @@ int main(int argc, char* argv[]) {
         // Extra : L'appel d'une procédure
         } else if(c >= 'A' && c <= 'Z') {
             if(procedures[c - 'A'] == NULL){
-                fprintf(stderr, "La procédure `%c` n'est pas définie.", c);
+                fprintf(stderr, "La procédure `%c` n'est pas définie.\n", c);
                 continue;
             }
             context_stack_push(c_s, procedures[c - 'A']);
