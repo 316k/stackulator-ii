@@ -275,8 +275,7 @@ int main(int argc, char* argv[]) {
             interactive_mode = 2; // verbose
         } else if(strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
             printf("usage : stackulator [options]\n");
-            printf("stackulator is a postfix calculator evaluates stdin into stdout\n");
-            printf("Enter prints the top of the stack, supported operations are + - *\n");
+            printf("stackulator is a postfix stack machine that evaluates stdin into stdout\n");
             printf("options :\n");
             printf("    -s, --silent : don't show '>' prompt character\n");
             printf("    -v, --verbose : show useful stuff instead of just the '>' prompt character\n");
