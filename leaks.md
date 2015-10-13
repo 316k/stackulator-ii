@@ -6,25 +6,26 @@ Memory leaks : (X = No leak, ? = Not tested)
 	    +    | X
 	    -    | X
 	    *    | Leak
-	    !    | ?
-	   ==    | ?
-	    >    | ?
-	    <    | ?
-	    &    | ?
-	    |    | ?
-	    ?    | ?
+	    !    | Leak
+	   ==    | X
+	    >    | X
+	    <    | X
+	    &    | X
+	    |    | X
+	    ?    | X
 	    {    | X
 	    }    | X
-	    .    | ?
-	  "..."  | ?
-	    ~    | ?
-	    $    | Leak
-	    %    | ?
-	    ^    | ?
+	    .    | X
+	  "..."  | X
+	    ~    | X
+	    $    | X
+	    ^    | X
 	   =a    | Leak
-	   _a    | ?
+	   _a    | X
 	    a    | ?
+	    %    | ?
 	   def A | ?
 	    call | ?
 	   []    | ?
 	 [ [] ]  | ?
+

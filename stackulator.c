@@ -74,12 +74,11 @@ char push_number(char c, stack* s, FILE* in, context_stack* c_s, char* saved) {
 
         c = get_next(in, c_s, saved);
     }
-    //Si c'est un autre char que space et newline, sauve le pour la 
-    //prochaine évaluation.
-    if(c != ' ' && c != '\n') {
-        if(saved != NULL){
-            *saved = c;
-        }
+
+    /* Si c'est un autre char que space et newline, sauve le pour la
+       prochaine évaluation. */
+    if(c != ' ' && c != '\n' && saved != NULL) {
+        *saved = c;
     }
 
     num->first = prev_addr;
