@@ -62,11 +62,14 @@ stack* stack_init() {
 
 void stack_dump(stack* s) {
     int i;
+    char* str;
     stack_cell* cell = s->top;
 
     printf("-- Stack dump --\n");
     for(i = 0; i < stack_len(s); i++) {
-        printf("%ld: %s\n", stack_len(s) - i, bignum_tostr(*cell->element));
+        str = bignum_tostr(*cell->element);
+        printf("%ld: %s\n", stack_len(s) - i, str);
+        free(str);
         cell = cell->next_cell;
     }
 }
