@@ -24,8 +24,8 @@ Memory leaks : (X = No leak, ? = Not tested)
        _a    | X
         a    | X
         %    | X
-       def A | ?
-        call | ?
-       []    | ?
-     [ [] ]  | ?
+       def A | X
+        call | X
+       []    | X
+     [ [] ]  | X
 
