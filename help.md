@@ -16,7 +16,7 @@
     &    |     2     | 1 si op1 != 0 *et* op2 != 0
     |    |     2     | 1 si op1 != 0 *ou* op2 != 0
     ?    |     3     | op1 si op3 != 0, op2 sinon
-    {    |     1     | op1 << 1
+    {    |     1     | op1 << 1 (les shifts sont en base 10)
     }    |     1     | op1 >> 1
 
 # Autres commandes
@@ -48,4 +48,4 @@ Les variables disponibles sont les lettres a à z
 
 La seule structure de contrôle est la boucle : `20 =a . 10 [a 10 + =a . 1 - ]`
 
-Le contenu entre crochets est exécuté tant que le top de la pile n'est pas 0 rendu à ']'
+Le contenu entre crochets est exécuté tant que le top de la pile existe et est < 0.
