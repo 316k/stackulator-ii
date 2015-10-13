@@ -538,7 +538,7 @@ int main(int argc, char* argv[]) {
     free(s);
 
     while(!context_stack_empty(c_s)) {
-        context_destoroyah(stack_pop(s));
+        context_destoroyah(context_stack_pop(c_s));
     }
 
     free(c_s);
