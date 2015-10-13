@@ -1,9 +1,9 @@
-// Requires circular_list*.c to be included first
+// Requires context*.c to be included first
 
 typedef struct context_stack_cell context_stack_cell;
 
 struct context_stack_cell {
-    circular_list* element;
+    context* element;
     context_stack_cell* next_cell;
 };
 
@@ -18,7 +18,7 @@ long context_stack_len(context_stack* s) {
     return s->len;
 }
 
-void context_stack_push(context_stack* s, circular_list* element){
+void context_stack_push(context_stack* s, context* element){
     context_stack_cell* new_cell = malloc(sizeof(context_stack_cell));
 
     please_dont_segfault(new_cell);
@@ -29,10 +29,10 @@ void context_stack_push(context_stack* s, circular_list* element){
     s->len++;
 }
 
-circular_list* context_stack_pop(context_stack* s) {
+context* context_stack_pop(context_stack* s) {
     context_stack_cell* popped = s->top;
     s->top = popped->next_cell;
-    circular_list* value = popped->element;
+    context* value = popped->element;
 
     free(popped); //like a bird.
 
@@ -41,7 +41,7 @@ circular_list* context_stack_pop(context_stack* s) {
     return value;
 }
 
-circular_list* context_stack_peek(context_stack* s) {
+context* context_stack_peek(context_stack* s) {
     return s->top->element;
 }
 

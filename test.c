@@ -369,64 +369,64 @@ void test_stress_stack() {
     }
 }
 
-void test_circular_list_append() {
-    circular_list* list = circular_list_init();
-    circular_list_append(list, 'a');
+void test_context_append() {
+    context* list = context_init(CONTEXT_LOOP);
+    context_append(list, 'a');
     ASSERT(list->current->element == 'a');
-    circular_list_append(list, 'b');
+    context_append(list, 'b');
     ASSERT(list->current->next->element == 'b');
-    circular_list_append(list, 'c');
+    context_append(list, 'c');
     ASSERT(list->current->previous->element == 'c');
     ASSERT(list->current->next->next->element == 'c');
-    circular_list_append(list, 'd');
+    context_append(list, 'd');
     ASSERT(list->current->previous->element == 'd');
     ASSERT(list->current->next->next->next->element == 'd');
 }
 
-void test_circular_list_next() {
-    circular_list* list = circular_list_init();
-    circular_list_append(list, 'a');
+void test_context_next() {
+    context* list = context_init(CONTEXT_LOOP);
+    context_append(list, 'a');
     int i;
     for(i = 0; i<10; i++){
-        ASSERT(circular_list_next(list) == 'a');
+        ASSERT(context_next(list) == 'a');
     }
-    circular_list_append(list, 'b');
+    context_append(list, 'b');
     for(i = 0; i<10; i++){
-        ASSERT(circular_list_next(list) == 'a');
-        ASSERT(circular_list_next(list) == 'b');
+        ASSERT(context_next(list) == 'a');
+        ASSERT(context_next(list) == 'b');
     }
-    circular_list_append(list, 'c');
-    circular_list_append(list, 'd');
-    circular_list_append(list, 'e');
-    circular_list_append(list, 'f');
+    context_append(list, 'c');
+    context_append(list, 'd');
+    context_append(list, 'e');
+    context_append(list, 'f');
     for(i = 0; i<10; i++){
-        ASSERT(circular_list_next(list) == 'a');
-        ASSERT(circular_list_next(list) == 'b');
-        ASSERT(circular_list_next(list) == 'c');
-        ASSERT(circular_list_next(list) == 'd');
-        ASSERT(circular_list_next(list) == 'e');
-        ASSERT(circular_list_next(list) == 'f');
+        ASSERT(context_next(list) == 'a');
+        ASSERT(context_next(list) == 'b');
+        ASSERT(context_next(list) == 'c');
+        ASSERT(context_next(list) == 'd');
+        ASSERT(context_next(list) == 'e');
+        ASSERT(context_next(list) == 'f');
     }
 }
 
-void test_circular_list_destoroyah() {
+void test_context_destoroyah() {
     //Liste à 0 elem.
-    circular_list* list = circular_list_init();
-    circular_list_destoroyah(list);
+    context* list = context_init(CONTEXT_LOOP);
+    context_destoroyah(list);
 
     //Liste à un elem.
-    list = circular_list_init();
-    circular_list_append(list, 'a');
-    circular_list_destoroyah(list);
+    list = context_init(CONTEXT_LOOP);
+    context_append(list, 'a');
+    context_destoroyah(list);
 
     //Liste à plusieurs elem.
-    list = circular_list_init();
-    circular_list_append(list, 'a');
-    circular_list_append(list, 'b');
-    circular_list_append(list, 'c');
-    circular_list_append(list, 'd');
-    circular_list_append(list, 'e');
-    circular_list_destoroyah(list);
+    list = context_init(CONTEXT_LOOP);
+    context_append(list, 'a');
+    context_append(list, 'b');
+    context_append(list, 'c');
+    context_append(list, 'd');
+    context_append(list, 'e');
+    context_destoroyah(list);
 
     //Encore là, si ça segfault pas, faut imaginer que ça marche.
 }
@@ -452,9 +452,9 @@ char test_all() {
     test_stack_empty();
     test_stack_len();
     test_stress_stack();
-    // circular_list.c
-    test_circular_list_append();
-    test_circular_list_next();
-    test_circular_list_destoroyah();
+    // context.c
+    test_context_append();
+    test_context_next();
+    test_context_destoroyah();
     return test_all_works;
 }
