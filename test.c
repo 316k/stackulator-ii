@@ -12,6 +12,19 @@ char assert(char exp, const char* func, int line) {
     return exp;
 }
 
+int weird_strcmp(char* a, char* b){
+    val = strcmp(a, b);
+    free(a);
+    return val;
+}
+
+int weirder_strcmp(char* a, char* b){
+    val = strcmp(a, b);
+    free(a);
+    free(b);
+    return val;
+}
+
 void test_bignum_tostr() {
     bignum num;
     bigdigit d1, d2, d3, d0;
@@ -26,38 +39,48 @@ void test_bignum_tostr() {
     num.sign = 0;
     num.first = &d1;
 
-    ASSERT(strcmp(bignum_tostr(num), "121") != 0);
-    ASSERT(strcmp(bignum_tostr(num), "321") == 0);
+    ASSERT(weird_strcmp(bignum_tostr(num), "121") != 0);
+    ASSERT(weird_strcmp(bignum_tostr(num), "321") == 0);
 
     num.sign = BIGNUM_NEGATIVE;
 
-    ASSERT(strcmp(bignum_tostr(num), "-321") == 0);
+    ASSERT(weird_strcmp(bignum_tostr(num), "-321") == 0);
 
     d0.next = NULL;
     d0.value = 0;
     num.first = &d0;
-    ASSERT(strcmp(bignum_tostr(num), "0") == 0);
+    ASSERT(weird_strcmp(bignum_tostr(num), "0") == 0);
+
+    d0.next = &d1;
+    bignum_destoroyah(num)
 }
 
 void test_bignum_fromstr() {
     bignum* num = bignum_fromstr("12345");
 
-    ASSERT(strcmp(bignum_tostr(*num), "12345") == 0);
+    ASSERT(weird_strcmp(bignum_tostr(*num), "12345") == 0);
 
     num = bignum_fromstr("-337");
-    ASSERT(strcmp(bignum_tostr(*num), "-337") == 0);
+    ASSERT(weird_strcmp(bignum_tostr(*num), "-337") == 0);
 
     bignum* a = bignum_fromstr("5");
-    ASSERT(strcmp(bignum_tostr(*a), "5") == 0);
+    ASSERT(weird_strcmp(bignum_tostr(*a), "5") == 0);
+
+    bignum_destoroyah(a);
+    bignum_destoroyah(num);
 }
 
 void test_bignum_fromchar() {
     bignum* num = bignum_fromchar((char) 57);
 
-    ASSERT(strcmp(bignum_tostr(*num), "57") == 0);
+    ASSERT(weird_strcmp(bignum_tostr(*num), "57") == 0);
+
+    bignum_destoroyah(num);
 
     num = bignum_fromchar('\n');
-    ASSERT(strcmp(bignum_tostr(*num), "10") == 0);
+    ASSERT(weird_strcmp(bignum_tostr(*num), "10") == 0);
+
+    bignum_destoroyah(num);
 }
 
 void test_bignum_clean() {
@@ -68,18 +91,25 @@ void test_bignum_clean() {
 
     bignum_clean(a);
     bignum_clean(b);
-    ASSERT(strcmp(bignum_tostr(*a), bignum_tostr(*b)) == 0);
+    ASSERT(weirder_strcmp(bignum_tostr(*a), bignum_tostr(*b)) == 0);
     bignum_clean(c);
     bignum_clean(d);
 
-    ASSERT(strcmp(bignum_tostr(*c), bignum_tostr(*d)) == 0);
+    ASSERT(weirder_strcmp(bignum_tostr(*c), bignum_tostr(*d)) == 0);
 
     bignum* e = bignum_fromstr("000000000000000000000");
     bignum* f = bignum_fromstr("-0");
     bignum_clean(e);
     bignum_clean(f);
-    ASSERT(strcmp(bignum_tostr(*e), bignum_tostr(*bignum_fromstr("0"))) == 0);
-    ASSERT(strcmp(bignum_tostr(*f), bignum_tostr(*bignum_fromstr("0"))) == 0);
+    ASSERT(weird_strcmp(bignum_tostr(*e), "0") == 0);
+    ASSERT(weird_strcmp(bignum_tostr(*f), "0") == 0);
+
+    bignum_destoroyah(a);
+    bignum_destoroyah(b);
+    bignum_destoroyah(c);
+    bignum_destoroyah(d);
+    bignum_destoroyah(e);
+    bignum_destoroyah(f);
 }
 
 void test_bignum_destoroyah() {
@@ -93,9 +123,17 @@ void test_bignum_rev() {
     bignum* ar = bignum_fromstr("54321");
     bignum* b = bignum_fromstr("-12345");
     bignum* br = bignum_fromstr("-54321");
+    bignum* arev = bignum_rev(*a);
+    bignum* brev = bignum_rev(*b);
+    ASSERT(weirder_strcmp(bignum_tostr(*ar), bignum_tostr(*arev)) == 0);
+    ASSERT(weirder_strcmp(bignum_tostr(*br), bignum_tostr(*brev)) == 0);
 
-    ASSERT(strcmp(bignum_tostr(*bignum_rev(*a)), bignum_tostr(*ar)) == 0);
-    ASSERT(strcmp(bignum_tostr(*bignum_rev(*b)), bignum_tostr(*br)) == 0);
+    bignum_destoroyah(a);
+    bignum_destoroyah(ar);
+    bignum_destoroyah(b);
+    bignum_destoroyah(br);
+    bignum_destoroyah(arev);
+    bignum_destoroyah(brev);
 }
 
 void test_bignum_gt() {
@@ -116,6 +154,12 @@ void test_bignum_gt() {
     ASSERT(!bignum_absgt(*j, *i));
     ASSERT(!bignum_absgt(*z, *h));
     ASSERT(!bignum_absgt(*z, *k));
+
+    bignum_destoroyah(h);
+    bignum_destoroyah(i);
+    bignum_destoroyah(j);
+    bignum_destoroyah(k);
+    bignum_destoroyah(z);
 
 }
 
@@ -159,6 +203,21 @@ void test_bignum_add() {
     bignum* m = bignum_fromstr("000001");
     bignum* n = bignum_fromstr("000002");
     ASSERT(bignum_eq(*bignum_add(*n, *m), *bignum_fromstr("3")));
+
+    bignum_destoroyah(a);
+    bignum_destoroyah(b);
+    bignum_destoroyah(c);
+    bignum_destoroyah(d);
+    bignum_destoroyah(e);
+    bignum_destoroyah(f);
+    bignum_destoroyah(g);
+    bignum_destoroyah(h);
+    bignum_destoroyah(i);
+    bignum_destoroyah(j);
+    bignum_destoroyah(k);
+    bignum_destoroyah(l);
+    bignum_destoroyah(m);
+    bignum_destoroyah(n);
 }
 
 void test_bignum_mul() {
@@ -263,7 +322,7 @@ void test_bignum_shift_right() {
     bignum* b = bignum_fromstr("10000");
     bignum* zero = bignum_fromstr("0");
     bignum_shift_right(b, 3);
-    
+
     ASSERT(bignum_eq(*a, *b));
 
     bignum_shift_right(b, 10);
@@ -443,10 +502,10 @@ void test_context_destoroyah() {
 char test_all() {
     // bignum.c
     test_bignum_tostr();
+    test_bignum_destoroyah();
     test_bignum_fromstr();
     test_bignum_fromchar();
     test_bignum_clean();
-    test_bignum_destoroyah();
     test_bignum_rev();
     test_bignum_gt();
     test_bignum_add();
