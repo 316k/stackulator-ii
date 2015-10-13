@@ -254,7 +254,7 @@ void test_bignum_shift_right() {
     bignum* b = bignum_fromstr("10000");
     bignum* zero = bignum_fromstr("0");
     bignum_shift_right(b, 3);
-    printf("\n num is now : %s \n", bignum_tostr(*b));
+    
     ASSERT(bignum_eq(*a, *b));
 
     bignum_shift_right(b, 10);
