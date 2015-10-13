@@ -1,0 +1,7 @@
+#!./stackulator -s
+"Quel est votre nom ? "
+0 1 - [
+    . ` @ 10 == 0 ==
+] . . '
+"Bonjour, " [ / . ] " !
+"
