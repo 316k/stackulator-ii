@@ -26,13 +26,14 @@ context* context_init(int type) {
     return list;
 }
 //Ajoute un élément à la fin (relative) de la liste.
-void context_append(context* list, char elem){
+void context_append(context* list, char elem) {
     context_cell* cell = malloc(sizeof(context_cell));
+    printf("\malloc'ed : %c\n", elem);
     please_dont_segfault(cell);
     cell->element = elem;
     //Si la liste est vide, son élément courrant devient celui-ci.
     //précédent et suivant sont == à lui même.
-    if(list->current == NULL){
+    if(list->current == NULL) {
         list->current = cell;
 
         cell->previous = cell;
@@ -47,22 +48,22 @@ void context_append(context* list, char elem){
     }
 }
 //Donne l'élément courrant et avance l'élément courrant.
-char context_next(context* list){
+char context_next(context* list) {
     char elem = list->current->element;
     list->current = list->current->next;
     return elem;
 }
 //Désalloue la mémoire de la liste.
-void context_destoroyah(context* list){
+void context_destoroyah(context* list) {
     //si la liste est vide, libérer seulement la liste.
-    if(list->current == NULL){
+    if(list->current == NULL) {
         free(list);
         return;
     //si la liste ne contient qu'une seule cellule.
-    } else if (list->current == list->current->next){
+    } else if (list->current == list->current->next) {
         free(list->current);
         free(list);
-    } else{
+    } else {
         //set le next du dernier élément comme NULL
         list->current->previous->next = NULL;
         //Cellule actuelle
@@ -70,10 +71,12 @@ void context_destoroyah(context* list){
         //Trouve le prochain
         context_cell* next = list->current->next;
         //Free les shitz tant qu'on est pas au dernier elem.
-        while(next != NULL){
+        while(current != NULL){
+            next = current->next;
+            printf("\free'd : %c\n", current->element);
             free(current);
             current = next;
-            next = current->next;
         }
+        free(list);
     }
 }
