@@ -77,7 +77,9 @@ char push_number(char c, stack* s, FILE* in, context_stack* c_s, char* saved) {
     }
 
     /* Si c'est un autre char que space et newline, sauve le pour la
-       prochaine évaluation. */
+       prochaine évaluation. Si saved est NULL, l'entrée utilisateur
+       est lu et pour éviter l'injection de code, on ne sauve pas 
+       le dernier char.*/
     if(c != ' ' && c != '\n' && saved != NULL) {
         *saved = c;
     }
