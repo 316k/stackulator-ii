@@ -508,6 +508,16 @@ int main(int argc, char* argv[]) {
             stack_peek(s)->sign = negative;
             waiting = TRUE;
 
+        // Extra : lis un char depuis l'entrée standard
+        } else if(c == '`') {
+
+            c = getc(stdin);
+
+            bignum* input_char = bignum_fromchar(c);
+
+            stack_push(s, input_char);
+            waiting = TRUE;
+
         // Extra : echo
         } else if(c == '"') {
 

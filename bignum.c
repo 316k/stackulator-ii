@@ -214,6 +214,35 @@ bignum* bignum_fromstr(char str[]) {
 }
 
 /**
+ * Construit un bignum avec le code ASCII du char c
+ */
+bignum* bignum_fromchar(char c) {
+    int i;
+
+    bignum* num = bignum_init();
+    num->sign = BIGNUM_POSITIVE;
+
+    bigdigit* digit = NULL;
+    bigdigit** next = &num->first;
+
+    for(i = 0; c; i++) {
+        digit = bigdigit_init();
+
+        digit->value = (c % 10);
+        c /= 10;
+
+        *next = digit;
+        next = &digit->next;
+    }
+
+    *next = NULL;
+
+    bignum_clean(num);
+
+    return num;
+}
+
+/**
  * Donne la représentation en char* d'un bignum
  */
 void bignum_dump(bignum* num) {
@@ -412,7 +441,7 @@ bignum* bignum_dumb_mul(bignum a, bignum b) {
     if(bignum_absgt(b, a))
         return bignum_dumb_mul(b, a);
 
-    bignum* prod = bignum_fromstr("0");
+    bignum* prod = bignum_init();
     bignum* zero = bignum_fromstr("0");
     bignum* dec = bignum_fromstr("-1");
 
@@ -427,15 +456,15 @@ bignum* bignum_dumb_mul(bignum a, bignum b) {
 
     while(!bignum_eq(*b_copy, *zero)) {
         add_result = bignum_add(*b_copy, *dec);
-        free(b_copy);
+        bignum_destoroyah(b_copy);
         b_copy = add_result;
 
         prod_result = bignum_add(*prod, a);
-        free(prod);
+        bignum_destoroyah(prod);
         prod = prod_result;
     }
 
-    free(b_copy);
+    bignum_destoroyah(b_copy);
     bignum_destoroyah(zero);
     bignum_destoroyah(dec);
 

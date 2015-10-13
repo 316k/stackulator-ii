@@ -51,6 +51,15 @@ void test_bignum_fromstr() {
     ASSERT(strcmp(bignum_tostr(*a), "5") == 0);
 }
 
+void test_bignum_fromchar() {
+    bignum* num = bignum_fromchar((char) 57);
+
+    ASSERT(strcmp(bignum_tostr(*num), "57") == 0);
+
+    num = bignum_fromchar('\n');
+    ASSERT(strcmp(bignum_tostr(*num), "10") == 0);
+}
+
 void test_bignum_clean() {
     bignum* a = bignum_fromstr("0000012345");
     bignum* b = bignum_fromstr("0012345");
@@ -435,6 +444,7 @@ char test_all() {
     // bignum.c
     test_bignum_tostr();
     test_bignum_fromstr();
+    test_bignum_fromchar();
     test_bignum_clean();
     test_bignum_destoroyah();
     test_bignum_rev();
