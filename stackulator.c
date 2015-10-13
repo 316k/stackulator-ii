@@ -412,10 +412,15 @@ int main(int argc, char* argv[]) {
             }
 
             context_stack_push(c_s, loop_context);
-        // Fin de boucle. (Seulement si on est dans une boucle)
-        } else if(c == ']' && context_stack_peek(c_s)->type == CONTEXT_LOOP) {
-            // Si le top du stack est existant et positif, continue comme ça
-            if(!stack_empty(s) && bignum_absgt(*stack_peek(s), *zero) ) {
+        // Fin de boucle.
+        } else if(c == ']') {
+            if(context_stack_empty(c_s) || context_stack_peek(c_s)->type != CONTEXT_LOOP){
+                fprintf(stderr, "Instruction de sortie de boucle hors d'une boucle.\n");
+                continue;
+            }
+            /* Si on est dans une loopet que le top du stack est existant et 
+            positif, continue comme ça */
+            if(context_stack_peek(c_s)->type == CONTEXT_LOOP && !stack_empty(s) && bignum_absgt(*stack_peek(s), *zero) ) {
                 continue;
             }
             // Sinon, tue le contexte.
@@ -436,7 +441,11 @@ int main(int argc, char* argv[]) {
             procedures[c - 'A'] = procedure_context;
 
         // Extra : le retour d'une procédure (seulement si on est dans une proc.)
-        } else if(c == ';' && !context_stack_empty(c_s) && context_stack_peek(c_s)->type == CONTEXT_PROC) {
+        } else if(c == ';') {
+            if(context_stack_empty(c_s) || context_stack_peek(c_s)->type != CONTEXT_PROC){
+                fprintf(stderr, "Instruction de sortie de procédure hors d'une définition de procédure.\n");
+                continue;
+            }
             context_stack_pop(c_s);
         // Extra : L'appel d'une procédure
         } else if(c >= 'A' && c <= 'Z') {
