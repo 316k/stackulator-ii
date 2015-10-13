@@ -214,6 +214,35 @@ bignum* bignum_fromstr(char str[]) {
 }
 
 /**
+ * Construit un bignum avec le code ASCII du char c
+ */
+bignum* bignum_fromchar(char c) {
+    int i;
+
+    bignum* num = bignum_init();
+    num->sign = BIGNUM_POSITIVE;
+
+    bigdigit* digit = NULL;
+    bigdigit** next = &num->first;
+
+    for(i = 0; c; i++) {
+        digit = bigdigit_init();
+
+        digit->value = (c % 10);
+        c /= 10;
+
+        *next = digit;
+        next = &digit->next;
+    }
+
+    *next = NULL;
+
+    bignum_clean(num);
+
+    return num;
+}
+
+/**
  * Donne la représentation en char* d'un bignum
  */
 void bignum_dump(bignum* num) {
