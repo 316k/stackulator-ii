@@ -20,10 +20,10 @@ Memory leaks : (X = No leak, ? = Not tested)
 	    ~    | X
 	    $    | X
 	    ^    | X
-	   =a    | Leak
+	   =a    | X
 	   _a    | X
-	    a    | ?
-	    %    | ?
+	    a    | X
+	    %    | X
 	   def A | ?
 	    call | ?
 	   []    | ?

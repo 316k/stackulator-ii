@@ -204,8 +204,11 @@ char assign_var(char c, stack* s, bignum* variables[]) {
         return c;
     }
 
-    variables[c - 'a'] = stack_peek(s);
-    stack_peek(s)->refs++;
+    // Empêche d'incrémenter refs avec `100 =a =b =a`
+    if(variables[c - 'a'] != stack_peek(s)) {
+        variables[c - 'a'] = stack_peek(s);
+        stack_peek(s)->refs++;
+    }
 
     return c;
 }
@@ -544,7 +547,7 @@ int main(int argc, char* argv[]) {
 
     for(i=0; i<26; i++) {
         if(variables[i] != NULL) {
-            free(variables[i]);
+            bignum_destoroyah(variables[i]);
         }
         if(procedures[i] != NULL) {
             context_destoroyah(procedures[i]);
