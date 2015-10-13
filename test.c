@@ -357,6 +357,23 @@ void test_stack_len() {
     ASSERT(stack_len(s) == 0);
 }
 
+void test_stack_reverse() {
+    stack* s = stack_init();
+    bignum* a = bignum_fromstr("8");
+    bignum* b = bignum_fromstr("7");
+
+    stack_push(s, a);
+    stack_push(s, b);
+    stack_push(s, b);
+    stack_push(s, b);
+
+    ASSERT(stack_peek(s)->first->value == 7);
+
+    stack_reverse(&s);
+
+    ASSERT(stack_peek(s)->first->value == 8);
+}
+
 void test_stress_stack() {
     stack* s = stack_init();
 
@@ -461,6 +478,7 @@ char test_all() {
     test_stack_pop();
     test_stack_empty();
     test_stack_len();
+    test_stack_reverse();
     test_stress_stack();
     // context.c
     test_context_append();

@@ -380,6 +380,22 @@ int main(int argc, char* argv[]) {
             }
 
             waiting = c == '\n';
+        // 
+        } else if(c == '/') {
+
+            if(!stack_empty(s)) {
+                char ascii_val = bignum_tochar(*stack_peek(s));
+                printf("%c", ascii_val);
+
+                if(interactive_mode){
+                    printf("\n");
+                }
+
+            } else if(interactive_mode) {
+                printf("Stack vide\n");
+            }
+
+            waiting = c == '\n';
         // Ignore le \n si le mode interactif est off
         } else if(c == '\n') {
         // Extra : comparateurs booléens &, |, > et <
@@ -517,6 +533,11 @@ int main(int argc, char* argv[]) {
 
             stack_push(s, input_char);
             waiting = TRUE;
+
+        // Extra : reverse le stack
+        } else if(c == '\'') {
+
+            stack_reverse(&s);
 
         // Extra : echo
         } else if(c == '"') {

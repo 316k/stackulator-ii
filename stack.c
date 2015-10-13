@@ -60,6 +60,19 @@ stack* stack_init() {
     return s;
 }
 
+void stack_reverse(stack** s) {
+
+    stack* t = stack_init();
+    stack* old_s = *s;
+
+    while(!stack_empty(*s)) {
+        stack_push(t, stack_pop(*s));
+    }
+
+    *s = t;
+    free(old_s);
+}
+
 void stack_dump(stack* s) {
     int i;
     char* str;
