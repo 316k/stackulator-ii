@@ -28,7 +28,13 @@ void prompt(char interactive_mode, stack* s) {
 /**
  * Donne la prochaine instruction à exécuter
  */
-char get_next(FILE* in, context_stack* c_s){
+char get_next(FILE* in, context_stack* c_s, char* saved){
+    
+    if(saved != NULL && *saved != -1){
+        char val = *saved;
+        *saved = -1;
+        return val;
+    }
     if(context_stack_empty(c_s)){
         return getc(in);
     }
@@ -36,7 +42,7 @@ char get_next(FILE* in, context_stack* c_s){
     return context_next(context_stack_peek(c_s));
 }
 
-char push_number(char c, stack* s, FILE* in, context_stack* c_s) {
+char push_number(char c, stack* s, FILE* in, context_stack* c_s, char* saved) {
     bignum* num = bignum_init();
 
     bigdigit* digit = NULL;
@@ -48,12 +54,12 @@ char push_number(char c, stack* s, FILE* in, context_stack* c_s) {
 
         prev_addr = digit;
 
-        while((c = get_next(in, c_s)) == '0');
+        while((c = get_next(in, c_s, saved)) == '0');
 
         // Si ça commençait avec des 0 non-significatifs, on les flush
         if(c >= '1' && c <= '9') {
             digit->value = c - '0';
-            c = get_next(in, c_s);
+            c = get_next(in, c_s, saved);
         }
     }
 
@@ -66,11 +72,14 @@ char push_number(char c, stack* s, FILE* in, context_stack* c_s) {
 
         prev_addr = digit;
 
-        c = get_next(in, c_s);
+        c = get_next(in, c_s, saved);
     }
-
+    //Si c'est un autre char que space et newline, sauve le pour la 
+    //prochaine évaluation.
     if(c != ' ' && c != '\n') {
-        fprintf(stderr, "Attention : les suffixes de nombres ne sont pas pris en compte (%c ignoré)\n", c);
+        if(saved != NULL){
+            *saved = c;
+        }
     }
 
     num->first = prev_addr;
@@ -214,7 +223,7 @@ char push_var(char c, stack* s, bignum* variables[]) {
     return c;
 }
 
-context* create_context(FILE* in, context_stack* c_s, char type,  char enter, char exit) {
+context* create_context(FILE* in, context_stack* c_s, char* saved, char type,  char enter, char exit) {
     context* context = context_init(type);
 
     // Pour supporter les contextes dans des contextes (ex.: loop dans une loop)
@@ -222,7 +231,7 @@ context* create_context(FILE* in, context_stack* c_s, char type,  char enter, ch
     char c;
 
     while(enter_count) {
-        c = get_next(in, c_s);
+        c = get_next(in, c_s, saved);
 
         if(c == enter) {
             enter_count++;
@@ -241,7 +250,9 @@ int main(int argc, char* argv[]) {
     char c = ' ', waiting, interactive_mode = TRUE;
     stack* s = stack_init();
     context_stack* c_s = context_stack_init();
-
+    // Char sauvegardé dans le cas ou un char est inputté directement après un nombre.
+    char* saved = malloc(sizeof(char));
+    *saved = -1;
     // Variables
     bignum* variables[26];
 
@@ -294,13 +305,13 @@ int main(int argc, char* argv[]) {
 
     prompt(interactive_mode, s);
 
-    while((c = get_next(in, c_s)) != EOF) {
+    while((c = get_next(in, c_s, saved)) != EOF) {
         waiting = FALSE;
 
         // Push un nouveau nombre sur la pile
         if(c >= '0' && c <= '9') {
 
-            c = push_number(c, s, in, c_s);
+            c = push_number(c, s, in, c_s, saved);
             waiting = c == '\n';
 
         // Addition
@@ -317,7 +328,7 @@ int main(int argc, char* argv[]) {
             push_op(c, s, bignum_dumb_mul);
         // Assignation & test d'égalité
         } else if(c == '=') {
-            char c = get_next(in, c_s);
+            char c = get_next(in, c_s, saved);
 
             // Extra : Test d'égalité
             if(c == '=') {
@@ -329,7 +340,7 @@ int main(int argc, char* argv[]) {
 
         // Assignation explicite de NULL dans une variable
         } else if(c == '_') {
-            char c = get_next(in, c_s);
+            char c = get_next(in, c_s, saved);
 
             stack* empty_stack = stack_init();
             assign_var(c, empty_stack, variables);
@@ -345,7 +356,7 @@ int main(int argc, char* argv[]) {
         // Extra : commentaires. Ignore tout ce qu'il y a entre # et \n
         } else if(c == '#') {
             while(c != '\n'){
-                c = get_next(in, c_s);
+                c = get_next(in, c_s, saved);
             }
         // affiche le top du stack : ^ (ou \n en mode interactif)
         } else if(c == '^' || (c == '\n' && interactive_mode)) {
@@ -390,7 +401,7 @@ int main(int argc, char* argv[]) {
             //Le contexte est créé inconditionellement car il faut faire avancer
             //le contexte dans lequel la boucle est déclarée jusqu'a la fin
             //de la boucle dans les deux cas.
-            context* loop_context = create_context(in, c_s, CONTEXT_LOOP, '[', ']');
+            context* loop_context = create_context(in, c_s, saved, CONTEXT_LOOP, '[', ']');
             if(stack_empty(s) || bignum_eq(*stack_peek(s), *zero) ) {
                 context_destoroyah(loop_context);
                 continue;
@@ -411,13 +422,13 @@ int main(int argc, char* argv[]) {
                 fprintf(stderr, "Impossible de définir une procédure depuis une boucle ou une procédure\n");
             }
 
-            c = get_next(in, c_s);
+            c = get_next(in, c_s, saved);
             if(c < 'A' || c > 'Z') {
                 fprintf(stderr, "Le nom de procédure `%c` est erroné\n", c);
                 continue;
             }
 
-            context* procedure_context = create_context(in, c_s, CONTEXT_PROC, ':', ';');
+            context* procedure_context = create_context(in, c_s, saved, CONTEXT_PROC, ':', ';');
             procedures[c - 'A'] = procedure_context;
 
         // Extra : le retour d'une procédure (seulement si on est dans une proc.)
@@ -469,7 +480,12 @@ int main(int argc, char* argv[]) {
 
             //Si des char sont lu de l'entrée, il ne faut pas les prendres dans le contexte courrant.
             context_stack* empty_stack = context_stack_init();
-            c = push_number(c, s, stdin, empty_stack);
+            c = push_number(c, s, stdin, empty_stack, NULL);
+            // Si le dernier char lu n'est pas ' ' ou '\n', on avertis l'utilisateur
+            // que ce char a été ignoré.
+            if(c != ' ' && c != '\n') {
+                printf("Attention : les suffixes de nombres ne sont pas pris en compte ('%c' ignoré)", c);
+            }
             free(empty_stack);
 
             stack_peek(s)->sign = negative;
@@ -479,18 +495,18 @@ int main(int argc, char* argv[]) {
         } else if(c == '"') {
 
             char last_char = c;
-            c = get_next(in, c_s);
+            c = get_next(in, c_s, saved);
 
             while((c != '"' || last_char == '\\') && c != EOF) {
                 if(last_char != '\\' && c == '\\') {
                     last_char = c;
-                    c = get_next(in, c_s);
+                    c = get_next(in, c_s, saved);
                     continue;
                 }
 
                 printf("%c", c);
                 last_char = c;
-                c = get_next(in, c_s);
+                c = get_next(in, c_s, saved);
             }
 
             waiting = c == '\n';
@@ -503,7 +519,7 @@ int main(int argc, char* argv[]) {
         } else {
             fprintf(stderr, "Expression inconnue ignorée : %c", c);
             while(c != ' ' && c != '\n') {
-                c = get_next(in, c_s);
+                c = get_next(in, c_s, saved);
                 fprintf(stderr, "%c", c);
             }
             fprintf(stderr, "\n");
@@ -521,11 +537,23 @@ int main(int argc, char* argv[]) {
 
     free(s);
 
+    while(!context_stack_empty(c_s)) {
+        context_destoroyah(stack_pop(s));
+    }
+
+    free(c_s);
+
     for(i=0; i<26; i++) {
         if(variables[i] != NULL) {
             free(variables[i]);
         }
+        if(procedures[i] != NULL) {
+            context_destoroyah(procedures[i]);
+        }
     }
+
+    free(saved);
+    bignum_destoroyah(zero);
 
     return EXIT_SUCCESS;
 }
