@@ -245,6 +245,26 @@ bignum* bignum_fromchar(char c) {
 /**
  * Donne la représentation en char* d'un bignum
  */
+char bignum_tochar(bignum num) {
+    // Assume que num a été `bignum_cleané`
+
+    int mul = 1;
+    bigdigit* digit_addr = num.first;
+
+    char out;
+
+    while(digit_addr != NULL) {
+        out += mul * digit_addr->value;
+        mul *= 10;
+        digit_addr = digit_addr->next;
+    }
+
+    return out;
+}
+
+/**
+ * Donne la représentation en char* d'un bignum
+ */
 void bignum_dump(bignum* num) {
     bigdigit* digit_addr = num->first;
 
