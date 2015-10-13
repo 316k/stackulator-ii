@@ -28,7 +28,6 @@ context* context_init(int type) {
 //Ajoute un élément à la fin (relative) de la liste.
 void context_append(context* list, char elem) {
     context_cell* cell = malloc(sizeof(context_cell));
-    printf("\malloc'ed : %c\n", elem);
     please_dont_segfault(cell);
     cell->element = elem;
     //Si la liste est vide, son élément courrant devient celui-ci.
@@ -73,7 +72,6 @@ void context_destoroyah(context* list) {
         //Free les shitz tant qu'on est pas au dernier elem.
         while(current != NULL){
             next = current->next;
-            printf("\free'd : %c\n", current->element);
             free(current);
             current = next;
         }

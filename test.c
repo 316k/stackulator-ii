@@ -13,13 +13,13 @@ char assert(char exp, const char* func, int line) {
 }
 
 int weird_strcmp(char* a, char* b){
-    val = strcmp(a, b);
+    int val = strcmp(a, b);
     free(a);
     return val;
 }
 
 int weirder_strcmp(char* a, char* b){
-    val = strcmp(a, b);
+    int val = strcmp(a, b);
     free(a);
     free(b);
     return val;
@@ -52,7 +52,7 @@ void test_bignum_tostr() {
     ASSERT(weird_strcmp(bignum_tostr(num), "0") == 0);
 
     d0.next = &d1;
-    bignum_destoroyah(num)
+    bignum_destoroyah(&num);
 }
 
 void test_bignum_fromstr() {
