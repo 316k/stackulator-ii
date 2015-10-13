@@ -4,7 +4,7 @@
 
 
 #include "help.c"
-#include "circular_list.c"
+#include "context.c"
 #include "context_stack.c"
 #include "bignum.c"
 #include "stack.c"
@@ -33,7 +33,7 @@ char get_next(FILE* in, context_stack* c_s){
         return getc(in);
     }
 
-    return circular_list_next(context_stack_peek(c_s));
+    return context_next(context_stack_peek(c_s));
 }
 
 char push_number(char c, stack* s, FILE* in, context_stack* c_s) {
@@ -214,8 +214,8 @@ char push_var(char c, stack* s, bignum* variables[]) {
     return c;
 }
 
-circular_list* create_context(FILE* in, context_stack* c_s,  char enter, char exit) {
-    circular_list* context = circular_list_init();
+context* create_context(FILE* in, context_stack* c_s, char type,  char enter, char exit) {
+    context* context = context_init(type);
 
     // Pour supporter les contextes dans des contextes (ex.: loop dans une loop)
     int enter_count = 1;
@@ -230,7 +230,7 @@ circular_list* create_context(FILE* in, context_stack* c_s,  char enter, char ex
             enter_count--;
         }
 
-        circular_list_append(context, c);
+        context_append(context, c);
     }
     return context;
 }
@@ -246,7 +246,7 @@ int main(int argc, char* argv[]) {
     bignum* variables[26];
 
     // Procédures
-    circular_list* procedures[26];
+    context* procedures[26];
 
     bignum* zero = bignum_fromstr("0");
 
@@ -387,21 +387,24 @@ int main(int argc, char* argv[]) {
             push_shift(c, s);
         // Extra : Début de loop.
         } else if(c == '[') {
-            circular_list* loop_context = create_context(in, c_s, '[', ']');
+            //Le contexte est créé inconditionellement car il faut faire avancer
+            //le contexte dans lequel la boucle est déclarée jusqu'a la fin
+            //de la boucle dans les deux cas.
+            context* loop_context = create_context(in, c_s, CONTEXT_LOOP, '[', ']');
             if(stack_empty(s) || bignum_eq(*stack_peek(s), *zero) ) {
-                circular_list_destoroyah(loop_context);
+                context_destoroyah(loop_context);
                 continue;
             }
 
             context_stack_push(c_s, loop_context);
-        // Fin de boucle.
-        } else if(c == ']') {
+        // Fin de boucle. (Seulement si on est dans une boucle)
+        } else if(c == ']' && context_stack_peek(c_s)->type == CONTEXT_LOOP) {
             // Si le top du stack est existant et positif, continue comme ça
             if(!stack_empty(s) && bignum_absgt(*stack_peek(s), *zero) ) {
                 continue;
             }
             // Sinon, tue le contexte.
-            circular_list_destoroyah(context_stack_pop(c_s));
+            context_destoroyah(context_stack_pop(c_s));
         // Extra : début d'une procédure.
         } else if(c == ':') {
             if(!context_stack_empty(c_s)) {
@@ -414,11 +417,11 @@ int main(int argc, char* argv[]) {
                 continue;
             }
 
-            circular_list* procedure_context = create_context(in, c_s, ':', ';');
+            context* procedure_context = create_context(in, c_s, CONTEXT_PROC, ':', ';');
             procedures[c - 'A'] = procedure_context;
 
-        // Extra : le retour d'une procédure
-        } else if(c == ';' && !context_stack_empty(c_s)) {
+        // Extra : le retour d'une procédure (seulement si on est dans une proc.)
+        } else if(c == ';' && !context_stack_empty(c_s) && context_stack_peek(c_s)->type == CONTEXT_PROC) {
             context_stack_pop(c_s);
         // Extra : L'appel d'une procédure
         } else if(c >= 'A' && c <= 'Z') {
