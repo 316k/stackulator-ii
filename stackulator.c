@@ -29,7 +29,8 @@ void prompt(char interactive_mode, stack* s) {
  * Donne la prochaine instruction à exécuter
  */
 char get_next(FILE* in, context_stack* c_s, char* saved){
-    
+    /* Dans le cas ou saved est NULL, on lit l'entrée de l'utilisateur et
+    il est impossible qu'il y ait de char sauvés.*/
     if(saved != NULL && *saved != -1){
         char val = *saved;
         *saved = -1;
@@ -76,7 +77,9 @@ char push_number(char c, stack* s, FILE* in, context_stack* c_s, char* saved) {
     }
 
     /* Si c'est un autre char que space et newline, sauve le pour la
-       prochaine évaluation. */
+       prochaine évaluation. Si saved est NULL, l'entrée utilisateur
+       est lu et pour éviter l'injection de code, on ne sauve pas 
+       le dernier char.*/
     if(c != ' ' && c != '\n' && saved != NULL) {
         *saved = c;
     }
@@ -277,8 +280,7 @@ int main(int argc, char* argv[]) {
             interactive_mode = 2; // verbose
         } else if(strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
             printf("usage : stackulator [options]\n");
-            printf("stackulator is a postfix calculator evaluates stdin into stdout\n");
-            printf("Enter prints the top of the stack, supported operations are + - *\n");
+            printf("stackulator is a postfix stack machine that evaluates stdin into stdout\n");
             printf("options :\n");
             printf("    -s, --silent : don't show '>' prompt character\n");
             printf("    -v, --verbose : show useful stuff instead of just the '>' prompt character\n");
@@ -482,6 +484,10 @@ int main(int argc, char* argv[]) {
 
             //Si des char sont lu de l'entrée, il ne faut pas les prendres dans le contexte courrant.
             context_stack* empty_stack = context_stack_init();
+            /* On passe NULL comme saved car on ne veut pas que l'utilisateur
+               puisse injecter du code en mettant une opération comme dernier
+               char de son entrée.
+            */
             c = push_number(c, s, stdin, empty_stack, NULL);
             // Si le dernier char lu n'est pas ' ' ou '\n', on avertis l'utilisateur
             // que ce char a été ignoré.
