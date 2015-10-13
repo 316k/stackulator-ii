@@ -29,7 +29,8 @@ void prompt(char interactive_mode, stack* s) {
  * Donne la prochaine instruction à exécuter
  */
 char get_next(FILE* in, context_stack* c_s, char* saved){
-    
+    /* Dans le cas ou saved est NULL, on lit l'entrée de l'utilisateur et
+    il est impossible qu'il y ait de char sauvés.*/
     if(saved != NULL && *saved != -1){
         char val = *saved;
         *saved = -1;
@@ -479,6 +480,10 @@ int main(int argc, char* argv[]) {
 
             //Si des char sont lu de l'entrée, il ne faut pas les prendres dans le contexte courrant.
             context_stack* empty_stack = context_stack_init();
+            /* On passe NULL comme saved car on ne veut pas que l'utilisateur
+               puisse injecter du code en mettant une opération comme dernier
+               char de son entrée.
+            */
             c = push_number(c, s, stdin, empty_stack, NULL);
             // Si le dernier char lu n'est pas ' ' ou '\n', on avertis l'utilisateur
             // que ce char a été ignoré.
