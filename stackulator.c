@@ -228,22 +228,40 @@ char push_var(char c, stack* s, bignum* variables[]) {
     return c;
 }
 
-context* create_context(FILE* in, context_stack* c_s, char* saved, char type,  char enter, char exit) {
+context* create_context(FILE* in, context_stack* c_s, char* saved, char type, char enter, char exit) {
     context* context = context_init(type);
 
     // Pour supporter les contextes dans des contextes (ex.: loop dans une loop)
     int enter_count = 1;
     char c;
-
+    int quote_count = 0;
+    char escape_char = 0;
     while(enter_count) {
         c = get_next(in, c_s, saved);
 
-        if(c == enter) {
+        quote_count = quote_count % 2;
+        /* Si la qtée de quotes lus est paire et que c'est un symbole d'entrée.*/
+        if (c == enter && !quote_count) {
             enter_count++;
-        } else if (c == exit) {
+        /* Si la qtée de quotes lus est paire et que c'est un symbole de sortie.*/
+        } else if (c == exit && !quote_count) {
             enter_count--;
+        /* Incrémente quote_count sauf quand on est dans une string et que
+        ça a été escapé...*/
+        } else if (c == '"' && !escape_char) {
+            quote_count++;
         }
+        // Si on est dans une string.
 
+        if(quote_count) {
+            // et qu'on escape, on escape plus après.
+            if(escape_char) {
+                escape_char--;
+            // si on escape pas et qu'on a '\', on escape le prochain.
+            } else if (c == '\\') {
+                escape_char++;
+            }
+        }
         context_append(context, c);
     }
     return context;
