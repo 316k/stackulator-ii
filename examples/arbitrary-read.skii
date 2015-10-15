@@ -1,0 +1,20 @@
+#!./stackulator -s
+10 20 30 40 50 60 70
+
+# Envoie l'élément du top tout en bas
+:A =a . ' a ' ;
+# Répète A [stack_top] fois
+:B [ 1 - =b . A b ] . ;
+# Remet en ordre après un appel à B
+:C =c . ' c B ' ;
+# Copie le nième élément du stack sur le top
+:D =d B =e d C e ;
+
+,
+@ 6 > [
+    . "Il y a 7 éléments sur le stack, " ^ " est un index relatif invalide
+" 0
+] .
+
+D ^ "
+"

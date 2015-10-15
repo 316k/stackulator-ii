@@ -1,0 +1,26 @@
+#!./stackulator -s
+10 20 30 40 50 60 70
+
+# Envoie l'élément du top tout en bas
+:A =a . ' a ' ;
+# Répète A [stack_top] fois
+:B [ 1 - =b . A b ] . ;
+# Remet en ordre après un appel à B
+:C =c . ' c B ' ;
+# Déplace le top du stack de N éléments sous le top du stack
+:D =d . =e . d B e d C ;
+:E =d . =e . d B . e d C ;
+
+#"Write
+#"
+#$ 666 3 D $
+~"Rewrite
+"
+10 20 30 40 50 60 70
+$ 666 3 E $
+
+:G =d B =e . d C e;
+
+2 G # Mets 50 sur le top du stack
+
+$
