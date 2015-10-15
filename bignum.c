@@ -251,7 +251,7 @@ char bignum_tochar(bignum num) {
     int mul = 1;
     bigdigit* digit_addr = num.first;
 
-    char out;
+    char out = 0;
 
     while(digit_addr != NULL) {
         out += mul * digit_addr->value;
