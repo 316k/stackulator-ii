@@ -620,6 +620,9 @@ int main(int argc, char* argv[]) {
 
     free(saved);
     bignum_destoroyah(zero);
+    if(in != stdin) {
+        fclose(in);
+    }
 
     return EXIT_SUCCESS;
 }
