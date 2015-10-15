@@ -415,6 +415,7 @@ bignum* bignum_add(bignum a, bignum b) {
     } else {
         // Assure que |a| >= |b| par la suite
         if(bignum_absgt(b, a)) {
+            bignum_destoroyah(sum);
             return bignum_add(b, a);
         }
 
