@@ -345,9 +345,19 @@ int main(int argc, char* argv[]) {
         // Multiplication
         } else if(c == '*') {
             push_op(c, s, bignum_mul);
-        // Extra : Multiplication par additions successives (dumb_mul)
+        // Extra : inversion booléenne
         } else if(c == '!') {
-            push_op(c, s, bignum_dumb_mul);
+
+            bignum* num = stack_pop(s);
+            bignum* val = bignum_fromstr("1");
+
+            if(!bignum_eq(*num, *zero)) {
+                val->first->value = 0;
+            }
+
+            bignum_destoroyah(num);
+
+            stack_push(s, val);
         // Assignation & test d'égalité
         } else if(c == '=') {
             char c = get_next(in, c_s, saved);
