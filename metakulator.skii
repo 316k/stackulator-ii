@@ -38,7 +38,7 @@ Entrez Ctrl+A suivi de [enter] pour quitter
         p ! [ .
             0 i 48 - +
             s 1 + =s .
-            p ! =p .
+            1 =p .
         0 ] .
     0 ] .
 
@@ -85,7 +85,7 @@ Entrez Ctrl+A suivi de [enter] pour quitter
 
     # Fin de la saisie d'un nombre
     i 48 < i 57 > | [ .
-        p ! =p .
+        0 =p .
     0 ] .
 i 1 == ! ] .
 
