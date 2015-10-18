@@ -347,7 +347,10 @@ int main(int argc, char* argv[]) {
             push_op(c, s, bignum_mul);
         // Extra : inversion booléenne
         } else if(c == '!') {
-
+            if(stack_len(s) < 1) {
+                fprintf(stderr, "L'inversion booléenne (!) nécessite une opérandes, taille du stack insuffisante\n");
+                continue;
+            }
             bignum* num = stack_pop(s);
             bignum* val = bignum_fromstr("1");
 
