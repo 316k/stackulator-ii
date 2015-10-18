@@ -2,7 +2,7 @@
 
          | opérandes | résultat
  symbole | dépilées  | empilé
----------+-----------+-------------------------------
+---------|-----------|-------------------------------
  nombre  |     -     | le nombre naturel entré
     ,    |     -     | un nombre naturel entré sur l'entrée standard
     `    |     -     | un code ASCII lu depuis un char sur l'entrée
@@ -15,7 +15,7 @@
     >    |     2     | 1 si op1 > op2
     <    |     2     | 1 si op1 < op2
     &    |     2     | 1 si op1 != 0 *et* op2 != 0
-    |    |     2     | 1 si op1 != 0 *ou* op2 != 0
+   &#124;|     2     | 1 si op1 != 0 *ou* op2 != 0
     ?    |     3     | op1 si op3 != 0, op2 sinon
     {    |     1     | op1 << 1 (les shifts sont en base 10)
     }    |     1     | op1 >> 1
@@ -23,7 +23,7 @@
 # Autres commandes
 
  symbole | effet
----------+-------------------------------------------
+---------|-------------------------------------------
     .    | pop le dessus de la pile
   "..."  | copie le texte entre " sur la sortie standard
          |      (\" affiche ", \\ affiche \)
