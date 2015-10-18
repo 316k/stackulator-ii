@@ -452,7 +452,7 @@ bignum* bignum_dumb_mul(bignum a, bignum b) {
     if(bignum_absgt(b, a))
         return bignum_dumb_mul(b, a);
 
-    bignum* prod = bignum_init();
+    bignum* prod = bignum_fromstr("0");
     bignum* zero = bignum_fromstr("0");
     bignum* dec = bignum_fromstr("-1");
 
