@@ -7,3 +7,6 @@ build: *.c
 
 clean:
 	rm *.o *~
+
+install:
+	cp stackulator /usr/bin/stackulator
