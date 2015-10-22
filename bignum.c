@@ -23,9 +23,6 @@ struct bignum {
 bignum* bignum_init() {
     bignum* num = malloc(sizeof(bignum));
     please_dont_segfault(num);
-    #ifdef debug
-    fprintf(stderr, "+num %9p\n", num);
-    #endif
     num->first = NULL;
     num->refs = 1;
     num->sign = 0;
@@ -37,11 +34,8 @@ bignum* bignum_init() {
  */
 bigdigit* bigdigit_init() {
     bigdigit* digit = malloc(sizeof(bigdigit));
-
     please_dont_segfault(digit);
-    #ifdef debug
-    fprintf(stderr, "+dig %9p\n", digit);
-    #endif
+
     digit->value = 0;
     digit->next = NULL;
 
@@ -62,16 +56,10 @@ void bignum_destoroyah(bignum* num) {
 
         while(current != NULL) {
             next = current->next;
-            #ifdef debug
-            fprintf(stderr, "-dig %9p\n", current);
-            #endif
             free(current);
             current = next;
         }
 
-        #ifdef debug
-        fprintf(stderr, "-num %9p\n", num);
-        #endif
         free(num);
     }
 }
@@ -124,7 +112,6 @@ char* bignum_tostr(bignum num) {
     bigdigit* digit_addr = num.first;
 
     char* out = malloc(sizeof(char) * (len + 1 + num.sign));
-
     please_dont_segfault(out);
 
     if(num.sign) {

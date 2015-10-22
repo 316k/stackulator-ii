@@ -4,7 +4,7 @@
 
 #define please_dont_segfault(stuff) \
     if(stuff == NULL) { \
-        printf("FIN DE MÉMOIRE. FUYEZ !! FUYEZ PAUVRES FOUS !! (%s at line %d)\n", __func__, __LINE__); \
+        printf("FIN DE LA MÉMOIRE. FUYEZ !! FUYEZ PAUVRES FOUS !! (%s, ligne %d)\n", __func__, __LINE__); \
         exit(-1); \
     }
 
