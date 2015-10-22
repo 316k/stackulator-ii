@@ -1,0 +1,134 @@
+#!./stackulator -s
+
+# v: variables, i: instructions brainfuck, p: pointeur d'instruction
+# v3 v2 v1 v0 i0 i1 i2 ... il
+#                ^
+#                |p
+
+# -- Définissions de fonctions ----------
+
+    # Note: les variables a à e sont écrasées par les fonctions A à G
+
+    # Soit N, la valeur du top du stack au moment d'appeler l'une des procédures
+    # Soit M, la valeur sous N
+
+    :A =a . ' a ';
+    :B [ 1 - =b . A b ] .;
+    :C =c . ' c B ';
+
+    # Copie le Nième élément sous le stack sur le top
+    :D =d B =e d C e;
+    # Remplace le Nième élément du stack par M
+    :E =d . =e . d B . e d C;
+    # Insère M à N éléments sous le top du stack
+    :F =d . =e . d B e d C;
+    # Déplace l'élément N éléments sous le top vers le top du stack
+    :G =d B =e . d C e;
+
+    # Copie la prochaine instruction sur le top (sans argument)
+    :I l p - 1 - D;
+
+    # Copie la variable active sur le top
+    # N : offset (nombre d'éléments par-dessus la liste d'instructions bf)
+    :V l + x + v + D;
+
+    # Écrit M dans la variable v en considérant un offset N
+    :W l + x + v + E;
+
+    # TODO Lis le num d'instruction sauvegardé dans la dernière boucle imbriquée
+
+    # Debug
+    :Z "w="w^.", v="v^.", l="l^.", p="p^.", i="i^.", x="x^. "
+"
+;
+
+# -- Variables --------------------------
+1 =w # Nombre de variables brainfuck instanciées (commence avec 1 variable)
+0 =v # Pointeur de variable (0-based)
+0 =l # Longueur du programme bf (0 = pas de programme)
+0 =p # Pointeur d'instruction (0-based)
+0 =i # Instruction actuelle (valeur ascii)
+0 =x # Nombre de boucles imbriquées (0-based)
+0 =j # Utilisé pour matcher les ouvertures/fermetures de boucles quand V = 0
+~
+# ---------------------------------------
+
+
+# Input le code jusqu'à obtenir un \n
+1 [
+    .
+    ` # input un charactère
+    l 1 + =l . # incrémente l
+
+    @ 10 == 0 ==
+] .. l 1 - =l .
+
+' 0 ' # Valeur de la variable v0
+
+1 [ . # Faire...
+    I =i . # Lis la prochaine instruction BF
+
+    # ,
+    i 44 == [ ` 1 W .0 ] .
+
+    # .
+    i 46 == [ 1 V / . .0 ] .
+
+    # +
+    i 43 == [ 1 V 1 + 1 W .0 ] .
+
+    # -
+    i 45 == [ 1 V 1 - 1 W .0 ] .
+
+    # <
+    i 60 == v 0 > & [
+        v 1 - =v .
+    .0 ] .
+
+    # >
+    i 62 == [
+        v 1 + =v .
+        v w > v w == | [ # Si incrémenter le pointeur de variable crée une nouvelle variable...
+            w 1 + =w . # On incrémente le compteur de variables
+            ' 0 ' # On "push" une nouvelle variable au dessous de la pile
+        .0 ] .
+    .0 ] .
+
+    # loop open : si variable actuelle est non-nulle
+    i 91 == 1 V & [
+        .
+        p l x + F # insère l'adresse p à la bone place
+        x 1 + =x . # incrémente x
+    0 ] .
+
+    # loop close
+    i 93 == [
+        l x + G 1 - =p .
+        x 1 - =x . # décrémente x
+    .0 ] . # loop close
+
+    # loop open : si variable actuelle == 0
+    i 91 == 1 V ! & [
+        1 =j .
+        1 [ .
+            I =i .
+            p 1 + =p .
+
+            # Ouverture de boucle imbriquée
+            i 93 == [
+                j 1 - =j .
+            .0 ] .
+
+            # Fermeture de boucle imbriquée ou de la boucle principale
+            i 91 == [
+                j 1 + =j .
+            .0 ] .
+
+        j ] . # Tant que les boucles ouvertes ne matchent pas les boucles fermées
+    .0 ] .
+
+    p 1 + =p . # Incrémentation du pointeur d'instruction
+    p l < ] . # ... Tant que le pointeur d'instruction est plus petit ou égal à l
+"
+"
+
