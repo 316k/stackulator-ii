@@ -93,7 +93,7 @@ char push_number(char c, stack* s, FILE* in, context_stack* c_s, char* saved) {
 
 char push_op(char c, stack* s, bignum* (*fct)(bignum, bignum)) {
     if(stack_len(s) < 2) {
-        fprintf(stderr, "%c nécessite deux opérandes, taille du stack insuffisante\n", c);
+        fprintf(stderr, "%c nécessite deux opérandes, taille de la pile insuffisante\n", c);
         return c;
     }
 
@@ -111,7 +111,7 @@ char push_op(char c, stack* s, bignum* (*fct)(bignum, bignum)) {
 
 void push_shift(char c, stack* s) {
     if(stack_len(s) < 1) {
-        fprintf(stderr, "%c nécessite une opérandes, taille du stack insuffisante\n", c);
+        fprintf(stderr, "%c nécessite une opérandes, taille de la pile insuffisante\n", c);
         return;
     }
     bignum* popped = stack_pop(s);
@@ -127,7 +127,7 @@ void push_shift(char c, stack* s) {
 
 char push_test(char c, stack* s) {
     if(stack_len(s) < 2) {
-        fprintf(stderr, "Une comparaison booléenne nécessite deux opérandes, taille du stack insuffisante\n");
+        fprintf(stderr, "Une comparaison booléenne nécessite deux opérandes, taille de la pile insuffisante\n");
         return c;
     }
 
@@ -167,7 +167,7 @@ char push_test(char c, stack* s) {
 
 char push_ternary(char c, stack* s) {
     if(stack_len(s) < 3) {
-        fprintf(stderr, "La ternaire (?) nécessite trois opérandes, taille du stack insuffisante\n");
+        fprintf(stderr, "La ternaire (?) nécessite trois opérandes, taille de la pile insuffisante\n");
         return c;
     }
 
@@ -347,7 +347,7 @@ int main(int argc, char* argv[]) {
         // Extra : inversion booléenne
         } else if(c == '!') {
             if(stack_len(s) < 1) {
-                fprintf(stderr, "L'inversion booléenne (!) nécessite une opérandes, taille du stack insuffisante\n");
+                fprintf(stderr, "L'inversion booléenne (!) nécessite une opérandes, taille de la pile insuffisante\n");
                 continue;
             }
             bignum* num = stack_pop(s);
@@ -408,7 +408,7 @@ int main(int argc, char* argv[]) {
             }
 
             waiting = c == '\n';
-        // Extra : affichage en char du bignum sur le top du stack
+        // Extra : affichage en char du bignum sur le top de la pile
         } else if(c == '/') {
 
             if(!stack_empty(s)) {
@@ -437,7 +437,7 @@ int main(int argc, char* argv[]) {
         // Extra : duplique le top du stack
         } else if(c == '@') {
             if(stack_empty(s)) {
-                fprintf(stderr, "La copie nécessite un élément sur le stack\n");
+                fprintf(stderr, "La copie nécessite au moins un élément sur la pile\n");
                 continue;
             }
             stack_push(s, bignum_copy(stack_peek(s)));
