@@ -236,32 +236,40 @@ context* create_context(FILE* in, context_stack* c_s, char* saved, char type, ch
     char c;
     int quote_count = 0;
     char escape_char = 0;
+    char comment = 0;
     while(enter_count) {
         c = get_next(in, c_s, saved);
 
         quote_count = quote_count % 2;
-        /* Si la qtée de quotes lus est paire et que c'est un symbole d'entrée.*/
-        if (c == enter && !quote_count) {
-            enter_count++;
-        /* Si la qtée de quotes lus est paire et que c'est un symbole de sortie.*/
-        } else if (c == exit && !quote_count) {
-            enter_count--;
-        /* Incrémente quote_count sauf quand on est dans une string et que
-        ça a été escapé...*/
-        } else if (c == '"' && !escape_char) {
-            quote_count++;
-        }
-        // Si on est dans une string.
-
-        if(quote_count) {
-            // et qu'on escape, on escape plus après.
-            if(escape_char) {
-                escape_char--;
-            // si on escape pas et qu'on a '\', on escape le prochain.
-            } else if (c == '\\') {
-                escape_char++;
+        //Si on est pas dans un commentaire
+        if (!comment) {
+            /* Si la qtée de quotes lus est paire et que c'est un symbole d'entrée.*/
+            if (c == enter && !quote_count) {
+                enter_count++;
+            /* Si la qtée de quotes lus est paire et que c'est un symbole de sortie.*/
+            } else if (c == exit && !quote_count) {
+                enter_count--;
+            /* Incrémente quote_count sauf quand on est dans une string et que
+            ça a été escapé...*/
+            } else if (c == '"' && !escape_char) {
+                quote_count++;
+            } else if (c == '#' && !quote_count) {
+                comment = 1;
             }
+            // Si on est dans une string.
+            if(quote_count) {
+                // et qu'on escape, on escape plus après.
+                if(escape_char) {
+                    escape_char--;
+                // si on escape pas et qu'on a '\', on escape le prochain.
+                } else if (c == '\\') {
+                    escape_char++;
+                }
+            }
+        } else if(c == '\n') {
+            comment = 0;
         }
+
         context_append(context, c);
     }
     return context;
