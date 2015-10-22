@@ -485,6 +485,9 @@ int main(int argc, char* argv[]) {
             }
 
             context* procedure_context = create_context(in, c_s, saved, CONTEXT_PROC, ':', ';');
+            if(procedures[c - 'A'] != NULL){
+                context_destoroyah(procedures[c - 'A']);
+            }
             procedures[c - 'A'] = procedure_context;
 
         // Extra : le retour d'une procédure (seulement si on est dans une proc.)
