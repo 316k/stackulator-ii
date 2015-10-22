@@ -1,14 +1,14 @@
 # Concept de langages de programmation : devoir 1
 
-Stackulator : la calculatrice à pile du futur
+**Stackulator : la calculatrice à pile du futur**
+
+par Nicolas Hurtubise et Guillaume Riou
 
 >
-> Vous êtes complètement tarés
+> *Vous êtes complètement tarés*
 >
 -- Alexandre St-Louis-Fortier, étudiant à la maîtrise au DIRO, membre du laboratoire de parallélisme
 
-
-par Nicolas Hurtubise et Guillaume Riou
 
 ## Explications générales
 
@@ -20,7 +20,7 @@ booléennes (`!`, `<`, `>`, `==`), des shifts arithmétiques en base 10
 (`}` et `{`) et une opération pour renverser la pile (`'`).
 
 Nous avons aussi implanté un système de boucles (délimitées par `[` et `]`)
-ainsi que des procédures nommées avec les lettres majuscules allant de A à Z.
+ainsi que des procédures nommées avec les lettres majuscules allant de A à Z
 
 Lancé sans arguments, `stackulator` se comporte de la manière
 décrite dans l'énoncé du devoir, c'est à dire qu'il affiche '>' en attendant
@@ -31,7 +31,7 @@ Pour rendre l'utilisation plus conviviale, nous avons ajouté quelques opératio
 
     -s, --silence : mode silencieux, n'affiche pas de caractère de "prompt"
         Le mode silencieux est fait pour être utilisé en conjonction avec un fichier
-        de code `stackulator` (généralement des `.skii`) en argument.
+        de code `stackulator` (généralement des fichiers `.skii`) en argument.
     -v, --verbose : mode verbeux qui affiche `x:(y)>` en attendant une entrée
         (où x est la hauteur de la pile et y est le nombre sur le dessus).
     -h, --help : permet d'avoir un résumé des fonctionnalités possibles.
@@ -69,8 +69,7 @@ Cette fonction nous permet :
     - De gérer les `contextes` pour les procédures et pour les boucles
 
 En supplément des fonctionnalités demandées nous avons implanté des boucles et des procédures. Les boucles sont déclarées par `[` et `]`. Une boucle se termine quand le dessus de 
-la pile est égal à zéro ou si la pile est vide. Les procédures sont déclarées comme ceci: `:X "mettre des opérations ici"; et sont appelés en écrivant simplement X ou X est une
-lettre majuscule allant de A à Z.
+la pile est égal à zéro ou si la pile est vide. Les procédures sont déclarées comme ceci: `:X "mettre des opérations ici"` et sont appelés en écrivant simplement X ou X est une lettre majuscule allant de A à Z.
 
 Pour implanter facilement ces fonctionnalités, nous avons implanté ce que nous appelons des contextes. Un contexte est un genre de liste chainée sans index puisque le "début" est relié avec la "fin". Lorsqu'on rencontre un début de boucle ou de procédure, on construit un contexte contenant tous les symboles lus jusqu'à la fin de la boucle/procédure. Ensuite, dans le cas d'une boucle, on empile le contexte sur la pile de contexte et par la suite toutes les instructions suivantes seront prises dans le contexte sur le dessus de la pile. Dans le cas d'une procédure, on store le contexte dans un des emplacement de procédures et quand la procédure est appelée il suffit de mettre le contexte sur le dessus de la pile de contexte. 
 
@@ -84,7 +83,7 @@ Lorsqu'un bignum n'est plus référencé par le stack ou par une variable, un ap
 
 Après avoir conçu ce système, nous avons testé notre programme avec Valgrind.
 
-Ce fut une révélation : notre programme fuyait de partout ! Nous avons donc débuté une redoutable chasse à la fuite de mémoire dans tous nos algorithmes, bravant le temps de recompilation et les tempêtes, tentant de détecter les espaces mémoires alloués et non libérés.
+Ce fut une révélation : notre programme fuyait de partout ! Nous avons donc débuté une redoutable chasse à la fuite de mémoire dans tous nos algorithmes pour tenter de détecter les espaces mémoires alloués et non libérés.
 
 Quand Valgrind a arrêté de nous alerter au sujet de fuites de mémoire, nous avons déterminé que notre programme gérait assez bien la mémoire.
 
@@ -124,7 +123,7 @@ Dans nos premiers prototypes de la calculatrice, nos multiplications étaient ef
 contre permis d'avancer plus rapidement dans le développement d'autres aspects de notre machine à pile.
 
 Un peu plus tard, nous nous sommes penchés sur le problème de l'algorithme de multiplications qui serait approprié pour les grands nombres.
- Après un peu de recherche (merci wikipédia !), nous avons trouvés l'algorithme de Karatsuba qui nous semblait être une manière relativement simple et très efficace de multiplier. Seul problème, pour implanter cet algorithme, il faut une manière de multiplier deux nombre dans le cas de base ou un de ces nombres est composé d'un seul chiffre. Hereusement pour nous, nous avons réalisé qu'en utilisant notre multiplication par addition répétée et en "optimisant" en prenant le plus petit nombre pour le nombre d'additions nous avions déjà une multiplication en temps linéaire par rapport au nombre (Un maximum de 9 quand c'est utilisé par Karatsuba!). Pour implanter cet algortihme, nous avons du créé une nouvelle fonctionnalité : le shift arithmétique en base 10. La multiplication par Karatsuba est en théorie dans l'ordre de $O(n^(log3))$.
+ Après un peu de recherche (merci wikipédia !), nous avons trouvés l'algorithme de Karatsuba qui nous semblait être une manière relativement simple et très efficace de multiplier. Seul problème, pour implanter cet algorithme, il faut une manière de multiplier deux nombre dans le cas de base ou un de ces nombres est composé d'un seul chiffre. Hereusement pour nous, nous avons réalisé qu'en utilisant notre multiplication par addition répétée et en "optimisant" en prenant le plus petit nombre pour le nombre d'additions nous avions déjà une multiplication en temps linéaire par rapport au nombre (Un maximum de 9 quand c'est utilisé par Karatsuba!). Pour implanter cet algortihme, nous avons du créé une nouvelle fonctionnalité : le shift arithmétique en base 10. La multiplication par Karatsuba est en théorie dans l'ordre de $O(n^{log_23})$.
 
 ### Traitement des erreurs
 
@@ -180,7 +179,7 @@ Outre le fait qu'à peu près tous les caractères ASCII sont associés à une c
 - Les boucles : `[` et`]`
 - L'inversion de pile : `'`
 
-Judicieusement combinées, ces deux opérations permettent d'accéder à des éléments arbitraires de la pile :
+Judicieusement combinées, ces deux opérations permettent d'accéder à des éléments arbitraires de la pile, et donc de potentiellement pouvoir simuler une machine de Turing :
 
     :A =a . ' a ';
     :B [ 1 - =b . A b ] .;
@@ -191,11 +190,14 @@ Judicieusement combinées, ces deux opérations permettent d'accéder à des él
     # Remplace le Nième élément du stack par M
     :E =d . =e . d B . e d C;
 
+Pour avoir une preuve un peu plus formelle de la Turing-complétude de notre langage, nous avons implanté un interpréteur du langage ésotérique brainfuck (https://fr.wikipedia.org/wiki/Brainfuck), lui même prouvé Turing-complet (http://www.hevanet.com/cristofd/brainfuck/utm.b). Le code de notre interpréteur est en annexe de ce rapport.
 
 
 ### Metakulator
 
+Ayant un langage de programmation plutôt complet à notre disposition, nous avons décidé d'implémenter l'énoncé original dans ce dit langage.
 
+La version implantée est en fait une relaxation du problème, aucun message d'erreur n'étant affiché et les variables étant toutes instanciées à 0.
 
 ## ANNEXES :
 
@@ -270,7 +272,7 @@ Pour obtenir un bloc conditionnel, il suffit de boucler exactement une fois :
             "Vous avez entré un nombre inférieur à 100 !" . 0
         ] .
 
-### 2. celsius2fahrenheit.skii :
+### 2. celsius2fahrenheit.skii
     
 Ceci est un convertisseur de celcius à fahrenheit (avec des nombre à virgule !!!)
 
@@ -287,7 +289,7 @@ Ceci est un convertisseur de celcius à fahrenheit (avec des nombre à virgule !
     Équivalent en Fahrenheit : " ^. "," ^
     "
 
-### 3. beer.skii :
+### 3. beer.skii
 
 Ceci est un programme classique démontrant les boucles.
 
@@ -298,6 +300,7 @@ Ceci est un programme classique démontrant les boucles.
     "]
 
 ### 4. metackulator.skii
+
 Ceci est le programme metackulator dont il est question ci-dessus.
     #!./stackulator -s
 
@@ -393,7 +396,148 @@ Ceci est le programme metackulator dont il est question ci-dessus.
     ^ "
     "
 
-### 5. Page web officielle du `Stackulator`
+### 5. brainfuck.skii
+
+Voici le code de l'interpréteur `brainfuck` en `Stackulator`. Celui-ci est très lent et la majorité des exemples pris sur Internet ne fonctionneront pas
+dans un temps raisonnable. Toutes les fonctionnalités fonctionnent et le "Hello World" de Wikipédia roule sans problème.
+
+```
+#!./stackulator -s
+
+# v: variables, i: instructions brainfuck, p: pointeur d'instruction
+# v3 v2 v1 v0 i0 i1 i2 ... il
+#                ^
+#                |p
+
+# -- Définissions de fonctions ----------
+
+    # Note: les variables a à e sont écrasées par les fonctions A à G
+
+    # Soit N, la valeur du top du stack au moment d'appeler l'une des procédures
+    # Soit M, la valeur sous N
+
+    :A =a . ' a ';
+    :B [ 1 - =b . A b ] .;
+    :C =c . ' c B ';
+
+    # Copie le Nième élément sous le stack sur le top
+    :D =d B =e d C e;
+    # Remplace le Nième élément du stack par M
+    :E =d . =e . d B . e d C;
+    # Insère M à N éléments sous le top du stack
+    :F =d . =e . d B e d C;
+    # Déplace l'élément N éléments sous le top vers le top du stack
+    :G =d B =e . d C e;
+
+    # Copie la prochaine instruction sur le top (sans argument)
+    :I l p - 1 - D;
+
+    # Copie la variable active sur le top
+    # N : offset (nombre d'éléments par-dessus la liste d'instructions bf)
+    :V l + x + v + D;
+
+    # Écrit M dans la variable v en considérant un offset N
+    :W l + x + v + E;
+
+    # TODO Lis le num d'instruction sauvegardé dans la dernière boucle imbriquée
+
+    # Debug
+    :Z "w="w^.", v="v^.", l="l^.", p="p^.", i="i^.", x="x^. "
+"
+;
+
+# -- Variables --------------------------
+1 =w # Nombre de variables brainfuck instanciées (commence avec 1 variable)
+0 =v # Pointeur de variable (0-based)
+0 =l # Longueur du programme bf (0 = pas de programme)
+0 =p # Pointeur d'instruction (0-based)
+0 =i # Instruction actuelle (valeur ascii)
+0 =x # Nombre de boucles imbriquées (0-based)
+0 =j # Utilisé pour matcher les ouvertures/fermetures de boucles quand V = 0
+~
+# ---------------------------------------
+
+
+# Input le code jusqu'à obtenir un \n
+1 [
+    .
+    ` # input un charactère
+    l 1 + =l . # incrémente l
+
+    @ 10 == 0 ==
+] .. l 1 - =l .
+
+' 0 ' # Valeur de la variable v0
+
+1 [ . # Faire...
+    I =i . # Lis la prochaine instruction BF
+
+    # ,
+    i 44 == [ ` 1 W .0 ] .
+
+    # .
+    i 46 == [ 1 V / . .0 ] .
+
+    # +
+    i 43 == [ 1 V 1 + 1 W .0 ] .
+
+    # -
+    i 45 == [ 1 V 1 - 1 W .0 ] .
+
+    # <
+    i 60 == v 0 > & [
+        v 1 - =v .
+    .0 ] .
+
+    # >
+    i 62 == [
+        v 1 + =v .
+        v w > v w == | [ # Si incrémenter le pointeur de variable crée une nouvelle variable...
+            w 1 + =w . # On incrémente le compteur de variables
+            ' 0 ' # On "push" une nouvelle variable au dessous de la pile
+        .0 ] .
+    .0 ] .
+
+    # loop open : si variable actuelle est non-nulle
+    i 91 == 1 V & [
+        .
+        p l x + F # insère l'adresse p à la bone place
+        x 1 + =x . # incrémente x
+    0 ] .
+
+    # loop close
+    i 93 == [
+        l x + G 1 - =p .
+        x 1 - =x . # décrémente x
+    .0 ] . # loop close
+
+    # loop open : si variable actuelle == 0
+    i 91 == 1 V ! & [
+        1 =j .
+        1 [ .
+            I =i .
+            p 1 + =p .
+
+            # Ouverture de boucle imbriquée
+            i 93 == [
+                j 1 - =j .
+            .0 ] .
+
+            # Fermeture de boucle imbriquée ou de la boucle principale
+            i 91 == [
+                j 1 + =j .
+            .0 ] .
+
+        j ] . # Tant que les boucles ouvertes ne matchent pas les boucles fermées
+    .0 ] .
+
+    p 1 + =p . # Incrémentation du pointeur d'instruction
+    p l < ] . # ... Tant que le pointeur d'instruction est plus petit ou égal à l
+"
+"
+```
+
+### 6. Page web officielle du `Stackulator`
 
 Visitez la page officielle du projet, générée en langage stackulator et gérée par un cgi
 
