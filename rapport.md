@@ -28,12 +28,12 @@ Pour rendre l'utilisation plus conviviale, nous avons ajouté quelques opératio
         de code `stackulator` (généralement des `.skii`) en argument.
     -v, --verbose : mode verbeux qui affiche `x:(y)>` en attendant une entrée
         (où x est la hauteur de la pile et y est le nombre sur le dessus).
-    -t, --test : permet de faire rouler les tests unitaires
     -h, --help : permet d'avoir un résumé des fonctionnalités possibles.
 
 #### Détails d'implantation
 
 a) à continuer...
+
 Durant le développement de stackulator nous avons du faire plusieurs choix de développement pour nous assurer que le programme utilises bien la mémoire et se comporte correctement. Dans notre implantation de la machine à pile, les nombres sont représentés sous la forme d'une liste chainée de nombres en base 10 ainsi qu'un char représentant le signe. 
 
 b) :analyse et calcul de la réponse.
