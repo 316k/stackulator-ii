@@ -34,7 +34,7 @@ Pour rendre l'utilisation plus conviviale, nous avons ajouté quelques opératio
 
 a) à continuer...
 
-Durant le développement de stackulator nous avons du faire plusieurs choix de développement pour nous assurer que le programme utilises bien la mémoire et se comporte correctement. Dans notre implantation de la machine à pile, les nombres sont représentés sous la forme d'une liste chainée de nombres en base 10 ainsi qu'un char représentant le signe. 
+Durant le développement de stackulator nous avons dû faire plusieurs choix de développement pour nous assurer que le programme utilises bien la mémoire et se comporte correctement. Dans notre implantation de la machine à pile, les nombres sont représentés sous la forme d'une liste chainée de nombres en base 10 ainsi qu'un char représentant le signe. 
 
 b) :analyse et calcul de la réponse.
 expliquer vaguement le contenu de stackulator.c I guess.

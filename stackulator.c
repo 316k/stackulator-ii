@@ -274,8 +274,7 @@ int main(int argc, char* argv[]) {
     stack* s = stack_init();
     context_stack* c_s = context_stack_init();
     // Char sauvegardé dans le cas ou un char est inputté directement après un nombre.
-    char* saved = malloc(sizeof(char));
-    *saved = -1;
+    char saved = -1;
     // Variables
     bignum* variables[26];
 
@@ -327,13 +326,13 @@ int main(int argc, char* argv[]) {
 
     prompt(interactive_mode, s);
 
-    while((c = get_next(in, c_s, saved)) != EOF) {
+    while((c = get_next(in, c_s, &saved)) != EOF) {
         waiting = FALSE;
 
         // Push un nouveau nombre sur la pile
         if(c >= '0' && c <= '9') {
 
-            c = push_number(c, s, in, c_s, saved);
+            c = push_number(c, s, in, c_s, &saved);
             waiting = c == '\n';
 
         // Addition
@@ -363,7 +362,7 @@ int main(int argc, char* argv[]) {
             stack_push(s, val);
         // Assignation & test d'égalité
         } else if(c == '=') {
-            char c = get_next(in, c_s, saved);
+            char c = get_next(in, c_s, &saved);
 
             // Extra : Test d'égalité
             if(c == '=') {
@@ -375,7 +374,7 @@ int main(int argc, char* argv[]) {
 
         // Assignation explicite de NULL dans une variable
         } else if(c == '_') {
-            char c = get_next(in, c_s, saved);
+            char c = get_next(in, c_s, &saved);
 
             stack* empty_stack = stack_init();
             assign_var(c, empty_stack, variables);
@@ -383,15 +382,13 @@ int main(int argc, char* argv[]) {
 
         // Push une variable sur la pile
         } else if(c >= 'a' && c <= 'z') {
-
             push_var(c, s, variables);
-
         // Ignore les espaces
         } else if(c == ' ') {
         // Extra : commentaires. Ignore tout ce qu'il y a entre # et \n
         } else if(c == '#') {
             while(c != '\n'){
-                c = get_next(in, c_s, saved);
+                c = get_next(in, c_s, &saved);
             }
         // affiche le top du stack : ^ (ou \n en mode interactif)
         } else if(c == '^' || (c == '\n' && interactive_mode)) {
@@ -411,7 +408,7 @@ int main(int argc, char* argv[]) {
             }
 
             waiting = c == '\n';
-        // 
+        // Extra : affichage en char du bignum sur le top du stack
         } else if(c == '/') {
 
             if(!stack_empty(s)) {
@@ -452,7 +449,7 @@ int main(int argc, char* argv[]) {
             //Le contexte est créé inconditionellement car il faut faire avancer
             //le contexte dans lequel la boucle est déclarée jusqu'a la fin
             //de la boucle dans les deux cas.
-            context* loop_context = create_context(in, c_s, saved, CONTEXT_LOOP, '[', ']');
+            context* loop_context = create_context(in, c_s, &saved, CONTEXT_LOOP, '[', ']');
             if(stack_empty(s) || bignum_eq(*stack_peek(s), *zero) ) {
                 context_destoroyah(loop_context);
                 continue;
@@ -478,13 +475,13 @@ int main(int argc, char* argv[]) {
                 fprintf(stderr, "Impossible de définir une procédure depuis une boucle ou une procédure\n");
             }
 
-            c = get_next(in, c_s, saved);
+            c = get_next(in, c_s, &saved);
             if(c < 'A' || c > 'Z') {
                 fprintf(stderr, "Le nom de procédure `%c` est erroné\n", c);
                 continue;
             }
 
-            context* procedure_context = create_context(in, c_s, saved, CONTEXT_PROC, ':', ';');
+            context* procedure_context = create_context(in, c_s, &saved, CONTEXT_PROC, ':', ';');
             procedures[c - 'A'] = procedure_context;
 
         // Extra : le retour d'une procédure (seulement si on est dans une proc.)
@@ -574,18 +571,18 @@ int main(int argc, char* argv[]) {
         } else if(c == '"') {
 
             char last_char = c;
-            c = get_next(in, c_s, saved);
+            c = get_next(in, c_s, &saved);
 
             while((c != '"' || last_char == '\\') && c != EOF) {
                 if(last_char != '\\' && c == '\\') {
                     last_char = c;
-                    c = get_next(in, c_s, saved);
+                    c = get_next(in, c_s, &saved);
                     continue;
                 }
 
                 printf("%c", c);
                 last_char = c;
-                c = get_next(in, c_s, saved);
+                c = get_next(in, c_s, &saved);
             }
 
             waiting = c == '\n';
@@ -598,7 +595,7 @@ int main(int argc, char* argv[]) {
         } else {
             fprintf(stderr, "Expression inconnue ignorée : %c", c);
             while(c != ' ' && c != '\n') {
-                c = get_next(in, c_s, saved);
+                c = get_next(in, c_s, &saved);
                 fprintf(stderr, "%c", c);
             }
             fprintf(stderr, "\n");
@@ -631,7 +628,6 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    free(saved);
     bignum_destoroyah(zero);
     if(in != stdin) {
         fclose(in);
